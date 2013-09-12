@@ -1,0 +1,53 @@
+1	You	you	PRP	_	2	nsubj	2:A0
+2	met	meet	VBD	p2=VBP|pb=meet.02	0	root	_
+3	Mary	mary	NNP	_	2	dobj	2:A1;7:A3
+4	for	for	IN	_	7	prep	7:R-A3
+5	whom	whom	WP	_	4	pobj	_
+6	I	I	PRP	p2=NNP	7	nsubj	7:A0
+7	bought	buy	VBD	pb=buy.01	3	advcl	_
+8	the	the	DT	_	9	det	_
+9	book	book	NN	_	7	dobj	7:A1
+10	.	.	.	_	2	punct	_
+
+1	Did	do	VBD	_	3	aux	_
+2	I	I	PRP	_	3	nsubj	3:A0
+3	buy	buy	VB	p2=VBP|pb=buy.01	0	root	_
+4	the	the	DT	_	5	det	_
+5	book	book	NN	_	3	dobj	3:A1
+6	?	?	.	_	3	punct	_
+
+1	Did	do	VBD	_	3	aux	_
+2	I	I	PRP	_	3	nsubj	3:A0
+3	buy	buy	VB	p2=VBP|pb=buy.01	0	root	_
+4	the	the	DT	_	5	det	_
+5	book	book	NN	_	3	dobj	3:A1
+6	for	for	IN	_	3	prep	3:A3
+7	Mary	mary	NNP	_	6	pobj	_
+8	?	?	.	_	3	punct	_
+
+1	Who	who	WP	_	4	dobj	4:R-A1
+2	did	do	VBD	_	4	aux	_
+3	you	you	PRP	_	4	nsubj	4:A0
+4	meet	meet	VB	pb=meet.02	0	root	_
+5	?	?	.	_	4	punct	_
+
+1	Who	who	WP	_	2	nsubj	2:R-A0
+2	bought	buy	VBD	pb=buy.01	0	root	_
+3	the	the	DT	_	4	det	_
+4	book	book	NN	_	2	dobj	2:A1
+5	?	?	.	_	2	punct	_
+
+1	What	what	WP	_	4	dobj	4:R-A1
+2	did	do	VBD	_	4	aux	_
+3	I	I	PRP	_	4	nsubj	4:A0
+4	buy	buy	VB	pb=buy.01	0	root	_
+5	?	?	.	_	4	punct	_
+
+1	Who	who	WP	_	7	pobj	_
+2	did	do	VBD	_	4	aux	_
+3	I	I	PRP	_	4	nsubj	4:A0
+4	buy	buy	VB	p2=VBP|pb=buy.01	0	root	_
+5	the	the	DT	_	6	det	_
+6	book	book	NN	_	4	dobj	4:A1
+7	for	for	IN	_	4	prep	4:A3
+8	?	?	.	_	4	punct	_

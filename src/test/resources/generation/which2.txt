@@ -1,0 +1,23 @@
+1	I	I	PRP	_	2	nsubj	2:A0
+2	went	go	VBD	pb=go.02	0	root	_
+3	to	to	IN	_	2	prep	2:A4
+4	the	the	DT	_	5	det	_
+5	school	school	NN	_	3	pobj	_
+6	which	which	WDT	_	9	dobj	9:R-A1
+7	my	my	PRP$	_	8	poss	_
+8	sister	sister	NN	_	9	nsubj	9:A0
+9	attends	attend	VBZ	pb=attend.01	5	rcmod	_
+10	.	.	.	_	2	punct	_
+
+1	What	what	WP	_	5	dobj	5:R-A1
+2	does	do	VBZ	_	5	aux	_
+3	my	my	PRP$	_	4	poss	_
+4	sister	sister	NN	_	5	nsubj	5:A0
+5	attend	attend	VB	pb=attend.01	0	root	_
+6	?	?	.	_	5	punct	_
+
+1	Where	where	WRB	_	4	advmod	4:R-A4
+2	did	do	VBD	_	4	aux	_
+3	I	I	PRP	_	4	nsubj	4:A0
+4	go	go	VB	pb=go.02	0	root	_
+5	?	?	.	_	4	punct	_

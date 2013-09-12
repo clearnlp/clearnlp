@@ -1,0 +1,28 @@
+1	I	I	PRP	_	2	nsubj	2:A0
+2	saw	see	VBD	pb=see.01	0	root	_
+3	you	you	PRP	_	4	nsubj	4:A0
+4	buying	buy	VBG	pb=buy.01	2	ccomp	2:A1
+5	a	a	DT	_	6	det	_
+6	book	book	NN	_	4	dobj	4:A1
+7	yesterday	yesterday	NN	_	4	npadvmod	4:AM-TMP
+8	.	.	.	_	2	punct	_
+
+1	What	what	WP	_	4	dobj	4:R-A1
+2	did	do	VBD	_	4	aux	_
+3	I	I	PRP	_	4	nsubj	4:A0
+4	see	see	VB	pb=see.01	0	root	_
+5	?	?	.	_	4	punct	_
+
+1	What	what	WP	_	4	dobj	4:R-A1
+2	did	do	VBD	_	4	aux	_
+3	you	you	PRP	_	4	nsubj	4:A0
+4	buy	buy	VB	pb=buy.01	0	root	_
+5	?	?	.	_	4	punct	_
+
+1	When	when	WRB	_	4	advmod	4:R-AM-TMP
+2	did	do	VBD	_	4	aux	_
+3	you	you	PRP	_	4	nsubj	4:A0
+4	buy	buy	VB	pb=buy.01	0	root	_
+5	a	a	DT	_	6	det	_
+6	book	book	NN	_	4	dobj	4:A1
+7	?	?	.	_	4	punct	_

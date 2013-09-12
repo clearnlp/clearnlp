@@ -1,0 +1,30 @@
+1	I	i	PRP	_	2	nsubj	2:A0
+2	read	read	VBD	pb=read.01	0	root	_
+3	the	the	DT	_	4	det	_
+4	book	book	NN	_	2	dobj	2:A1;6:A1
+5	you	you	PRP	_	6	nsubj	6:A0
+6	bought	buy	VBD	pb=buy.01	4	rcmod	_
+7	at	at	IN	_	6	prep	6:AM-LOC
+8	the	the	DT	_	9	det	_
+9	bookstore	bookstore	NN	_	7	pobj	_
+10	.	.	.	_	2	punct	_
+
+1	Who	who	WP	_	2	nsubj	2:R-A0
+2	bought	buy	VBD	pb=buy.01	0	root	_
+3	the	the	DT	_	4	det	_
+4	book	book	NN	_	2	dobj	2:A1
+5	?	?	.	_	4	punct	_
+
+1	What	what	WP	_	4	dobj	4:R-A1
+2	did	do	VBD	_	4	aux	_
+3	you	you	PRP	_	4	nsubj	4:A0
+4	buy	buy	VB	pb=buy.01	0	root	_
+5	?	?	.	_	4	punct	_
+
+1	Where	where	WRB	_	4	advmod	4:R-AM-LOC
+2	did	do	VBD	_	4	aux	_
+3	you	you	PRP	_	4	nsubj	4:A0
+4	buy	buy	VB	pb=buy.01	0	root	_
+5	the	the	DT	_	6	det	_
+6	book	book	NN	_	4	dobj	4:A1
+7	?	?	.	_	4	punct	_

@@ -1,0 +1,21 @@
+1	Bill	bill	NNP	_	2	nsubj	2:A0
+2	knows	know	VBZ	pb=know.01	0	root	_
+3	John	john	NNP	_	2	dobj	2:A1;6:A1
+4	whose	whose	WP$	_	5	poss	_
+5	car	car	NN	_	6	nsubj	6:R-A1
+6	is	be	VBZ	pb=be.01	3	rcmod	_
+7	red	red	JJ	p2=VBN	6	acomp	6:A2
+8	.	.	.	_	2	punct	_
+
+1	Is	be	VBZ	pb=be.01	0	root	_
+2	John	john	NNP	_	4	poss	_
+3	's	's	POS	_	2	possessive	_
+4	car	car	NN	_	1	nsubj	1:A1
+5	red	red	JJ	p2=NN	1	acomp	1:A2
+6	?	?	.	_	1	punct	_
+
+1	Does	do	VBZ	_	3	aux	_
+2	Bill	bill	NNP	_	3	nsubj	3:A0
+3	know	know	VB	pb=know.01	0	root	_
+4	John	john	NNP	_	3	dobj	3:A1
+5	?	?	.	_	3	punct	_

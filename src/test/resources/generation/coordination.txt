@@ -1,0 +1,78 @@
+1	John	john	NNP	_	4	nsubj	4:A1;7:A0
+2	could	could	MD	_	4	aux	4:AM-MOD;7:AM-MOD
+3	have	have	VB	_	4	aux	_
+4	come	come	VBN	pb=come.01	0	root	_
+5	here	here	RB	_	4	advmod	4:A4;7:AM-LOC
+6	and	and	CC	_	4	cc	_
+7	bought	buy	VBD	p2=VBN|pb=buy.01	4	conj	_
+8	a	a	DT	_	9	det	_
+9	book	book	NN	_	7	dobj	7:A1
+10	yesterday	yesterday	NN	_	7	adv	4:AM-TMP;7:AM-TMP
+11	.	.	.	_	4	punct	_
+
+1	Did	do	VBD	_	3	aux	_
+2	John	john	NNP	_	3	nsubj	3:A1
+3	come	come	VB	pb=come.01	0	root	_
+4	here	here	RB	_	3	advmod	3:A4
+5	?	?	.	_	3	punct	_
+
+1	Did	do	VBD	_	3	aux	_
+2	John	john	NNP	_	3	nsubj	3:A0
+3	buy	buy	VB	pb=buy.01	0	root	_
+4	a	a	DT	_	5	det	_
+5	book	book	NN	_	3	dobj	3:A1
+6	?	?	.	_	3	punct	_
+
+1	What	what	WP	_	5	dobj	5:R-A1
+2	could	could	MD	_	5	aux	5:AM-MOD
+3	John	john	NNP	_	5	nsubj	5:A0
+4	have	have	VB	p2=VBP	5	aux	_
+5	done	do	VBN	pb=do.02	0	root	_
+6	?	?	.	_	5	punct	_
+
+1	What	what	WP	_	5	dobj	5:R-A1
+2	could	could	MD	_	5	aux	5:AM-MOD
+3	John	john	NNP	_	5	nsubj	5:A0
+4	have	have	VB	p2=VBP	5	aux	_
+5	done	do	VBN	pb=do.02	0	root	_
+6	?	?	.	_	5	punct	_
+
+1	What	what	WP	_	4	dobj	4:R-A1
+2	did	do	VBD	_	4	aux	_
+3	John	john	NNP	_	4	nsubj	4:A0
+4	do	do	VB	pb=do.02	0	root	_
+5	?	?	.	_	4	punct	_
+
+1	What	what	WP	_	4	dobj	4:R-A1
+2	did	do	VBD	_	4	aux	_
+3	John	john	NNP	_	4	nsubj	4:A0
+4	do	do	VB	pb=do.02	0	root	_
+5	?	?	.	_	4	punct	_
+
+1	When	when	WRB	_	4	adv	4:R-AM-TMP
+2	did	do	VBD	_	4	aux	_
+3	John	john	NNP	_	4	nsubj	4:A1
+4	come	come	VB	pb=come.01	0	root	_
+5	?	?	.	_	4	punct	_
+
+1	When	when	WRB	_	4	adv	4:R-AM-TMP
+2	did	do	VBD	_	4	aux	_
+3	John	john	NNP	_	4	nsubj	4:A0
+4	buy	buy	VB	pb=buy.01	0	root	_
+5	a	a	DT	_	6	det	_
+6	book	book	NN	_	4	dobj	4:A1
+7	?	?	.	_	4	punct	_
+
+1	Where	where	WRB	_	4	adv	4:R-A4
+2	did	do	VBD	_	4	aux	_
+3	John	john	NNP	_	4	nsubj	4:A1
+4	come	come	VB	pb=come.01	0	root	_
+5	?	?	.	_	4	punct	_
+
+1	Where	where	WRB	_	4	adv	4:R-AM-LOC
+2	did	do	VBD	_	4	aux	_
+3	John	john	NNP	_	4	nsubj	4:A0
+4	buy	buy	VB	pb=buy.01	0	root	_
+5	a	a	DT	_	6	det	_
+6	book	book	NN	_	4	dobj	4:A1
+7	?	?	.	_	4	punct	_

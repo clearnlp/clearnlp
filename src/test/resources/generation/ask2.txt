@@ -1,0 +1,169 @@
+1	Do	do	VBP	_	3	aux	_
+2	you	you	PRP	_	3	nsubj	3:A0;5:A0
+3	want	want	VB	pb=want.01	0	root	_
+4	to	to	TO	_	5	aux	_
+5	reset	reset	VB	pb=reset.01	3	xcomp	3:A1
+6	your	your	PRP$	_	7	poss	_
+7	password	password	NN	_	5	dobj	5:A1
+8	?	?	.	_	3	punct	_
+
+1	Should	should	MD	_	3	aux	3:AM-MOD
+2	I	I	PRP	_	3	nsubj	3:A0
+3	place	place	VB	pb=place.01	0	root	_
+4	an	an	DT	_	5	det	_
+5	order	order	NN	_	3	dobj	3:A1
+6	for	for	IN	_	5	prep	_
+7	you	you	PRP	_	6	pobj	_
+8	?	?	.	_	3	punct	_
+
+1	Did	do	VBD	_	3	aux	_
+2	you	you	PRP	_	3	nsubj	3:A0
+3	want	want	VB	pb=want.01	0	root	_
+4	me	me	PRP	_	6	nsubj	6:A0
+5	to	to	TO	_	6	aux	_
+6	place	place	VB	pb=place.01	3	ccomp	3:A1
+7	an	an	DT	_	8	det	_
+8	order	order	NN	_	6	dobj	6:A1
+9	for	for	IN	_	8	prep	_
+10	you	you	PRP	_	9	pobj	_
+11	?	?	.	_	3	punct	_
+
+1	Is	be	VBZ	_	4	auxpass	_
+2	your	your	PRP$	_	3	poss	_
+3	account	account	NN	_	4	nsubjpass	4:A1
+4	locked	lock	VBN	p2=JJ|pb=lock.01	0	root	_
+5	?	?	.	_	4	punct	_
+
+1	Is	be	VBZ	_	5	aux	_
+2	your	your	PRP$	_	3	poss	_
+3	account	account	NN	_	5	nsubjpass	5:A1
+4	being	be	VBG	_	5	auxpass	_
+5	locked	lock	VBN	pb=lock.01	0	root	_
+6	?	?	.	_	5	punct	_
+
+1	Was	be	VBD	_	4	auxpass	_
+2	your	your	PRP$	_	3	poss	_
+3	account	account	NN	_	4	nsubj	4:A1
+4	locked	lock	VBN	p2=VBD|pb=lock.01	0	root	_
+5	yesterday	yesterday	NN	_	4	npadvmod	4:AM-TMP
+6	?	?	.	_	4	punct	_
+
+1	Were	be	VBD	_	3	aux	_
+2	you	you	PRP	_	3	nsubj	3:A0
+3	playing	play	VBG	pb=play.01	0	root	_
+4	basketball	basketball	NN	_	3	dobj	3:A1
+5	?	?	.	_	3	punct	_
+
+1	Are	be	VBP	pb=be.01	0	root	_
+2	you	you	PRP	_	1	nsubj	1:A1
+3	an	an	DT	_	5	det	_
+4	existing	exist	VBG	pb=exist.01	5	amod	_
+5	customer	customer	NN	_	1	attr	1:A2;4:A1
+6	?	?	.	_	1	punct	_
+
+1	Have	have	VBP	p2=VB	3	aux	_
+2	you	you	PRP	_	3	nsubj	3:A0
+3	registered	register	VBN	pb=register.02	0	root	_
+4	your	your	PRP$	_	5	poss	_
+5	account	account	NN	_	3	dobj	3:A1
+6	?	?	.	_	3	punct	_
+
+1	Where	where	WRB	_	2	advmod	2:R-A2
+2	were	be	VBD	pb=be.01	0	root	_
+3	you	you	PRP	_	2	nsubj	2:A1
+4	yesterday	yesterday	NN	_	2	npadvmod	2:AM-TMP
+5	?	?	.	_	2	punct	_
+
+1	What	what	WP	_	4	dobj	4:R-A1
+2	do	do	VBP	_	4	aux	_
+3	you	you	PRP	_	4	nsubj	4:A0
+4	do	do	VB	pb=do.02	0	root	_
+5	for	for	IN	_	4	prep	4:A2
+6	a	a	DT	_	7	det	_
+7	living	living	NN	_	5	pobj	_
+8	?	?	.	_	4	punct	_
+
+1	What	what	WP	_	6	dobj	6:R-A1
+2	do	do	VBP	_	4	aux	_
+3	you	you	PRP	_	4	nsubj	4:A0;6:A0
+4	want	want	VB	pb=want.01	0	root	_
+5	to	to	TO	_	6	aux	_
+6	buy	buy	VB	pb=buy.01	4	xcomp	4:A1
+7	?	?	.	_	4	punct	_
+
+1	How	how	WRB	_	2	advmod	_
+2	long	long	RB	_	6	advmod	6:R-AM-TMP
+3	have	have	VBP	_	6	aux	_
+4	you	you	PRP	_	6	nsubj	6:A1
+5	been	be	VBN	_	6	aux	_
+6	waiting	wait	VBG	pb=wait.01	0	root	_
+7	for	for	IN	_	6	prep	6:A2
+8	?	?	.	_	6	punct	_
+
+1	How	how	WRB	_	2	advmod	_
+2	soon	soon	RB	_	5	advmod	5:R-AM-TMP
+3	do	do	VBP	_	5	aux	_
+4	you	you	PRP	_	5	nsubj	5:A0
+5	want	want	VB	pb=want.01	0	root	_
+6	the	the	DT	_	7	det	_
+7	product	product	NN	_	10	nsubjpass	10:A1
+8	to	to	TO	_	10	aux	_
+9	be	be	VB	_	10	auxpass	_
+10	shipped	ship	VBN	pb=ship.01	5	ccomp	5:A1
+11	?	?	.	_	5	punct	_
+
+1	What	what	WP	p2=WDT	2	det	_
+2	kind	kind	NN	_	7	dobj	7:R-A1;9:R-A1
+3	of	of	IN	_	2	prep	_
+4	books	book	NNS	_	3	pobj	_
+5	do	do	VBP	_	7	aux	_
+6	you	you	PRP	_	7	nsubj	7:A0;9:A0
+7	like	like	VB	pb=like.02	0	root	_
+8	to	to	TO	_	9	aux	_
+9	buy	buy	VB	pb=buy.01	7	xcomp	7:A1
+10	?	?	.	_	7	punct	_
+
+1	When	when	WRB	_	6	advmod	5:R-AM-TMP;6:R-AM-TMP
+2	did	do	VBD	_	6	aux	_
+3	your	your	PRP$	_	4	poss	_
+4	account	account	NN	_	6	nsubjpass	5:A1;6:A1
+5	get	get	VB	pb=get.03	6	auxpass	_
+6	locked	lock	VBN	pb=lock.01	0	root	5:A2
+7	?	?	.	_	6	punct	_
+
+1	What	what	WP	_	4	dobj	4:R-A1
+2	can	can	MD	_	4	aux	4:AM-MOD
+3	I	I	PRP	_	4	nsubj	4:A0
+4	do	do	VB	pb=do.02	0	root	_
+5	for	for	IN	_	4	prep	4:A2
+6	you	you	PRP	_	5	pobj	_
+7	?	?	.	_	4	punct	_
+
+1	Who	who	WP	_	2	nsubj	2:R-A0
+2	helped	help	VBD	pb=help.01	0	root	_
+3	you	you	PRP	_	2	dobj	2:A2
+4	last	last	JJ	p2=VB	5	amod	_
+5	time	time	NN	_	2	npadvmod	2:AM-TMP
+6	?	?	.	_	2	punct	_
+
+1	Which	which	WDT	_	6	nsubjpass	6:R-A1
+2	of	of	IN	_	1	prep	_
+3	your	your	PRP$	_	4	poss	_
+4	accounts	account	NNS	_	2	pobj	_
+5	is	be	VBZ	_	6	auxpass	_
+6	locked	lock	VBN	p2=JJ|pb=lock.01	0	root	_
+7	?	?	.	_	6	punct	_
+
+1	When	when	WRB	_	4	advmod	4:R-AM-TMP
+2	should	should	MD	_	4	aux	4:AM-MOD
+3	I	I	PRP	_	4	nsubj	4:A0
+4	reset	reset	VB	pb=reset.01	0	root	_
+5	your	your	PRP$	_	6	poss	_
+6	password	password	NN	_	4	dobj	4:A1
+7	?	?	.	_	4	punct	_
+
+1	What	what	WP	_	2	attr	2:R-A2
+2	is	be	VBZ	pb=be.01	0	root	_
+3	your	your	PRP$	_	4	poss	_
+4	username	username	NN	_	2	nsubj	4:A1
+5	?	?	.	_	2	punct	_

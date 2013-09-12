@@ -1,0 +1,15 @@
+<feature_template>
+    <cutoff label="0" feature="8"/>
+    <lexica type="predicate" label="VB.*"/>
+
+    <feature n="1" f0="p:m"/>
+    <feature n="1" f0="p:d"/>
+
+    <feature n="1" f0="p-1:p"/>
+    <feature n="1" f0="p+1:m"/>
+    <feature n="1" f0="p_h:m"/>
+
+    <feature n="2" f0="p:m" f1="p-1:p"/>
+    <feature n="2" f0="p:p" f1="p-1:p"/>
+    <feature n="2" f0="p:p" f1="p_h:m"/>
+</feature_template>

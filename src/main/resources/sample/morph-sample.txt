@@ -1,0 +1,51 @@
+catchier	JJR
+largest	JJS
+dominated	JJ
+dominated	VBD
+best	RBS
+actively	RB
+
+optima	NNS
+churches	NNS
+gentlemen	NNS
+
+took	VBD
+studied	VBD
+studying	VBG
+studying	NN
+studies	NNS
+
+1st	CD
+12nd	CD
+23rd	CD
+34th	CD
+first	CD
+third	CD
+fourth	CD
+
+zero	CD
+ten	CD
+eleven	CD
+fourteen	CD
+
+10%	XX
+$10	XX
+A.01	XX
+A:01	XX
+A/01	XX
+.01	XX
+12.34	XX
+12,34,56	XX
+12-34-56	XX
+12/34/46	XX
+$10.23,45:67-89/10%	XX
+
+.!?-*=~,	XX
+..!!??--**==~~,,	XX
+...!!!???---***===~~~,,,	XX
+....!!!!????----****====~~~~,,,,	XX
+
+http://www.google.com	XX
+www.google.com	XX
+mailto:somebody@google.com	XX
+some-body@google+.com	XX

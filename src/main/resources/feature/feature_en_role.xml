@@ -1,0 +1,26 @@
+<feature_template>
+    <cutoff label="0" feature="0"/>
+
+    <feature n="1" f0="p:p"/>
+
+    <feature n="1" f0="p-2:m"/>
+    <feature n="1" f0="p-1:m"/>
+    <feature n="1" f0="p+1:m"/>
+    <feature n="1" f0="p+2:m"/>
+    <feature n="1" f0="p+3:m"/>
+
+    <feature n="1" f0="p+1:p"/>
+    <feature n="1" f0="p+2:p"/>
+
+    <feature n="1" f0="p_rnd:d"/>
+
+    <feature n="1" f0="p_h:p"/>
+    <feature n="1" f0="p_h:m"/>
+    <feature n="1" f0="p_rnd:m"/>
+    <feature n="1" f0="p_rmd:m"/>
+
+    <feature n="2" f0="p_h:m"   f1="p:d"/>
+    <feature n="2" f0="p_rnd:m" f1="p_rnd:d"/>
+
+    <feature t="s" n="1" f0="p:ds"/>
+</feature_template>

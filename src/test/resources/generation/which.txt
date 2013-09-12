@@ -1,0 +1,33 @@
+1	I	I	PRP	_	2	nsubj	2:A0
+2	bought	buy	VBD	pb=buy.01	0	root	_
+3	Shakespeare	shakespeare	NNP	_	2	dobj	2:A1
+4	for	for	IN	_	2	prep	2:A3
+5	Mary	mary	NNP	_	4	pobj	_
+6	.	.	.	_	2	punct	_
+
+1	Which	which	WDT	_	2	det	_
+2	book	book	NN	_	5	dobj	5:R-A1
+3	did	do	VBD	_	5	aux	_
+4	I	I	PRP	_	5	nsubj	5:A0
+5	buy	buy	VB	pb=buy.01	0	root	_
+6	?	?	.	_	5	punct	_
+
+1	Which	which	WDT	_	2	det	_
+2	book	book	NN	_	5	dobj	5:R-A1
+3	did	do	VBD	_	5	aux	_
+4	I	i	PRP	_	5	nsubj	5:A0
+5	buy	buy	VB	pb=buy.01	0	root	_
+6	for	for	IN	_	5	prep	5:A3
+7	Mary	mary	NNP	_	6	pobj	_
+8	?	?	.	_	5	punct	_
+
+1	What	what	WDT	p2=WP	2	det	_
+2	kind	kind	NN	_	7	dobj	7:R-A1
+3	of	of	IN	_	2	prep	_
+4	book	book	NN	_	3	pobj	_
+5	did	do	VBD	_	7	aux	_
+6	I	I	PRP	_	7	nsubj	7:A0
+7	buy	buy	VB	pb=buy.01	0	root	_
+8	for	for	IN	_	7	prep	7:A3
+9	Mary	mary	NNP	_	8	pobj	_
+10	?	?	.	_	7	punct	_

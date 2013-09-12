@@ -1,0 +1,20 @@
+1	The	the	DT	_	2	det	_
+2	train	train	NN	_	3	nsubj	3:A1
+3	stop	stop	VBP	p2=NN|pb=stop.01	0	root	_
+4	in	in	IN	p2=RP	3	prep	3:AM-LOC
+5	Hoboken	hoboken	NNP	_	4	pobj	_
+6	.	.	.	_	3	punct	_
+
+1	Where	where	WRB	_	5	advmod	5:R-A2
+2	does	do	VBZ	_	5	aux	_
+3	the	the	DT	_	4	det	_
+4	train	train	NN	_	5	nsubj	5:A1
+5	stop	stop	VB	pb=stop.01	0	root	_
+6	?	?	.	_	5	punct	_
+
+1	How	how	WRB	_	5	advmod	5:R-AM-GOL
+2	does	do	VBZ	_	5	aux	_
+3	the	the	DT	_	4	det	_
+4	train	train	NN	_	5	nsubj	5:A1
+5	stop	stop	VB	pb=stop.01	0	root	_
+6	?	?	.	_	5	punct	_

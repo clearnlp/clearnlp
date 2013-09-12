@@ -1,0 +1,41 @@
+1	You	you	PRP	_	2	nsubj	2:A0
+2	met	meet	VBD	p2=VBP|pb=meet.02	0	root	_
+3	Mary	mary	NNP	_	2	dobj	2:A1;6:A1
+4	whose	whose	WP$	_	5	poss	_
+5	car	car	NN	_	6	nsubj	6:R-A1;8:R-A1
+6	used	use	VBD	p2=VBN|pb=use.03	3	rcmod	_
+7	to	to	TO	_	8	aux	_
+8	be	be	VB	pb=be.01	6	xcomp	_
+9	mine	mine	NN	p2=JJ	8	attr	8:A2
+10	.	.	.	_	2	punct	_
+
+1	Did	do	VBD	_	5	aux	_
+2	Mary	mary	NNP	_	4	poss	_
+3	's	's	POS	_	2	possessive	_
+4	car	car	NN	_	5	nsubj	5:A1
+5	use	use	VB	pb=use.03	0	root	_
+6	to	to	TO	_	7	aux	_
+7	be	be	VB	_	5	xcomp	_
+8	mine	mine	NN	p2=PRP	7	attr	7:A2
+9	?	?	.	_	5	punct	_
+
+1	Who	who	WP	_	4	dobj	4:R-A1
+2	did	do	VBD	_	4	aux	_
+3	you	you	PRP	_	4	nsubj	4:A0
+4	meet	meet	VB	pb=meet.02	0	root	_
+5	?	?	.	_	4	punct	_
+
+1	What	what	WP	_	2	nsubj	2:R-A1
+2	used	use	VBD	pb=use.03	0	root	_
+3	to	to	TO	_	4	aux	_
+4	be	be	VB	pb=be.01	2	xcomp	_
+5	mine	mine	NN	p2=PRP	4	attr	2:A2
+6	?	?	.	_	2	punct	_
+
+1	Whose	whose	WP$	_	2	poss	_
+2	car	car	NN	_	3	nsubj	3:R-A1;5:R-A1
+3	used	use	VBD	p2=VBN|pb=use.03	0	root	_
+4	to	to	TO	_	5	aux	_
+5	be	be	VB	pb=be.01	3	xcomp	_
+6	mine	mine	NN	p2=PRP	5	attr	5:A2
+7	?	?	.	_	3	punct	_

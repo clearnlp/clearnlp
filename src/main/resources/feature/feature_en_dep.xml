@@ -1,0 +1,132 @@
+<!--Feature template for dependency parsing in English -->
+<feature_template>
+    <cutoff label="4" feature="2" note="baseline"/>
+    <cutoff label="4" feature="4" note="bootstrapping"/>
+
+    <!-- basic features -->
+    <feature n="1" f0="l:f"/>
+    <feature n="1" f0="b:f"/>
+    <feature n="1" f0="l:m"/>
+    <feature n="1" f0="b:m"/>
+    <feature n="1" f0="l:p"/>
+    <feature n="1" f0="b:p"/>
+
+    <feature n="2" f0="l:p" f1="l:m"/>
+    <feature n="2" f0="b:p" f1="b:m"/>
+
+    <feature n="2" f0="l:p" f1="b:p"/>
+    <feature n="2" f0="l:p" f1="b:m"/>
+    <feature n="2" f0="l:m" f1="b:p"/>
+    <feature n="2" f0="l:m" f1="b:m"/>
+
+    <!-- 1-gram features -->
+    <feature n="1" f0="s-1:m"/>
+    <feature n="1" f0="l-1:m"/>
+    <feature n="1" f0="l+1:m"/>
+    <feature n="1" f0="b-2:m"/>
+    <feature n="1" f0="b-1:m"/>
+    <feature n="1" f0="b+1:m"/>
+    <feature n="1" f0="b+2:m"/>
+
+    <feature n="1" f0="l-2:p"/>
+    <feature n="1" f0="l-1:p"/>
+    <feature n="1" f0="l+1:p"/>
+    <feature n="1" f0="l+2:p"/>
+    <feature n="1" f0="b-1:p"/>
+    <feature n="1" f0="b+1:p"/>
+
+    <!-- 2-gram features -->
+    <feature n="2" f0="b+1:p" f1="l:p"/>
+    <feature n="2" f0="s-1:p" f1="l:p"/>
+    <feature n="2" f0="s-1:p" f1="b:p"/>
+
+    <feature n="2" f0="b-1:p" f1="l:m"/>
+    <feature n="2" f0="b+1:p" f1="l:m"/>
+    <feature n="2" f0="b+1:p" f1="b:m"/>
+
+    <feature n="2" f0="b+1:m" f1="l:p"/>
+    <feature n="2" f0="b+1:m" f1="b:p"/>
+
+    <feature n="2" f0="l+1:m" f1="l:m"/>
+    <feature n="2" f0="l+1:m" f1="b:m"/>
+
+    <!-- 3-gram features -->
+    <feature n="3" f0="l-2:p" f1="l-1:p" f2="l:p"/>
+    <feature n="3" f0="l-1:p" f1="l+1:p" f2="l:p"/>
+    <feature n="3" f0="l+1:p" f1="l+2:p" f2="l:p"/>
+    <feature n="3" f0="b-1:p" f1="b+1:p" f2="b:p"/>
+    <feature n="3" f0="b+1:p" f1="b+2:p" f2="b:p"/>
+    <feature n="3" f0="s-2:p" f1="s-1:p" f2="l:p" visible="false"/>
+
+    <feature n="3" f0="s-2:p" f1="l:p" f2="b:p"/>
+    <feature n="3" f0="l-1:p" f1="l:p" f2="b:p"/>
+    <feature n="3" f0="l+1:p" f1="l:p" f2="b:p"/>
+    <feature n="3" f0="b-2:p" f1="l:p" f2="b:p"/>
+    <feature n="3" f0="b-1:p" f1="l:p" f2="b:p"/>
+    <feature n="3" f0="b+1:p" f1="l:p" f2="b:p"/>
+    <feature n="3" f0="b+2:p" f1="l:p" f2="b:p"/>
+    <feature n="3" f0="b+3:p" f1="l:p" f2="b:p"/>
+    <feature n="3" f0="s-3:p" f1="l:p" f2="b:p" visible="false"/>
+
+    <!-- 2nd-order features -->
+    <feature n="1" f0="l_h:m"/>
+    <feature n="1" f0="l_lmd:m"/>
+    <feature n="1" f0="l_rmd:m" note=".03"/>
+    <feature n="1" f0="b_lmd:m"/>
+
+    <feature n="1" f0="l_h:p"/>
+    <feature n="1" f0="l_lmd:p"/>
+    <feature n="1" f0="l_rmd:p" note=".03"/>
+    <feature n="1" f0="b_lmd:p"/>
+
+    <feature n="1" f0="l:d"/>
+    <feature n="1" f0="l_lmd:d"/>
+    <feature n="1" f0="l_rmd:d"/>
+    <feature n="1" f0="b_lmd:d" visible="false"/>
+
+    <feature n="2" f0="l:d" f1="b:m"/>
+
+    <feature n="3" f0="l_lmd:p" f1="l:p" f2="b:p"/>
+    <feature n="3" f0="b_lmd:p" f1="l:p" f2="b:p"/>
+    <feature n="3" f0="l_lmd:d" f1="l:p" f2="b:p"/>
+    <feature n="3" f0="l_lns:d" f1="l:p" f2="b:p"/>
+    <feature n="3" f0="l_h:p"   f1="l:p" f2="b:p" visible="false"/>
+
+    <!-- 3rd-order features -->
+    <feature n="1" f0="l_h2:m"/>
+    <feature n="1" f0="l_lmd2:m" note=".03"/>
+    <feature n="1" f0="l_rmd2:m"/>
+    <feature n="1" f0="b_lmd2:m"/>
+
+    <feature n="1" f0="l_h2:p"/>
+    <feature n="1" f0="l_lmd2:p"/>
+    <feature n="1" f0="b_lmd2:p"/>
+    <feature n="1" f0="l_rmd2:p" visible="false"/>
+
+    <feature n="1" f0="l_h:d"/>
+    <feature n="1" f0="l_lmd2:d"/>
+    <feature n="1" f0="l_rmd2:d"/>
+    <feature n="1" f0="b_lmd2:d"/>
+
+    <feature n="3" f0="l_lmd2:p" f1="l_lmd:p" f2="l:p"/>
+    <feature n="3" f0="l_rmd2:p" f1="l_rmd:p" f2="l:p"/>
+    <feature n="3" f0="b_lmd2:p" f1="b_lmd:p" f2="b:p"/>
+    <feature n="3" f0="l_h2:p"   f1="l_h:p"   f2="l:p"/>
+
+    <feature n="3" f0="l_lmd2:p" f1="l:p" f2="b:p"/>
+    <feature n="3" f0="b_lmd2:p" f1="l:p" f2="b:p"/>
+    <feature n="3" f0="l_lmd2:d" f1="l:p" f2="b:p"/>
+
+    <!-- valency features -->
+    <feature n="2" f0="l:lv" f1="l:m"/>
+    <feature n="2" f0="l:lv" f1="l:p"/>
+    <feature n="2" f0="l:rv" f1="l:m"/>
+    <feature n="2" f0="b:lv" f1="b:p"/>
+    <feature n="2" f0="b:lv" f1="b:m"/>
+    <feature n="2" f0="l:rv" f1="l:p" visible="false"/>
+
+    <!-- binary features -->
+    <feature t="b" n="1" f0="l:b0" note="lambda is the leftmost token"/>
+    <feature t="b" n="1" f0="b:b1" note="beta is the righttmost token"/>
+    <feature t="b" n="1" f0="l:b2" note="lambda and beta are adjacent"/>
+</feature_template>

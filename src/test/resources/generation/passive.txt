@@ -1,0 +1,26 @@
+1	The	the	DT	_	2	det	_
+2	car	car	NN	_	4	nsubjpass	4:A1
+3	is	be	VBZ	_	4	auxpass	_
+4	bought	buy	VBN	pb=buy.01	0	root	_
+5	by	by	IN	_	4	agent	4:A0
+6	John	john	NNP	_	5	pobj	_
+7	.	.	.	_	4	punct	_
+
+1	What	what	WP	_	3	nsubjpass	3:R-A1
+2	is	be	VBZ	_	3	auxpass	_
+3	bought	buy	VBN	pb=buy.01	0	root	_
+4	by	by	IN	_	3	agent	3:A0
+5	John	john	NNP	_	4	pobj	_
+6	?	?	.	_	3	punct	_
+
+1	Who	who	WP	_	2	nsubj	2:R-A0
+2	bought	buy	VBD	pb=buy.01	0	root	_
+3	the	the	DT	_	4	det	_
+4	car	car	NN	_	2	dobj	2:A1
+5	?	?	.	_	2	punct	_
+
+1	What	what	WP	_	4	dobj	4:R-A1
+2	did	do	VBD	_	4	aux	_
+3	John	john	NNP	_	4	nsubj	4:A0
+4	buy	buy	VB	pb=buy.01	0	root	_
+5	?	?	.	_	4	punct	_

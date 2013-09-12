@@ -1,0 +1,13 @@
+1	Mary	mary	NNP	_	2	nsubj	2:A0
+2	looks	look	VBZ	pb=look.02	0	root	_
+3	so	so	RB	_	4	advmod	_
+4	beautiful	beautiful	JJ	_	2	acomp	2:A1
+5	.	.	.	_	2	punct	_
+
+1	Q	q	NN	p2=NNP	6	dep	_
+2	:	:	:	_	6	punct	_
+3	How	how	WRB	_	6	advmod	6:R-AM-MNR
+4	does	do	VBZ	_	6	aux	_
+5	Mary	mary	NNP	_	6	nsubj	6:A0
+6	look	look	VB	pb=look.01	0	root	_
+7	?	?	.	_	6	punct	_

@@ -1,0 +1,52 @@
+catchier	JJR	catchy
+largest	JJS	large
+dominated	JJ	dominated
+dominated	VBD	dominate
+best	RBS	well
+actively	RB	actively
+
+optima	NNS	optimum
+churches	NNS	church
+gentlemen	NNS	gentleman
+
+took	VBD	take
+studied	VBD	study
+studying	VBG	study
+studying	NN	studying
+studies	NNS	study
+
+1st	CD	#ord#
+12nd	CD	#ord#
+23rd	CD	#ord#
+34th	CD	#ord#
+first	CD	#ord#
+third	CD	#ord#
+fourth	CD	#ord#
+
+zero	CD	#crd#
+ten	CD	#crd#
+eleven	CD	#crd#
+fourteen	CD	#crd#
+
+10%	XX	0
+$10	XX	0
+A.01	XX	a.0
+A:01	XX	a:0
+A/01	XX	a/0
+.01	XX	0
+12.34	XX	0
+12,34,56	XX	0
+12-34-56	XX	0
+12/34/46	XX	0
+$10.23,45:67-89/10%	XX	0
+
+.!?-*=~,	XX	.!?-*=~,
+..!!??--**==~~,,	XX	..!!??--**==~~,,
+...!!!???---***===~~~,,,	XX	..!!??--**==~~,,
+....!!!!????----****====~~~~,,,,	XX	..!!??--**==~~,,
+
+http://www.google.com	XX	#url#
+www.google.com	XX	#url#
+mailto:somebody@google.com	XX	#url#
+some-body@google+.com	XX	#url#
+
