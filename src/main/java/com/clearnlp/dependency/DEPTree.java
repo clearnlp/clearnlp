@@ -822,24 +822,6 @@ public class DEPTree extends ArrayList<DEPNode>
 		return tree;
 	}
 	
-	/** For each semantic argument, merge function tags into numbered argument labels if exist. */
-	public void mergeFunctionTagsForNumberedArguments()
-	{
-		int i, size = size();
-		DEPNode node;
-		
-		for (i=1; i<size; i++)
-		{
-			node = get(i);
-			
-			if (node.s_heads != null)
-			{
-				for (SRLArc arc : node.s_heads)
-					arc.mergeFunctionTag();
-			}
-		}
-	}
-	
 	// --------------------------------- toString ---------------------------------
 	
 	public String toString()
@@ -1040,7 +1022,6 @@ public class DEPTree extends ArrayList<DEPNode>
 			}
 			
 			nNode.setHead(nHead, oNode.getLabel());
-			nNode.nament = oNode.nament;
 		}
 		
 		return tree;

@@ -23,6 +23,10 @@
 */
 package com.clearnlp.dependency;
 
+import java.util.Collections;
+import java.util.List;
+
+import com.clearnlp.reader.AbstractColumnReader;
 import com.clearnlp.util.pair.StringIntPair;
 
 /**
@@ -97,5 +101,22 @@ public class DEPLib
 		}
 		
 		return counts;
+	}
+
+	static public <T extends DEPArc>String toString(List<T> heads)
+	{
+		StringBuilder build = new StringBuilder();
+		Collections.sort(heads);
+		
+		for (DEPArc arc : heads)
+		{
+			build.append(DELIM_HEADS);
+			build.append(arc.toString());
+		}
+		
+		if (build.length() > 0)
+			return build.substring(DELIM_HEADS.length());
+		else
+			return AbstractColumnReader.BLANK_COLUMN;
 	}
 }

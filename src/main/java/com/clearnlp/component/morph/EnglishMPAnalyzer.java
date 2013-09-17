@@ -54,13 +54,24 @@ public class EnglishMPAnalyzer extends AbstractMPAnalyzer
 	final String POS_ADVERB    = "R";
 	
 	/** Noun inflection rules. */
-	private List<MPAffix> inf_noun
-	/** Verb inflection rules. */;
+	private List<MPAffix> inf_noun;
+	/** Verb inflection rules. */
 	private List<MPAffix> inf_verb;
 	/** Adjective inflection rules. */
 	private List<MPAffix> inf_adjective;
+	/** Adverb inflection rules. */
+	private List<MPAffix> inf_adverb;
 	/** Cardinal inflection rules. */
 	private List<MPAffix> inf_cardinal;
+	
+	/** Noun derivation rules. */
+	private List<MPAffix> dev_noun;
+	/** Verb derivation rules. */
+	private List<MPAffix> dev_verb;
+	/** Adjective derivation rules. */
+//	private List<MPAffix> dev_adjective;
+	/** Adverb derivation rules. */
+//	private List<MPAffix> dev_adverb;
 	
 	/** Noun exceptions */
 	private Map<String,String> m_noun_exc;
@@ -94,6 +105,7 @@ public class EnglishMPAnalyzer extends AbstractMPAnalyzer
 	public EnglishMPAnalyzer()
 	{
 		initInflections();
+		initDerivations();
 		initDictionaries();
 	}
 	
@@ -106,13 +118,8 @@ public class EnglishMPAnalyzer extends AbstractMPAnalyzer
 		inf_noun.add(new MPAffix(new Morpheme("s", MPTag.ISS), "ies" , new String[]{"y"}));
 		inf_noun.add(new MPAffix(new Morpheme("s", MPTag.ISS), "ves" , new String[]{"f","fe"}));
 		inf_noun.add(new MPAffix(new Morpheme("s", MPTag.ISS), "es"  , new String[]{""}));
+		inf_noun.add(new MPAffix(new Morpheme("s", MPTag.ISS), "es"  , new String[]{""}, true));
 		inf_noun.add(new MPAffix(new Morpheme("s", MPTag.ISS), "s"   , new String[]{""}));
-//		inf_noun.add(new MPAffix(new Morpheme("s", MPTag.ISS), "ses" , new String[]{"s"}));
-//		inf_noun.add(new MPAffix(new Morpheme("s", MPTag.ISS), "xes" , new String[]{"x"}));
-//		inf_noun.add(new MPAffix(new Morpheme("s", MPTag.ISS), "zes" , new String[]{"z"}));
-//		inf_noun.add(new MPAffix(new Morpheme("s", MPTag.ISS), "ches", new String[]{"ch"}));
-//		inf_noun.add(new MPAffix(new Morpheme("s", MPTag.ISS), "shes", new String[]{"sh"}));
-//		inf_noun.add(new MPAffix(new Morpheme("s", MPTag.ISS), "oes" , new String[]{"o"}));
 		
 		inf_noun.add(new MPAffix(new Morpheme("e", MPTag.ISS), "men" , new String[]{"man"}));
 		inf_noun.add(new MPAffix(new Morpheme("e", MPTag.ISS), "ouse", new String[]{"ice"}));
@@ -121,10 +128,9 @@ public class EnglishMPAnalyzer extends AbstractMPAnalyzer
 		inf_noun.add(new MPAffix(new Morpheme("e", MPTag.ISS), "eet" , new String[]{"oot"}));
 		inf_noun.add(new MPAffix(new Morpheme("e", MPTag.ISS), "es"  , new String[]{"is"}));
 		
-		inf_noun.add(new MPAffix(new Morpheme(MPTag.LATIN, MPTag.ISS), "i" , new String[]{"us"}));
-		inf_noun.add(new MPAffix(new Morpheme(MPTag.LATIN, MPTag.ISS), "a" , new String[]{"um"}));
-		inf_noun.add(new MPAffix(new Morpheme(MPTag.LATIN, MPTag.ISS), "a" , new String[]{"on"}));
 		inf_noun.add(new MPAffix(new Morpheme(MPTag.LATIN, MPTag.ISS), "ae", new String[]{"e","a"}));
+		inf_noun.add(new MPAffix(new Morpheme(MPTag.LATIN, MPTag.ISS), "a" , new String[]{"um","on"}));
+		inf_noun.add(new MPAffix(new Morpheme(MPTag.LATIN, MPTag.ISS), "i" , new String[]{"us"}));
 		
 		inf_verb = Lists.newArrayList();
 		
@@ -133,29 +139,56 @@ public class EnglishMPAnalyzer extends AbstractMPAnalyzer
 		inf_verb.add(new MPAffix(new Morpheme("s", MPTag.ISZ), "es" , new String[]{""}, true));
 		inf_verb.add(new MPAffix(new Morpheme("s", MPTag.ISZ), "s"  , new String[]{""}));
 		
+		inf_verb.add(new MPAffix(new Morpheme("g", MPTag.ISG), "ying", new String[]{"ie"}));
+		inf_verb.add(new MPAffix(new Morpheme("g", MPTag.ISG), "ing" , new String[]{"","e"}));
+		inf_verb.add(new MPAffix(new Morpheme("g", MPTag.ISG), "ing" , new String[]{""}, true));
+		
 		inf_verb.add(new MPAffix(new Morpheme("d", MPTag.ISD), "ept", new String[]{"eep"}));
 		inf_verb.add(new MPAffix(new Morpheme("d", MPTag.ISD), "ied", new String[]{"y"}));
-		inf_verb.add(new MPAffix(new Morpheme("d", MPTag.ISD), "ed" , new String[]{"","e","eed","ead"}));
+		inf_verb.add(new MPAffix(new Morpheme("d", MPTag.ISD), "ed" , new String[]{"","eed","ead"}));
 		inf_verb.add(new MPAffix(new Morpheme("d", MPTag.ISD), "ed" , new String[]{""}, true));
 		inf_verb.add(new MPAffix(new Morpheme("d", MPTag.ISD), "t"  , new String[]{"","d"}));
 		inf_verb.add(new MPAffix(new Morpheme("d", MPTag.ISD), "d"  , new String[]{""}));
 		
-		inf_verb.add(new MPAffix(new Morpheme("n", MPTag.ISD), "en" , new String[]{"","e"}));
-		inf_verb.add(new MPAffix(new Morpheme("n", MPTag.ISD), "en" , new String[]{"","e"}, true));
+		inf_verb.add(new MPAffix(new Morpheme("n", MPTag.ISD), "en", new String[]{""}));
+		inf_verb.add(new MPAffix(new Morpheme("n", MPTag.ISD), "en", new String[]{"","e"}, true));
+		inf_verb.add(new MPAffix(new Morpheme("n", MPTag.ISD), "ne", new String[]{""}));
+		inf_verb.add(new MPAffix(new Morpheme("n", MPTag.ISD), "n" , new String[]{""}));
+		inf_verb.add(new MPAffix(new Morpheme("n", MPTag.ISD), "n" , new String[]{""}, true));
 		
+		inf_verb.add(new MPAffix(new Morpheme("n", MPTag.ISD), "oken", new String[]{"ake","eak"}));
+		inf_verb.add(new MPAffix(new Morpheme("n", MPTag.ISD), "oven", new String[]{"eave"}));
 		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "ode" , new String[]{"ide"}));
-		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "oke" , new String[]{"eak","ake"}));
+		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "oke" , new String[]{"ake","eak"}));
 		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "ote" , new String[]{"ite"}));
 		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "ore" , new String[]{"ear"}));
-		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "ove" , new String[]{"ave","ive"}));
-//		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "one" , new String[]{"ine"}));		// +2
-//		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "ose" , new String[]{"ise"}));		// +3
-//		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "ove" , new String[]{"eeve"}));		// +1
-//		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "oze" , new String[]{"eeze"}));		// +3
-//		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "ozen", new String[]{"eeze"}));		// +3
-//		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "oken", new String[]{"ake"}));		// +2
-//		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "on"  , new String[]{"in"}));		// +1
-//		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "ot"  , new String[]{"et"}));		// +3
+		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "ove" , new String[]{"ave","ive","eave"}));
+		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "ung" , new String[]{"ing"}));
+		
+		inf_adjective = Lists.newArrayList();
+		
+		inf_adjective.add(new MPAffix(new Morpheme("er", MPTag.ISR), "ier", new String[]{"y"}));
+		inf_adjective.add(new MPAffix(new Morpheme("er", MPTag.ISR), "er" , new String[]{"","e"}));
+		inf_adjective.add(new MPAffix(new Morpheme("er", MPTag.ISR), "er" , new String[]{"","e"}, true));
+		
+		inf_adjective.add(new MPAffix(new Morpheme("est", MPTag.ISR), "iest", new String[]{"y"}));
+		inf_adjective.add(new MPAffix(new Morpheme("est", MPTag.ISR), "est" , new String[]{"","e"}));
+		inf_adjective.add(new MPAffix(new Morpheme("est", MPTag.ISR), "est" , new String[]{"","e"}, true));
+		
+		inf_adverb = Lists.newArrayList();
+		
+		inf_adverb.add(new MPAffix(new Morpheme("er", MPTag.ISR), "ier", new String[]{"y","ily"}));
+		inf_adverb.add(new MPAffix(new Morpheme("er", MPTag.ISR), "er" , new String[]{"","e","ly"}));
+		inf_adverb.add(new MPAffix(new Morpheme("er", MPTag.ISR), "er" , new String[]{"","e","ly"}, true));
+		
+		inf_adverb.add(new MPAffix(new Morpheme("est", MPTag.ISR), "iest", new String[]{"y","ily"}));
+		inf_adverb.add(new MPAffix(new Morpheme("est", MPTag.ISR), "est" , new String[]{"","e","ly"}));
+		inf_adverb.add(new MPAffix(new Morpheme("est", MPTag.ISR), "est" , new String[]{"","e","ly"}, true));
+		
+		inf_cardinal = Lists.newArrayList();
+		
+		inf_cardinal.add(new MPAffix(new Morpheme("s", MPTag.ISS), "ies", new String[]{"y"}));
+		inf_cardinal.add(new MPAffix(new Morpheme("s", MPTag.ISS), "s"  , new String[]{""}));
 		
 //		inf_verb.add(new MPAffix(new Morpheme("d", MPTag.ISD), "ee"   , new String[]{"eed"}));			// +1
 //		inf_verb.add(new MPAffix(new Morpheme("d", MPTag.ISD), "elt"  , new String[]{"eel"}));			// +2
@@ -163,33 +196,125 @@ public class EnglishMPAnalyzer extends AbstractMPAnalyzer
 //		inf_verb.add(new MPAffix(new Morpheme("r", MPTag.ISD), "aw"   , new String[]{"ee"}));			// +4
 //		inf_verb.add(new MPAffix(new Morpheme("r", MPTag.ISD), "et"   , new String[]{"eet"}));			// +1
 //		inf_verb.add(new MPAffix(new Morpheme("r", MPTag.ISD), "ilgee", new String[]{"eegee"}));		// +1
+//		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "ang"  , new String[]{"ing"}));			// +4
+//		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "one"  , new String[]{"ine"}));			// +2
+//		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "ose"  , new String[]{"ise"}));			// +3
+//		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "ove"  , new String[]{"eeve"}));			// +1
+//		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "oze"  , new String[]{"eeze"}));			// +3
+//		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "ozen" , new String[]{"eeze"}));			// +3
+//		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "on"   , new String[]{"in"}));			// +1
+//		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "ot"   , new String[]{"et"}));			// +3
+//		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "aught", new String[]{"each"}));			// +2
+//		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "eft"  , new String[]{"eave"}));			// +3
+//		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "od"   , new String[]{"ead"}));			// +3
+//		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "odden", new String[]{"ead"}));			// +3
+//		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "ole"  , new String[]{"eal"}));			// +1
+//		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "olen" , new String[]{"eal"}));			// +1
+//		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "orne" , new String[]{"ear"}));			// +3
+	}
+	
+	private void initDerivations()
+	{
+		dev_noun = Lists.newArrayList();
 		
-//		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "aught" , new String[]{"each"}));	// +2
-//		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "eft" , new String[]{"eave"}));		// +3
-//		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "od" , new String[]{"ead"}));		// +3
-//		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "odden" , new String[]{"ead"}));		// +3
-//		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "ole" , new String[]{"eal"}));		// +1
-//		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "olen" , new String[]{"eal"}));		// +1
-//		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "orne" , new String[]{"ear"}));		// +3
-//		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "ove" , new String[]{"eave"}));		// +4
-//		inf_verb.add(new MPAffix(new Morpheme("o", MPTag.ISD), "oven" , new String[]{"eave"}));		// +4
+		dev_noun.add(new MPAffix(POS_ADJECTIVE, new Morpheme("ness", MPTag.DSN), "iness", new String[]{"y"}));	// happy+ness
+		dev_noun.add(new MPAffix(POS_ADJECTIVE, new Morpheme("ness", MPTag.DSN), "ness" , new String[]{""}));	// use+ful+ness
+
 		
 		
-		inf_verb.add(new MPAffix(new Morpheme("ing", MPTag.ISG), "ing", new String[]{"","e"}));
-		inf_verb.add(new MPAffix(new Morpheme("ing", MPTag.ISG), "ing", new String[]{""}, true));
+		dev_verb = Lists.newArrayList();
 		
-		inf_adjective = Lists.newArrayList();
+		dev_verb.add(new MPAffix(POS_ADJECTIVE, new Morpheme("ize", MPTag.DSV), "ize", new String[]{""}));		// normalize
 		
-		inf_adjective.add(new MPAffix(new Morpheme("er", MPTag.ISR), "ier", new String[]{"y"}));
-		inf_adjective.add(new MPAffix(new Morpheme("er", MPTag.ISR), "er" , new String[]{"","e"}));
+//		
+//		
+//		
+//		
+//		
+//		
+//		
+//		
+//		
+//		
+//		
+//		
+//		
+//		
+//		
+//		List<MPAffix> dev_suffixes;
+//		
+//		dev_suffixes = Lists.newArrayList();
+//		
+//		
+//		
+//		dev_suffixes.add(new MPAffix(POS_VERB, "able", "able", new String[]{"","e","ate"}));				// wash+able, move+able, irritate+able
+//		dev_suffixes.add(new MPAffix(POS_NOUN, "able", "able", new String[]{""}));						// fashion+able
+//		
+//		dev_suffixes.add(new MPAffix(POS_NOUN, "ous", "ous" , new String[]{"on","y"}));					// religion+ous, analogy+ous
+//		dev_suffixes.add(new MPAffix(POS_NOUN, "ous", "ious", new String[]{"y","ity"}));					// glory+ous, vivace+ity+ous
+//		dev_suffixes.add(new MPAffix(POS_NOUN, "ous", "rous", new String[]{"er"}));						// disater+ous
+//		
+//		dev_suffixes.add(new MPAffix(POS_NOUN, "ant", "ant", new String[]{"ance","ation"}));				// defy+ance+ant, fumigate+tion+ant
+//		dev_suffixes.add(new MPAffix(POS_VERB, "ant", "ant", new String[]{"","e","ate"}));				// assist+ant, serve+ant, immigrate+ant
+//		
+//		dev_suffixes.add(new MPAffix(POS_ADJECTIVE, "ity", "ability", new String[]{"able"}));			// read+able+ity
+//		dev_suffixes.add(new MPAffix(POS_ADJECTIVE, "ity", "ity"    , new String[]{"","e"}));			// normal+ity, adverse+ity
+//		
+//		dev_suffixes.add(new MPAffix(POS_VERB, "tion", "unciation", new String[]{"ounce"}));				// pronounce+tion
+//		dev_suffixes.add(new MPAffix(POS_VERB, "tion", "ation"    , new String[]{"","e"}));				// flirt+ation, admire+ation
+//		dev_suffixes.add(new MPAffix(POS_VERB, "tion", "tion"     , new String[]{"e","t","te"}));		// introduce+tion, resurrect+tion, alienate+tion
+//		dev_suffixes.add(new MPAffix(POS_VERB, "tion", "ication"  , new String[]{"y"}));					// verify+tion
+//		dev_suffixes.add(new MPAffix(POS_VERB, "sion", "sion"     , new String[]{"de","se","t","s"}));	// decide+sion, illuse+sion, divert+sion, obsess+sion
+//		
+//		dev_suffixes.add(new MPAffix(POS_VERB     , "ance", "iance", new String[]{"y"}));				// defy+ance
+//		dev_suffixes.add(new MPAffix(POS_VERB     , "ance", "ance" , new String[]{"","e"}));				// annoy+ance, insure+ance
+//		dev_suffixes.add(new MPAffix(POS_ADJECTIVE, "ance", "ence" , new String[]{"ent","ential"}));		// difference+ent, difference+ential
+//		dev_suffixes.add(new MPAffix(POS_ADJECTIVE, "ance", "ency" , new String[]{"ent"}));				// fluency+ent
+//		
+//		dev_suffixes.add(new MPAffix(POS_VERB, "sis", "sis", new String[]{"se"}));						// diagnose+sis
+//		
+//		dev_suffixes.add(new MPAffix(POS_NOUN, "tic", "tic", new String[]{"ia","sis","m"}));				// fantasia+tic, diagnose+sis+tic, atavism+tic
+//		
+//		dev_suffixes.add(new MPAffix(POS_NOUN, "ic", "ic", new String[]{"","ia","ism","y"}));			// alcohol+ic, academia+ic, barbarism+ic, demagogy + ic 
+//		
+//		
+//		dev_suffixes.add(new MPAffix(POS_ADJECTIVE, "ment", "ment" , new String[]{""}));					// develop+ment
+//		
+//		dev_suffixes.add(new MPAffix(POS_ADJECTIVE, "ly", "ly"  , new String[]{"","le"}));				// active+ly, invariable+ly
+//		dev_suffixes.add(new MPAffix(POS_ADJECTIVE, "ly", "ily" , new String[]{"y"}));					// easy+ly
+//		dev_suffixes.add(new MPAffix(POS_ADJECTIVE, "ly", "ally", new String[]{""}));					// electron+ic+ly
+//		dev_suffixes.add(new MPAffix(POS_NOUN     , "ly", "ly"  , new String[]{""}));					// month+ly
+//		
+//		dev_suffixes.add(new MPAffix(POS_NOUN, "less", "less", new String[]{""}));						// use+less
+//		
+//		dev_suffixes.add(new MPAffix(POS_NOUN, "ful", "iful", new String[]{"y"}));						// beauty+ful
+//		dev_suffixes.add(new MPAffix(POS_NOUN, "ful", "ful" , new String[]{""}));						// use+ful
+//		
+//		dev_suffixes.add(new MPAffix(POS_NOUN, "cal", "ical", new String[]{"y"}));						// academy+cal
+//		dev_suffixes.add(new MPAffix(POS_NOUN, "cal", "cal",  new String[]{"c"}));						// critic+cal
+//		
+//		dev_suffixes.add(new MPAffix(POS_VERB, "er", "er", new String[]{"","e"}));						// read+er, write+er
+//		dev_suffixes.add(new MPAffix(POS_VERB, "er", "or", new String[]{"","e"}));						// act+er, sense+er
+//		
+//		
+//		
+//		dev_suffixes.add(new MPAffix(POS_VERB, "age", "age" , new String[]{"e"}));	// assemble+age
+//		dev_suffixes.add(new MPAffix(POS_VERB, "age", "iage", new String[]{"y"}));	// marry+age
+//
+//		dev_suffixes.add(new MPAffix(POS_NOUN, "al", "al", new String[]{"","e"}));				// profession+al, universe+al
+//		dev_suffixes.add(new MPAffix(POS_VERB, "al", "al", new String[]{"e"}));		// arrive+al
+//		
+//
+//		dev_suffixes.add(new MPAffix(POS_NOUN     , "tial"  , "tial", new String[]{"ce"}));			// influential -> influence
+//		dev_suffixes.add(new MPAffix(POS_NOUN     , "t"     , "t"   , new String[]{"ce","cy"}));	// violent -> violence, deficient -> deficiency
+//		dev_suffixes.add(new MPAffix(POS_NOUN     , "eal"   , "eal" , new String[]{"is"}));			// diaphyseal -> diaphysis
+//		
+//		
+//		
+//		
+//		
+//		dev_suffixes.add(new MPAffix(POS_ADJECTIVE, "y"  , "ly", new String[]{"","le","l"}));		// sadly -> sad, incredibly -> incredible, fully -> full 
 		
-		inf_adjective.add(new MPAffix(new Morpheme("est", MPTag.ISR), "iest", new String[]{"y"}));
-		inf_adjective.add(new MPAffix(new Morpheme("est", MPTag.ISR), "est" , new String[]{"","e"}));
-		
-		inf_cardinal = Lists.newArrayList();
-		
-		inf_cardinal.add(new MPAffix(new Morpheme("s", MPTag.ISS), "ies", new String[]{"y"}));
-		inf_cardinal.add(new MPAffix(new Morpheme("s", MPTag.ISS), "s"  , new String[]{""}));
 	}
 	
 	private void initDictionaries()
@@ -374,97 +499,16 @@ public class EnglishMPAnalyzer extends AbstractMPAnalyzer
 		return null;
 	}
 	
-//	private void initDerivations()
-//	{
-//		List<MPAffix> dev_suffixes;
-//		
-//		dev_suffixes = Lists.newArrayList();
-//		
-//		
-//		
-//		dev_suffixes.add(new MPAffix(POS_VERB, "able", "able", new String[]{"","e","ate"}));				// wash+able, move+able, irritate+able
-//		dev_suffixes.add(new MPAffix(POS_NOUN, "able", "able", new String[]{""}));						// fashion+able
-//		
-//		dev_suffixes.add(new MPAffix(POS_NOUN, "ous", "ous" , new String[]{"on","y"}));					// religion+ous, analogy+ous
-//		dev_suffixes.add(new MPAffix(POS_NOUN, "ous", "ious", new String[]{"y","ity"}));					// glory+ous, vivace+ity+ous
-//		dev_suffixes.add(new MPAffix(POS_NOUN, "ous", "rous", new String[]{"er"}));						// disater+ous
-//		
-//		dev_suffixes.add(new MPAffix(POS_NOUN, "ant", "ant", new String[]{"ance","ation"}));				// defy+ance+ant, fumigate+tion+ant
-//		dev_suffixes.add(new MPAffix(POS_VERB, "ant", "ant", new String[]{"","e","ate"}));				// assist+ant, serve+ant, immigrate+ant
-//		
-//		dev_suffixes.add(new MPAffix(POS_ADJECTIVE, "ity", "ability", new String[]{"able"}));			// read+able+ity
-//		dev_suffixes.add(new MPAffix(POS_ADJECTIVE, "ity", "ity"    , new String[]{"","e"}));			// normal+ity, adverse+ity
-//		
-//		dev_suffixes.add(new MPAffix(POS_VERB, "tion", "unciation", new String[]{"ounce"}));				// pronounce+tion
-//		dev_suffixes.add(new MPAffix(POS_VERB, "tion", "ation"    , new String[]{"","e"}));				// flirt+ation, admire+ation
-//		dev_suffixes.add(new MPAffix(POS_VERB, "tion", "tion"     , new String[]{"e","t","te"}));		// introduce+tion, resurrect+tion, alienate+tion
-//		dev_suffixes.add(new MPAffix(POS_VERB, "tion", "ication"  , new String[]{"y"}));					// verify+tion
-//		dev_suffixes.add(new MPAffix(POS_VERB, "sion", "sion"     , new String[]{"de","se","t","s"}));	// decide+sion, illuse+sion, divert+sion, obsess+sion
-//		
-//		dev_suffixes.add(new MPAffix(POS_VERB     , "ance", "iance", new String[]{"y"}));				// defy+ance
-//		dev_suffixes.add(new MPAffix(POS_VERB     , "ance", "ance" , new String[]{"","e"}));				// annoy+ance, insure+ance
-//		dev_suffixes.add(new MPAffix(POS_ADJECTIVE, "ance", "ence" , new String[]{"ent","ential"}));		// difference+ent, difference+ential
-//		dev_suffixes.add(new MPAffix(POS_ADJECTIVE, "ance", "ency" , new String[]{"ent"}));				// fluency+ent
-//		
-//		dev_suffixes.add(new MPAffix(POS_VERB, "sis", "sis", new String[]{"se"}));						// diagnose+sis
-//		
-//		dev_suffixes.add(new MPAffix(POS_NOUN, "tic", "tic", new String[]{"ia","sis","m"}));				// fantasia+tic, diagnose+sis+tic, atavism+tic
-//		
-//		dev_suffixes.add(new MPAffix(POS_NOUN, "ic", "ic", new String[]{"","ia","ism","y"}));			// alcohol+ic, academia+ic, barbarism+ic, demagogy + ic 
-//		
-//		dev_suffixes.add(new MPAffix(POS_ADJECTIVE, "ness", "iness", new String[]{"y"}));				// happy+ness 
-//		dev_suffixes.add(new MPAffix(POS_ADJECTIVE, "ness", "ness" , new String[]{""}));					// use+ful+ness
-//		
-//		dev_suffixes.add(new MPAffix(POS_ADJECTIVE, "ment", "ment" , new String[]{""}));					// develop+ment
-//		
-//		dev_suffixes.add(new MPAffix(POS_ADJECTIVE, "ly", "ly"  , new String[]{"","le"}));				// active+ly, invariable+ly
-//		dev_suffixes.add(new MPAffix(POS_ADJECTIVE, "ly", "ily" , new String[]{"y"}));					// easy+ly
-//		dev_suffixes.add(new MPAffix(POS_ADJECTIVE, "ly", "ally", new String[]{""}));					// electron+ic+ly
-//		dev_suffixes.add(new MPAffix(POS_NOUN     , "ly", "ly"  , new String[]{""}));					// month+ly
-//		
-//		dev_suffixes.add(new MPAffix(POS_NOUN, "less", "less", new String[]{""}));						// use+less
-//		
-//		dev_suffixes.add(new MPAffix(POS_NOUN, "ful", "iful", new String[]{"y"}));						// beauty+ful
-//		dev_suffixes.add(new MPAffix(POS_NOUN, "ful", "ful" , new String[]{""}));						// use+ful
-//		
-//		dev_suffixes.add(new MPAffix(POS_NOUN, "cal", "ical", new String[]{"y"}));						// academy+cal
-//		dev_suffixes.add(new MPAffix(POS_NOUN, "cal", "cal",  new String[]{"c"}));						// critic+cal
-//		
-//		dev_suffixes.add(new MPAffix(POS_VERB, "er", "er", new String[]{"","e"}));						// read+er, write+er
-//		dev_suffixes.add(new MPAffix(POS_VERB, "er", "or", new String[]{"","e"}));						// act+er, sense+er
-//		
-//		
-//		
-//		dev_suffixes.add(new MPAffix(POS_VERB, "age", "age" , new String[]{"e"}));	// assemble+age
-//		dev_suffixes.add(new MPAffix(POS_VERB, "age", "iage", new String[]{"y"}));	// marry+age
-//
-//		dev_suffixes.add(new MPAffix(POS_NOUN, "al", "al", new String[]{"","e"}));				// profession+al, universe+al
-//		dev_suffixes.add(new MPAffix(POS_VERB, "al", "al", new String[]{"e"}));		// arrive+al
-//		
-//
-//		dev_suffixes.add(new MPAffix(POS_NOUN     , "tial"  , "tial", new String[]{"ce"}));			// influential -> influence
-//		dev_suffixes.add(new MPAffix(POS_NOUN     , "t"     , "t"   , new String[]{"ce","cy"}));	// violent -> violence, deficient -> deficiency
-//		dev_suffixes.add(new MPAffix(POS_NOUN     , "eal"   , "eal" , new String[]{"is"}));			// diaphyseal -> diaphysis
-//		
-//		
-//		
-//		
-//		
-//		dev_suffixes.add(new MPAffix(POS_ADJECTIVE, "y"  , "ly", new String[]{"","le","l"}));		// sadly -> sad, incredibly -> incredible, fully -> full 
-//		
-//	}
-	
 	public void trim(String outputDir)
 	{
 		try
 		{
 //			trim(outputDir, "noun", s_noun_base, m_noun_exc, inf_noun);
 			trim(outputDir, "verb", s_verb_base, m_verb_exc, inf_verb);
+//			trim(outputDir, "adj" , s_adj_base , m_adj_exc , inf_adjective);
+//			trim(outputDir, "adv" , s_adj_base , m_adj_exc , inf_adjective);
 		}
 		catch (Exception e) {e.printStackTrace();}
-		
-//		trim("adj" , s_adj_base , m_adj_exc , ADJ_INFLECTION);
-//		trim("adv" , s_adv_base , m_adv_exc , ADV_INFLECTION);
 	}
 	
 	private void trim(String outputDir, String pos, Set<String> baseSet, Map<String,String> excMap, List<MPAffix> suffixes) throws Exception
@@ -499,7 +543,9 @@ public class EnglishMPAnalyzer extends AbstractMPAnalyzer
 		
 		for (String form : Sets.newHashSet(baseSet))
 		{
-			if (!sKeep.contains(form) && baseSet.contains((stem = getBaseFromSuffix(form, baseSet, suffixes, false))))
+			stem = getBaseFromSuffix(form, baseSet, suffixes, false);
+			
+			if (!sKeep.contains(form) && (excMap.containsKey(form) || baseSet.contains(stem)))
 			{
 				fBaseRemoved.println(form+" "+stem);
 				baseSet.remove(form);
@@ -514,7 +560,7 @@ public class EnglishMPAnalyzer extends AbstractMPAnalyzer
 		{
 			stem = getBaseFromSuffix(form, baseSet, suffixes, false);
 			
-//			if (form.equals("coiffed"))
+//			if (form.equals("best"))
 //				System.out.println(form+" "+stem+" "+excMap.get(form));
 			
 			if (excMap.get(form).equals(stem))

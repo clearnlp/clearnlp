@@ -55,6 +55,15 @@ public class DEPArc implements Comparable<DEPArc>
 		set(node, label);
 	}
 	
+	public DEPArc(DEPTree tree, String arc)
+	{
+		int idx = arc.indexOf(DEPLib.DELIM_HEADS_KEY);
+		int nodeId = Integer.parseInt(arc.substring(0, idx));
+		
+		node  = tree.get(nodeId);
+		label = arc.substring(idx+1);
+	}
+	
 	/** Sets the node to {@code null} and the label to {@link AbstractReader#DUMMY_TAG}. */
 	public void clear()
 	{

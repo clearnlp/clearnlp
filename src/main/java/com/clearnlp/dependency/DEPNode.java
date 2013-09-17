@@ -83,6 +83,11 @@ public class DEPNode extends NERNode implements Comparable<DEPNode>
 		init(id, form, lemma, pos, feats);
 	}
 	
+	public DEPNode(int id, String form, String lemma, String pos, String nament, DEPFeat feats)
+	{
+		init(id, form, lemma, pos, nament, feats);
+	}
+	
 	public DEPNode(DEPNode node)
 	{
 		copy(node);
@@ -114,6 +119,17 @@ public class DEPNode extends NERNode implements Comparable<DEPNode>
 		this.d_feats = feats;
 		this.d_head  = new DEPArc();
 	}
+	
+	public void init(int id, String form, String lemma, String pos, String nament, DEPFeat feats)
+	{
+		this.id      = id;
+		this.form    = form;
+		this.lemma   = lemma;
+		this.pos     = pos;
+		this.nament  = nament;
+		this.d_feats = feats;
+		this.d_head  = new DEPArc();
+	}
 
 	/** Initializes semantic heads of this node. */
 	public void initSHeads()
@@ -123,7 +139,7 @@ public class DEPNode extends NERNode implements Comparable<DEPNode>
 	
 	public void copy(DEPNode node)
 	{
-		init(node.id, node.form, node.lemma, node.pos, (DEPFeat)node.d_feats.clone());
+		init(node.id, node.form, node.lemma, node.pos, node.nament, (DEPFeat)node.d_feats.clone());
 	}
 	
 	//	====================================== FEATS ======================================
@@ -132,6 +148,11 @@ public class DEPNode extends NERNode implements Comparable<DEPNode>
 	public String getFeat(String key)
 	{
 		return d_feats.get(key);
+	}
+	
+	public DEPFeat getFeats()
+	{
+		return d_feats;
 	}
 	
 	/**
@@ -198,11 +219,10 @@ public class DEPNode extends NERNode implements Comparable<DEPNode>
 		return head != null && head.id == DEPLib.ROOT_ID;
 	}
 	
-	
-	
-	
-	
-	
+	public DEPArc getHeadArc()
+	{
+		return d_head;
+	}
 	
 	/**
 	 * Returns the dependency head of this node.
@@ -212,6 +232,11 @@ public class DEPNode extends NERNode implements Comparable<DEPNode>
 	public DEPNode getHead()
 	{
 		return d_head.node;
+	}
+	
+	public void setHead(DEPArc arc)
+	{
+		d_head = arc;
 	}
 	
 	public void setHead(DEPNode head)
@@ -358,6 +383,11 @@ public class DEPNode extends NERNode implements Comparable<DEPNode>
 		}
 		
 		return null;
+	}
+	
+	public void addSHeads(Collection<SRLArc> arcs)
+	{
+		s_heads.addAll(arcs);
 	}
 	
 	public void addSHead(SRLArc arc)
@@ -1057,7 +1087,7 @@ public class DEPNode extends NERNode implements Comparable<DEPNode>
 		StringBuilder build = new StringBuilder();
 		
 		build.append(toStringDEP());		build.append(DEPReader.DELIM_COLUMN);
-		build.append(toString(x_heads));
+		build.append(DEPLib.toString(x_heads));
 		
 		return build.toString();
 	}
@@ -1067,7 +1097,7 @@ public class DEPNode extends NERNode implements Comparable<DEPNode>
 		StringBuilder build = new StringBuilder();
 		
 		build.append(toStringDEP());		build.append(DEPReader.DELIM_COLUMN);
-		build.append(toString(s_heads));
+		build.append(DEPLib.toString(s_heads));
 		
 		return build.toString();
 	}
@@ -1080,28 +1110,11 @@ public class DEPNode extends NERNode implements Comparable<DEPNode>
 		StringBuilder build = new StringBuilder();
 		
 		build.append(toStringDEP());		build.append(DEPReader.DELIM_COLUMN);
-		build.append(toString(x_heads));	build.append(DEPReader.DELIM_COLUMN);
-		build.append(toString(s_heads));	build.append(DEPReader.DELIM_COLUMN);
+		build.append(DEPLib.toString(x_heads));	build.append(DEPReader.DELIM_COLUMN);
+		build.append(DEPLib.toString(s_heads));	build.append(DEPReader.DELIM_COLUMN);
 		build.append(nament);
 		
 		return build.toString();
-	}
-	
-	private <T extends DEPArc>String toString(List<T> heads)
-	{
-		StringBuilder build = new StringBuilder();
-		Collections.sort(heads);
-		
-		for (DEPArc arc : heads)
-		{
-			build.append(DEPLib.DELIM_HEADS);
-			build.append(arc.toString());
-		}
-		
-		if (build.length() > 0)
-			return build.substring(DEPLib.DELIM_HEADS.length());
-		else
-			return AbstractColumnReader.BLANK_COLUMN;
 	}
 	
 	public String getSubForms(String delim)

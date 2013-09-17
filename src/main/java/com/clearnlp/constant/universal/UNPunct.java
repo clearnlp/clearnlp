@@ -29,6 +29,7 @@ public class UNPunct
 {
 	static final private Set<String> VALUE_SET = new HashSet<String>(getValueList());
 
+	static public final String EQUAL				= "=";
 	static public final String PIPE					= "|";
 	static public final String FORWARD_SLASH		= "/";
 	static public final String UNDERSCORE			= "_";

@@ -34,7 +34,7 @@ import com.clearnlp.dependency.DEPNode;
 import com.clearnlp.dependency.DEPTree;
 
 
-public class DPTreeTest
+public class DEPTreeTest
 {
 	@Test
 	public void testCloneSRL()

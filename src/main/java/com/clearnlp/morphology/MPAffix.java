@@ -22,27 +22,34 @@ package com.clearnlp.morphology;
 public class MPAffix
 {
 	private Morpheme m_affix;
+	private String   s_basePOS;
 	private String   s_affixForm;
 	private String[] s_replacements;
 	private boolean  b_doubleConsonant;
 	
-	public MPAffix(Morpheme affix, String form)
+	public MPAffix(Morpheme affix, String affixForm, String[] replacements)
 	{
-		init(affix, form, null, false);
+		init(null, affix, affixForm, replacements, false);
 	}
 	
-	public MPAffix(Morpheme affix, String form, String[] replacements)
+	public MPAffix(Morpheme affix, String affixForm, String[] replacements, boolean doubleConsonant)
 	{
-		init(affix, form, replacements, false);
+		init(null, affix, affixForm, replacements, doubleConsonant);
 	}
 	
-	public MPAffix(Morpheme affix, String form, String[] replacements, boolean doubleConsonant)
+	public MPAffix(String basePOS, Morpheme affix, String affixForm, String[] replacements)
 	{
-		init(affix, form, replacements, doubleConsonant);
+		init(basePOS, affix, affixForm, replacements, false);
 	}
 	
-	public void init(Morpheme affix, String form, String[] replacements, boolean doubleConsonant)
+	public MPAffix(String basePOS, Morpheme affix, String affixForm, String[] replacements, boolean doubleConsonant)
 	{
+		init(basePOS, affix, affixForm, replacements, doubleConsonant);
+	}
+	
+	public void init(String basePOS, Morpheme affix, String form, String[] replacements, boolean doubleConsonant)
+	{
+		this.s_basePOS = basePOS;
 		this.m_affix = affix;
 		this.s_affixForm  = form;
 		this.s_replacements = replacements;
@@ -67,6 +74,11 @@ public class MPAffix
 	public boolean isSuffix(String str)
 	{
 		return str.endsWith(s_affixForm);
+	}
+	
+	public String getBasePOS()
+	{
+		return s_basePOS;
 	}
 	
 	public Morpheme getAffixMorpheme()
