@@ -42,25 +42,30 @@ public class Prob2DMap extends HashMap<String,ObjectIntHashMap<String>>
 	
 	public void add(String key, String value)
 	{
+		add(key, value, 1);
+	}
+	
+	public void add(String key, String value, int count)
+	{
 		ObjectIntHashMap<String> map;
 		
 		if (containsKey(key))
 		{
 			map = get(key);
 			
-			map.put(value, map.get(value)+1);
-			map.put(TOTAL, map.get(TOTAL)+1);
+			map.put(value, map.get(value)+count);
+			map.put(TOTAL, map.get(TOTAL)+count);
 		}
 		else
 		{
 			map = new ObjectIntHashMap<String>();
 			put(key, map);
 
-			map.put(value, 1);
-			map.put(TOTAL, 1);
+			map.put(value, count);
+			map.put(TOTAL, count);
 		}
 		
-		i_total++;
+		i_total += count;
 	}
 	
 	public int getTotal1D(String key)

@@ -363,13 +363,18 @@ public class DEPLibEn extends DEPLib
 	
 	static public boolean containsRelativizer(DEPNode arg)
 	{
+		return containsRelativizerAux(arg, arg);
+	}
+	
+	static private boolean containsRelativizerAux(DEPNode arg, DEPNode head)
+	{
 		DEPNode dep;
 		
 		for (DEPArc arc : arg.getDependents())
 		{
 			dep = arc.getNode();
 			
-			if (dep.pos.startsWith("W") || (!MPLibEn.isVerb(dep.pos) && containsRelativizer(dep)))
+			if (dep.pos.startsWith("W") || ((!MPLibEn.isVerb(dep.pos) || (arg == head && dep.isLabel(DEP_XCOMP))) && containsRelativizerAux(dep, head)))
 				return true;
 		}
 		
@@ -473,6 +478,9 @@ public class DEPLibEn extends DEPLib
 	/** @return a relativizer node in the subtree of the specific node; otherwise, {@code null}. */
 	static public DEPNode getRefDependentNode(DEPNode head)
 	{
+		if (head.isLabel(DEP_RCMOD) || head.isLabel(DEP_CCOMP) || (head.isLabel(DEP_XCOMP) && !isNonProjectiveXcomp(head)) || head.isLabel(DEP_DEP) || head.isLabel(DEP_CONJ))
+			return null;
+		
 		if (isCommonRelativizer(head))
 			return head;
 		
@@ -481,15 +489,22 @@ public class DEPLibEn extends DEPLib
 		for (DEPArc arc : head.getDependents())
 		{
 			dep = arc.getNode();
-			
-			if (!MPLibEn.isVerb(dep.pos) && !dep.isLabel(DEP_RCMOD) && !dep.isLabel(DEP_CCOMP) && !dep.isLabel(DEP_XCOMP) && !dep.isLabel(DEP_DEP) && !dep.isLabel(DEP_CONJ))
-			{
-				ref = getRefDependentNode(dep);
-				if (ref != null)	return ref;
-			}
+			ref = getRefDependentNode(dep);
+			if (ref != null)	return ref;
 		}
 		
 		return null;
+	}
+	
+	static private boolean isNonProjectiveXcomp(DEPNode node)
+	{
+		DEPNode head = node.getHead();
+		if (head == null || head.id > node.id) return false;
+		
+		List<DEPNode> deps = node.getDependentNodeList();
+		if (!deps.isEmpty() && deps.get(0).id < head.id) return true;
+		
+		return false;
 	}
 	
 	static public boolean isCommonRelativizer(DEPNode node)

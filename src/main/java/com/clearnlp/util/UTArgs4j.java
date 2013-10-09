@@ -19,7 +19,7 @@ import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 
 /**
- * @since 1.5.0
+ * @since 2.0.0
  * @author Jinho D. Choi ({@code jdchoi77@gmail.com})
  */
 public class UTArgs4j

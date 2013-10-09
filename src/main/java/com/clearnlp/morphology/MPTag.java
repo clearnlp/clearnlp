@@ -18,19 +18,32 @@ package com.clearnlp.morphology;
 import com.clearnlp.util.UTArray;
 
 /**
- * @since 1.5.0
+ * @since 2.0.0
  * @author Jinho D. Choi ({@code jdchoi77@gmail.com})
  */
 public class MPTag
 {
 	public static final String JOINER = "+";
 	
+	/** Inflection: verb, irregular. */
+	public static final String IVX = "IVX";
+	/** Inflection: noun, irregular. */
+	public static final String INX = "INX";
+	/** Inflection: adjective, irregular. */
+	public static final String IJX = "IJX";
+	/** Inflection: adverb, irregular. */
+	public static final String IRX = "IRX";
+	/** Inflection: cardinal, irregular. */
+	public static final String ICX = "ICX";
+	
 	/** Inflectional suffix: noun, plural. */
-	public static final String ISS = "ISS";
+	public static final String ISP = "ISP";
 	/** Inflectional suffix: verb, 3rd-person singular. */
 	public static final String ISZ = "ISZ";
-	/** Inflectional suffix: verb, past (participial). */
+	/** Inflectional suffix: verb, past. */
 	public static final String ISD = "ISD";
+	/** Inflectional suffix: verb, past participial. */
+	public static final String ISN = "ISN";
 	/** Inflectional suffix: verb, gerund/progressive. */
 	public static final String ISG = "ISG";
 	/** Inflectional suffix: adjective/adverb, comparative. */
@@ -47,8 +60,9 @@ public class MPTag
 	/** Adverb derivational suffix. */
 	public static final String DSR = "DSR";
 	
-	/** Irregular form. */
-	public static final String LATIN = "LT";
+	public static final String LEMMA_CARDINAL = "#crd#";
+	public static final String LEMMA_ORDINAL  = "#ord#";
+	public static final String IRREGULAR_MORPHEME = "*";
 	
 	public static String join(String... tags)
 	{

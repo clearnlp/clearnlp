@@ -21,8 +21,6 @@ import org.junit.Test;
 
 import com.clearnlp.dependency.DEPNode;
 import com.clearnlp.dependency.DEPTree;
-import com.clearnlp.generation.LGAsk;
-import com.clearnlp.generation.LGLibEn;
 import com.clearnlp.reader.SRLReader;
 import com.clearnlp.util.UTInput;
 
@@ -118,6 +116,35 @@ public class LGAskTest
 				tree = ask.generateQuestionFromDeclarative(root, false);
 				assertEquals(questions[i], LGLibEn.getForms(tree, false, " "));				
 			}
+		}
+		
+		testGenerateAskFromQuestion(ask);
+	}
+	
+	void testGenerateAskFromQuestion(LGAsk ask)
+	{
+		SRLReader reader = new SRLReader(0, 1, 2, 3, 4, 5, 6, 7);
+		reader.open(UTInput.createBufferedFileReader("src/test/resources/generation/ask4.txt"));
+		DEPTree tree;
+		int i;
+		
+		String[] asks = {
+			"Ask what the user's name is.",
+			"Ask whether the user can describe what the user is seeing."
+		};
+		
+		String[] questions = {
+			"What is your name?",
+			"Can you describe what you are seeing?"	
+		};
+		
+		for (i=0; (tree = reader.next()) != null; i++)
+		{
+			tree = ask.generateAskFromQuestion(tree);
+			assertEquals(asks[i], LGLibEn.getForms(tree, false, " "));
+			
+			tree = ask.generateQuestionFromAsk(tree);
+			assertEquals(questions[i], LGLibEn.getForms(tree, false, " "));
 		}
 	}
 	

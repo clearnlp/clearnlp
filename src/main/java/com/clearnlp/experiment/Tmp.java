@@ -23,9 +23,12 @@
 */
 package com.clearnlp.experiment;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -36,6 +39,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPOutputStream;
 
 import jregex.MatchResult;
 import jregex.Substitution;
@@ -90,12 +94,17 @@ public class Tmp
 {
 	public Tmp(String[] args) throws Exception
 	{
+		ObjectOutputStream out1 = new ObjectOutputStream(new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream("1.obj"))));
+		ObjectOutputStream out2 = new ObjectOutputStream(new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream("2.obj"))));
 		
-	}
-	
-	void findNonHeads(String[] args)
-	{
+		double[] d = new double[193241552];
+		float[]  f = new float[193241552];
 		
+		out1.writeObject(d);
+		out2.writeObject(f);
+		
+		out1.close();
+		out2.close();
 	}
 	
 	void findNonHeadsAux(DEPTree tree, Prob2DMap map)

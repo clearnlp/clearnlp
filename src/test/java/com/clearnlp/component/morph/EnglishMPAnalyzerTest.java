@@ -21,14 +21,13 @@
 * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 * POSSIBILITY OF SUCH DAMAGE.
 */
-package com.clearnlp.morphology;
+package com.clearnlp.component.morph;
 
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.clearnlp.component.morph.EnglishMPAnalyzer;
-import com.clearnlp.dictionary.IDictionary;
+import com.clearnlp.morphology.MPTag;
 
 
 /** @author Jinho D. Choi ({@code jdchoi77@gmail.com}) */
@@ -38,39 +37,49 @@ public class EnglishMPAnalyzerTest
 	public void testEnglishMPAnalyzer() throws Exception
 	{
 		String[][] tokens = {
-				{"indices"   , "NNS", "index"},
-				{"appendices", "NNS", "appendix"},
-				{"studies"   , "NNS", "study"},
-				{"wolves"    , "NNS", "wolf"},
-				{"knives"    , "NNS", "knife"},
-				{"crosses"   , "NNS", "cross"},
-				{"quizzes"   , "NNS", "quiz"},
-				{"areas"     , "NNS", "area"},
-				{"gentlemen" , "NNS", "gentleman"},
-				{"mice"      , "NNS", "mouse"},
-				{"geese"     , "NNS", "goose"},
-				{"teeth"     , "NNS", "tooth"},
-				{"feet"      , "NNS", "foot"},
-				{"analyses"  , "NNS", "analysis"},
-				{"vertebrae" , "NNS", "vertebra"},
-				{"optima"    , "NNS", "optimum"},
-				{"lexica"    , "NNS", "lexicon"},
-				{"foci"      , "NNS", "focus"},
-				{"corpora"   , "NNS", "corpus"},
-				{"studying"  , "NN" , "studying"},
-				{"meet"      , "NN" , "meet"},
-				{"ratitae"   , "NN" , "ratitae"},
-				{"mamma"     , "NN" , "mamma"},
+				// abbreviation
+				{"n't", "RB", "not"},
+				{"na" , "TO", "to"},
+
+				// ordinal
+				{"1st"   , "XX", MPTag.LEMMA_ORDINAL},
+				{"12nd"  , "XX", MPTag.LEMMA_ORDINAL},
+				{"23rd"  , "XX", MPTag.LEMMA_ORDINAL},
+				{"34th"  , "XX", MPTag.LEMMA_ORDINAL},
+				{"first" , "XX", MPTag.LEMMA_ORDINAL},
+				{"third" , "XX", MPTag.LEMMA_ORDINAL},
+				{"fourth", "XX", MPTag.LEMMA_ORDINAL},
 				
-				{"studies"  , "VBZ", "study"},
-				{"pushes"   , "VBZ", "push"},
-				{"abuses"   , "VBZ", "abuse"},
+				// cardinal
+				{"zero"    , "XX", MPTag.LEMMA_CARDINAL},
+				{"ten"     , "XX", MPTag.LEMMA_CARDINAL},
+				{"tens"    , "XX", MPTag.LEMMA_CARDINAL},
+				{"eleven"  , "XX", MPTag.LEMMA_CARDINAL},
+				{"fourteen", "XX", MPTag.LEMMA_CARDINAL},
+				{"thirties", "XX", MPTag.LEMMA_CARDINAL},
+				
+				// verb: 3rd-person singular
+				{"studies", "VBZ", "study"},
+				{"pushes" , "VBZ", "push"},
+				{"takes"  , "VBZ", "take"},
+				
+				// verb: gerund
+				{"lying"  , "VBG", "lie"},
+				{"feeling", "VBG", "feel"},
+				{"running", "VBG", "run"},
+				{"taking" , "VBG", "take"},
+
+				// verb: past (participle)
+				{"denied" , "VBD", "deny"},
+				{"entered", "VBD", "enter"},
+				{"zipped" , "VBD", "zip"},
+				{"heard"  , "VBD", "hear"},
+				{"drawn"  , "VBN", "draw"},
+				{"clung"  , "VBN", "cling"},
+
+				// verb: irregular
 				{"chivvies" , "VBZ", "chivy"},
-				{"takes"    , "VBZ", "take"},
-				{"feeling"  , "VBG", "feel"},
-				{"running"  , "VBG", "run"},
-				{"lying"    , "VBG", "lie"},
-				{"taken"    , "VBN", "take"},
+				{"took"     , "VBD", "take"},
 				{"beaten"   , "VBN", "beat"},
 				{"forbidden", "VBN", "forbid"},
 				{"bitten"   , "VBN", "bite"},
@@ -78,66 +87,75 @@ public class EnglishMPAnalyzerTest
 				{"woven"    , "VBN", "weave"},
 				{"woken"    , "VBN", "wake"},
 				{"slept"    , "VBD", "sleep"},
-				{"studied"  , "VBD", "study"},
-				{"entered"  , "VBD", "enter"},
 				{"fed"      , "VBD", "feed"},
 				{"led"      , "VBD", "lead"},
-				{"zipped"   , "VBD", "zip"},
 				{"learnt"   , "VBD", "learn"},
-				{"abused"   , "VBD", "abuse"},
-				{"heard"    , "VBD", "hear"},
 				{"rode"     , "VBD", "ride"},
 				{"spoke"    , "VBD", "speak"},
 				{"woke"     , "VBD", "wake"},
 				{"wrote"    , "VBD", "write"},
 				{"bore"     , "VBD", "bear"},
 				{"stove"    , "VBD", "stave"},
-				{"stove"    , "VBD", "stave"},
 				{"drove"    , "VBD", "drive"},
 				{"wove"     , "VBD", "weave"},
-				{"took"     , "VBD", "take"},
 				
-				{"occurred", "VBD", "occur"},
-				{"denied"  , "VBD", "deny"},
-				{"studying", "VBG", "study"},
-				
-				{"drabber" , "JJR", "drab"},
-				{"larger"  , "JJR", "large"},
-				{"earlier" , "JJR", "early"},
+				// noun: plural
+				{"studies"  , "NNS", "study"},
+				{"crosses"  , "NNS", "cross"},
+				{"areas"    , "NNS", "area"},
+				{"gentlemen", "NNS", "gentleman"},
+				{"vertebrae", "NNS", "vertebra"},
+				{"foci"     , "NNS", "focus"},
+
+				// noun: irregular
+				{"indices"   , "NNS", "index"},
+				{"appendices", "NNS", "appendix"},
+				{"wolves"    , "NNS", "wolf"},
+				{"knives"    , "NNS", "knife"},
+				{"quizzes"   , "NNS", "quiz"},
+				{"mice"      , "NNS", "mouse"},
+				{"geese"     , "NNS", "goose"},
+				{"teeth"     , "NNS", "tooth"},
+				{"feet"      , "NNS", "foot"},
+				{"analyses"  , "NNS", "analysis"},
+				{"optima"    , "NNS", "optimum"},
+				{"lexica"    , "NNS", "lexicon"},
+				{"corpora"   , "NNS", "corpus"},
+
+				// adjective: comparative
+				{"easier" , "JJR", "easy"},
+				{"smaller", "JJR", "small"},
+				{"bigger" , "JJR", "big"},
+				{"larger" , "JJR", "large"},
+
+				// adjective: superative
+				{"easiest" , "JJS", "easy"},
+				{"smallest", "JJS", "small"},
+				{"biggest" , "JJS", "big"},
 				{"largest" , "JJS", "large"},
-				{"earliest", "JJS", "early"},
-				{"after"   , "JJ" , "after"},
 				
-				{"larger"  , "RBR", "large"},
-				{"earlier" , "RBR", "early"},
-				{"actively", "RB" , "actively"},
-				{"best"    , "RBS", "good"},
-				{"largest" , "RBS", "large"},
+				// adjective: irregular
+				{"best", "JJS", "good"},
+				
+				// adverb: comparative
+				{"earlier", "RBR", "early"},
+				{"sooner" , "RBR", "soon"},
+				{"larger" , "RBR", "large"},
+				
 				{"earliest", "RBS", "early"},
+				{"soonest" , "RBS", "soon"},
+				{"largest" , "RBS", "large"},
 				
-				{"dominated", "JJ", "dominated"},
-				{"dominated", "VBD", "dominate"},
+				// adverb: irregular
+				{"best", "RBS", "well"},
 				
-				{"1st"   , "XX", "#ord#"},
-				{"12nd"  , "XX", "#ord#"},
-				{"23rd"  , "XX", "#ord#"},
-				{"34th"  , "XX", "#ord#"},
-				{"first" , "XX", "#ord#"},
-				{"third" , "XX", "#ord#"},
-				{"fourth", "XX", "#ord#"},
-				
-				{"zero"    , "XX", "#crd#"},
-				{"ten"     , "XX", "#crd#"},
-				{"tens"    , "XX", "#crd#"},
-				{"eleven"  , "XX", "#crd#"},
-				{"fourteen", "XX", "#crd#"},
-				{"thirties", "XX", "#crd#"},
-				
+				// URL
 				{"http://www.google.com"     , "XX", "#url#"},
 				{"www.google.com"            , "XX", "#url#"},
 				{"mailto:somebody@google.com", "XX", "#url#"},
 				{"some-body@google+.com"     , "XX", "#url#"},
 				
+				// numbers
 				{"10%", "XX", "0"},
 				{"$10", "XX", "0"},
 				{".01", "XX", "0"},
@@ -150,15 +168,19 @@ public class EnglishMPAnalyzerTest
 				{"A/01", "XX", "a/0"},
 				{"$10.23,45:67-89/10%", "XX", "0"},
 				
+				// punctuation
 				{".!?-*=~,", "XX", ".!?-*=~,"},
 				{"..!!??--**==~~,,", "XX", "..!!??--**==~~,,"},
 				{"...!!!???---***===~~~,,,", "XX", "..!!??--**==~~,,"},
 				{"....!!!!????----****====~~~~,,,,", "XX", "..!!??--**==~~,,"}};
 		
 		EnglishMPAnalyzer analyzer = new EnglishMPAnalyzer();
-		System.out.println(IDictionary.LAST_UPDATE);
+		String lemma;
 		
 		for (String[] token : tokens)
-			assertEquals(token[2], analyzer.getLemma(token[0], token[1]));
+		{
+			lemma = analyzer.getLemma(token[0], token[1]);
+			assertEquals(token[2], lemma);
+		}
 	}
 }

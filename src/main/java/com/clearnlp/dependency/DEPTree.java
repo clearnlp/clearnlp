@@ -36,12 +36,19 @@ import com.carrotsearch.hppc.IntObjectOpenHashMap;
 import com.carrotsearch.hppc.IntOpenHashSet;
 import com.carrotsearch.hppc.cursors.IntCursor;
 import com.clearnlp.coreference.Mention;
+import com.clearnlp.dependency.factory.DefaultDEPNodeDatumFactory;
+import com.clearnlp.dependency.factory.DefaultDEPTreeDatumFactory;
+import com.clearnlp.dependency.factory.IDEPNodeDatum;
+import com.clearnlp.dependency.factory.IDEPNodeDatumFactory;
+import com.clearnlp.dependency.factory.IDEPTreeDatum;
+import com.clearnlp.dependency.factory.IDEPTreeDatumFactory;
 import com.clearnlp.dependency.srl.SRLArc;
 import com.clearnlp.dependency.srl.SRLTree;
 import com.clearnlp.reader.DEPReader;
 import com.clearnlp.util.UTCollection;
 import com.clearnlp.util.pair.IntIntPair;
 import com.clearnlp.util.pair.StringIntPair;
+import com.google.common.collect.Lists;
 
 
 /**
@@ -1024,6 +1031,56 @@ public class DEPTree extends ArrayList<DEPNode>
 			nNode.setHead(nHead, oNode.getLabel());
 		}
 		
+		return tree;
+	}
+	
+	public IDEPTreeDatum getDEPTreeDatum()
+	{
+		return getDEPTreeDatum(new DefaultDEPTreeDatumFactory(), new DefaultDEPNodeDatumFactory());
+	}
+	
+	public IDEPTreeDatum getDEPTreeDatum(IDEPTreeDatumFactory treeFactory, IDEPNodeDatumFactory nodeFactory)
+	{
+		IDEPTreeDatum datum = treeFactory.createDEPTreeDatum();
+		List<IDEPNodeDatum> nodeData = Lists.newArrayList();
+		int i, size = size();
+		DEPNode node;
+		
+		for (i=1; i<size; i++)
+		{
+			node = get(i);
+			nodeData.add(node.getDEPNodeDatum(nodeFactory));
+		}
+		
+		datum.setDEPNodeData(nodeData);
+		return datum;
+	}
+	
+	static public DEPTree buildFrom(IDEPTreeDatum treeDatum)
+	{
+		List<IDEPNodeDatum> nodeData = treeDatum.getDEPNodeData();
+		DEPTree tree = new DEPTree();
+		int i, size = nodeData.size();
+		IDEPNodeDatum nd;
+		DEPNode node;
+		
+		for (i=0; i<size; i++)
+		{
+			nd = nodeData.get(i);
+			tree.add(new DEPNode(nd.getID(), nd.getForm(), nd.getLemma(), nd.getPOS(), nd.getNamedEntity(), new DEPFeat(nd.getFeats())));
+		}
+
+		for (i=0; i<size; i++)
+		{
+			nd = nodeData.get(i);
+			node = tree.get(i+1);
+			
+			node.initSHeads();
+			node.setHead(new DEPArc(tree, nd.getSyntacticHead()));
+			node.addSHeads(DEPLib.getSRLArcs(tree, nd.getSemanticHeads()));
+		}
+		
+		tree.resetDependents();
 		return tree;
 	}
 	

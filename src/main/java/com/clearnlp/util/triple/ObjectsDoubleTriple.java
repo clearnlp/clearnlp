@@ -18,7 +18,7 @@ package com.clearnlp.util.triple;
 import com.clearnlp.util.UTMath;
 
 /**
- * @since 1.5.0
+ * @since 2.0.0
  * @author Jinho D. Choi ({@code jdchoi77@gmail.com})
  */
 public class ObjectsDoubleTriple<T1,T2> implements Comparable<ObjectsDoubleTriple<T1,T2>>

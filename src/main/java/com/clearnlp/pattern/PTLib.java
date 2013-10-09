@@ -26,7 +26,9 @@ import com.clearnlp.constant.universal.UNPunct;
  */
 public class PTLib
 {
+	static final public Pattern COMMA        = Pattern.compile(UNPunct.COMMA);
 	static final public Pattern SPACE        = Pattern.compile(UNConstant.SPACE);
+	static final public Pattern TAB          = Pattern.compile(UNConstant.TAB);
 	static final public Pattern UNDERSCORE   = Pattern.compile(UNPunct.UNDERSCORE);
 	static final public Pattern WHITE_SPACES = Pattern.compile("\\s+");
 	
@@ -48,5 +50,15 @@ public class PTLib
 	static public String[] splitWhiteSpaces(String s)
 	{
 		return split(s, WHITE_SPACES);
+	}
+	
+	static public String[] splitTabs(String s)
+	{
+		return split(s, TAB);
+	}
+	
+	static public String[] splitCommas(String s)
+	{
+		return split(s, COMMA);
 	}
 }

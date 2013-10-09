@@ -23,6 +23,7 @@
 */
 package com.clearnlp.pos;
 
+import com.clearnlp.morphology.DefaultMPToken;
 import com.clearnlp.reader.AbstractColumnReader;
 import com.clearnlp.reader.AbstractReader;
 
@@ -43,6 +44,8 @@ public class POSNode
 	public String pos;
 	/** The lemma of the word-form. */
 	public String lemma;
+	/** Morphemes of the word-form. */
+	public DefaultMPToken mpToken;
 	
 	/** Constructs a POS node with dummy values ({@link AbstractReader#DUMMY_TAG}). */
 	public POSNode()
@@ -92,8 +95,8 @@ public class POSNode
 		this.pos   = pos;
 		this.lemma = lemma;
 		
-		simplifiedForm      = AbstractReader.DUMMY_TAG;
-		lowerSimplifiedForm = AbstractReader.DUMMY_TAG;
+		simplifiedForm = null;
+		lowerSimplifiedForm = null;
 	}
 	
 	/**
@@ -104,16 +107,6 @@ public class POSNode
 	public boolean isForm(String form)
 	{
 		return this.form.equals(form);
-	}
-	
-	/**
-	 * Returns {@code true} if this node's simplified form equals to the specific form.
-	 * @param form the form to be compared.
-	 * @return {@code true} if this node's simplified form equals to the specific form.
-	 */
-	public boolean isSimplifiedForm(String form)
-	{
-		return this.simplifiedForm.equals(form);
 	}
 	
 	/**
@@ -145,6 +138,16 @@ public class POSNode
 	public boolean isLemma(String lemma)
 	{
 		return this.lemma.equals(lemma);
+	}
+	
+	public void setMPToken(DefaultMPToken token)
+	{
+		this.mpToken = token;
+	}
+	
+	public void setLemma(String lemma)
+	{
+		this.lemma = lemma;
 	}
 	
 	/* (non-Javadoc)

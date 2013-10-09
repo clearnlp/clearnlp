@@ -23,6 +23,7 @@
 */
 package com.clearnlp.util.pair;
 
+import com.clearnlp.constant.universal.UNPunct;
 import com.clearnlp.util.UTMath;
 
 /**
@@ -50,5 +51,18 @@ public class StringDoublePair implements Comparable<StringDoublePair>
 	public int compareTo(StringDoublePair p)
 	{
 		return UTMath.signum(d - p.d);
+	}
+	
+	public String toString()
+	{
+		StringBuilder build = new StringBuilder();
+		
+		build.append(UNPunct.LEFT_ROUND_BRACKET);
+		build.append(s);
+		build.append(UNPunct.COMMA);
+		build.append(d);
+		build.append(UNPunct.RIGHT_ROUND_BRACKET);
+	
+		return build.toString();
 	}
 }

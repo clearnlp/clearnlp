@@ -1,6 +1,6 @@
 <!--Feature template for dependency parsing in English -->
 <feature_template>
-    <cutoff label="4" feature="2" note="baseline"/>
+    <cutoff label="4" feature="2" note="base"/>
     <cutoff label="4" feature="4" note="bootstrapping"/>
 
     <!-- basic features -->

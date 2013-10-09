@@ -80,9 +80,9 @@ public class EnglishPOSTagger extends AbstractPOSTagger
 //	====================================== ABSTRACT METHODS ======================================
 	
 	@Override
-	protected void setLemma(DEPNode node)
+	protected void morphologicalAnalyze(DEPNode node)
 	{
-		node.lemma = m_analyzer.getLemmaFromLowerSimplifiedForm(node.lowerSimplifiedForm, node.pos);
+		m_analyzer.analyze(node);
 	}
 	
 	@Override

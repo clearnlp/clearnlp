@@ -18,7 +18,7 @@ package com.clearnlp.component.evaluation;
 import com.clearnlp.dependency.DEPTree;
 
 /**
- * @since 1.5.0
+ * @since 2.0.0
  * @author Jinho D. Choi ({@code jdchoi77@gmail.com})
  */
 abstract public class AbstractEval

@@ -96,7 +96,7 @@ abstract public class AbstractPOSTagger extends AbstractStatisticalComponent<POS
 //	====================================== ABSTRACT METHODS ======================================
 	
 	abstract protected boolean applyRules(POSState state);
-	abstract protected void setLemma(DEPNode node);
+	abstract protected void morphologicalAnalyze(DEPNode node);
 	
 //	====================================== LOAD/SAVE MODELS ======================================
 	
@@ -257,7 +257,7 @@ abstract public class AbstractPOSTagger extends AbstractStatisticalComponent<POS
 			if (!applyRules(state))
 				node.pos = getLabel(insts, state);
 			
-			setLemma(node);
+			morphologicalAnalyze(node);
 		}
 		
 		return insts;

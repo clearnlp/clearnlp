@@ -15,8 +15,10 @@
 */
 package com.clearnlp.util;
 
+import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.List;
 
 public class UTCollection
@@ -45,5 +47,16 @@ public class UTCollection
 		}
 		
 		return build.substring(delim.length());
+	}
+	
+	@SuppressWarnings("unchecked")
+	static public <T>Deque<T> newArrayDeque(T... items)
+	{
+		Deque<T> deque = new ArrayDeque<>();
+		
+		for (T item : items)
+			deque.add(item);
+		
+		return deque;
 	}
 }

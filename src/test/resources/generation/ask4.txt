@@ -1,0 +1,14 @@
+1	What	what	WP	_	2	attr	2:R-A2
+2	's	be	VBZ	be.01	0	root	_
+3	your	your	PRPS	_	4	poss	_
+4	name	name	NN	_	2	nsubj	2:A1
+5	?	.	.	_	2	punct	_
+
+1	Can	can	MD	_	3	aux	3:AM-MOD
+2	you	you	PRP	_	3	nsubj	3:A0
+3	describe	describe	VB	describe.01	0	root	_
+4	what	what	WP	_	7	dobj	7:R-A1
+5	you	you	PRP	_	7	nsubj	7:A0
+6	're	be	VBP	_	7	aux	_
+7	seeing	see	VBG	see.01	3	ccomp	3:A1
+8	?	.	.	_	3	punct	_

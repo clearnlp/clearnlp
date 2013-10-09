@@ -15,11 +15,18 @@
 */
 package com.clearnlp.generation;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -27,7 +34,9 @@ import com.clearnlp.constant.universal.UNConstant;
 import com.clearnlp.constant.universal.UNPunct;
 import com.clearnlp.dictionary.DTEnglish;
 import com.clearnlp.morphology.MPLibEn;
+import com.clearnlp.pattern.PTLib;
 import com.clearnlp.util.UTInput;
+import com.google.common.collect.Lists;
 
 /**
  * @since 1.4.0
@@ -126,5 +135,52 @@ public class LGVerbEn
 			return baseForm+"es"; 
 		
 		return baseForm+"s";
+	}
+	
+	public void addVerbs(InputStream in) throws IOException
+	{
+		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+		String line, vb, vbd, vbn;
+		String[] tmp;
+		
+		while ((line = reader.readLine()) != null)
+		{
+			tmp = PTLib.splitTabs(line);
+			vb  = tmp[0];
+			
+			if (m_vbd.containsKey(vb))
+				continue;
+			
+			vbd = tmp[1];
+			vbn = tmp[2];
+
+			if (vbd.equals(getPastForm(vb)) && vbn.equals(getPastParticipleForm(vb)))
+				continue;
+			
+			m_vbd.put(vb, vbd);
+			m_vbn.put(vb, vbn);
+		}
+		
+		reader.close();
+	}
+	
+	public void printVerbs(OutputStream out)
+	{
+		PrintStream fout = new PrintStream(new BufferedOutputStream(out));
+		List<String> verbs = Lists.newArrayList(m_vbd.keySet());
+		Collections.sort(verbs);
+		
+		for (String vb : verbs)
+			fout.printf("%s\t%s\t%s\n", vb, m_vbd.get(vb), m_vbn.get(vb));
+		
+		fout.close();
+	}
+	
+	static public void main(String[] args) throws IOException
+	{
+		LGVerbEn lgv = new LGVerbEn();
+		
+		lgv.addVerbs(new FileInputStream(args[0]));
+		lgv.printVerbs(new FileOutputStream(args[1]));
 	}
 }

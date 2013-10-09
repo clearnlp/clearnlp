@@ -34,6 +34,9 @@ import java.util.regex.Pattern;
 
 import com.carrotsearch.hppc.IntOpenHashSet;
 import com.clearnlp.constituent.CTLibEn;
+import com.clearnlp.dependency.factory.DefaultDEPNodeDatumFactory;
+import com.clearnlp.dependency.factory.IDEPNodeDatum;
+import com.clearnlp.dependency.factory.IDEPNodeDatumFactory;
 import com.clearnlp.dependency.srl.SRLArc;
 import com.clearnlp.ner.NERNode;
 import com.clearnlp.pos.POSNode;
@@ -1278,6 +1281,27 @@ public class DEPNode extends NERNode implements Comparable<DEPNode>
 	public void setXHeads(List<DEPArc> xHeads)
 	{
 		x_heads = xHeads;
+	}
+	
+	public IDEPNodeDatum getDEPNodeDatum()
+	{
+		return getDEPNodeDatum(new DefaultDEPNodeDatumFactory());
+	}
+	
+	public IDEPNodeDatum getDEPNodeDatum(IDEPNodeDatumFactory factory)
+	{
+		IDEPNodeDatum datum = factory.createDEPTreeDatum();
+		
+		datum.setID(id);
+		datum.setForm(form);
+		datum.setLemma(lemma);
+		datum.setPOS(pos);
+		datum.setNamedEntity(nament);
+		datum.setFeats(d_feats.toString());
+		datum.setSyntacticHead(d_head.toString());
+		datum.setSemanticHeads(DEPLib.toString(s_heads));
+		
+		return datum;
 	}
 	
 /*	protected void addChild(DPNode child)

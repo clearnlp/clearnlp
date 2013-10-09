@@ -62,7 +62,7 @@ public class NLPProcess
 		int i, size = tree.size();
 		DEPNode node;
 		
-		for (i=1; i<size; i++)
+		for (i=0; i<size; i++)
 		{
 			node = tree.get(i);
 			node.simplifiedForm = MPLib.simplifyBasic(node.form);

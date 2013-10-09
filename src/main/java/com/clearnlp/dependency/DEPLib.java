@@ -26,8 +26,10 @@ package com.clearnlp.dependency;
 import java.util.Collections;
 import java.util.List;
 
+import com.clearnlp.dependency.srl.SRLArc;
 import com.clearnlp.reader.AbstractColumnReader;
 import com.clearnlp.util.pair.StringIntPair;
+import com.google.common.collect.Lists;
 
 /**
  * Dependency library.
@@ -103,12 +105,12 @@ public class DEPLib
 		return counts;
 	}
 
-	static public <T extends DEPArc>String toString(List<T> heads)
+	static public <T extends DEPArc>String toString(List<T> arcs)
 	{
 		StringBuilder build = new StringBuilder();
-		Collections.sort(heads);
+		Collections.sort(arcs);
 		
-		for (DEPArc arc : heads)
+		for (DEPArc arc : arcs)
 		{
 			build.append(DELIM_HEADS);
 			build.append(arc.toString());
@@ -118,5 +120,31 @@ public class DEPLib
 			return build.substring(DELIM_HEADS.length());
 		else
 			return AbstractColumnReader.BLANK_COLUMN;
+	}
+	
+	static public List<DEPArc> getDEPArcs(DEPTree tree, String arcsStr)
+	{
+		List<DEPArc> arcs = Lists.newArrayList();
+		
+		if (arcsStr.equals(AbstractColumnReader.BLANK_COLUMN))
+			return arcs;
+		
+		for (String arc : arcsStr.split(DELIM_HEADS))
+			arcs.add(new DEPArc(tree, arc));
+		
+		return arcs;
+	}
+	
+	static public List<SRLArc> getSRLArcs(DEPTree tree, String arcsStr)
+	{
+		List<SRLArc> arcs = Lists.newArrayList();
+		
+		if (arcsStr.equals(AbstractColumnReader.BLANK_COLUMN))
+			return arcs;
+		
+		for (String arc : arcsStr.split(DELIM_HEADS))
+			arcs.add(new SRLArc(tree, arc));
+		
+		return arcs;
 	}
 }

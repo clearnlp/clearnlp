@@ -66,4 +66,9 @@ public class MPLib
 		
 		return form;
 	}
+	
+	static public String getSimplifiedLowercaseWordForm(String form)
+	{
+		return simplifyBasic(form).toLowerCase();
+	}
 }

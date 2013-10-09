@@ -66,7 +66,7 @@ public class DefaultPOSTagger extends AbstractPOSTagger
 //	====================================== ABSTRACT METHODS ======================================
 
 	@Override
-	protected void setLemma(DEPNode node)
+	protected void morphologicalAnalyze(DEPNode node)
 	{
 		node.lemma = node.lowerSimplifiedForm;
 	}

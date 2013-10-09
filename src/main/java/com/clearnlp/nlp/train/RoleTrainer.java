@@ -28,7 +28,7 @@ import com.clearnlp.nlp.NLPLib;
 import com.clearnlp.reader.JointReader;
 
 /**
- * @since 1.5.0
+ * @since 2.0.0
  * @author Jinho D. Choi ({@code jdchoi77@gmail.com})
  */
 public class RoleTrainer extends AbstractNLPTrainer

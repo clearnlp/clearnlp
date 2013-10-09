@@ -60,34 +60,6 @@ public class MPLibEn extends MPLib
 		{"iness","y"},		{"ful"	,""},		{"iful"	,"y"},		{"ly"	,""},		{"ily"	,"y"}};
 	
 //	static public String[] RULE_PREFIXES = {"a","anti","be","de","dis","en","in","mal","mis","over","post","pre","re","un","under"};
-
-	
-	
-	
-	
-	
-	
-	
-	static public String getBaseForm(String form)
-	{
-//		for (Pair<String,String> tup : rule)
-//		{
-//			if (form.endsWith(tup.o1))
-//			{
-//				offset = form.length() - tup.o1.length();
-//				base   = form.substring(0, offset) + tup.o2;
-//				
-//				if (set.contains(base))	return base;
-//			}
-//		}
-		
-		return null;
-	}
-	
-	
-	
-	
-	
 	
 	/**
 	 * Returns {@code true} if the specific word-form is a derivation of a verb "be".

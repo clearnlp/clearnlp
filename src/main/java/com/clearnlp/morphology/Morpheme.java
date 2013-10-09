@@ -15,8 +15,10 @@
 */
 package com.clearnlp.morphology;
 
+import com.clearnlp.constant.universal.UNPunct;
+
 /**
- * @since 1.5.0
+ * @since 2.0.0
  * @author Jinho D. Choi ({@code jdchoi77@gmail.com})
  */
 public class Morpheme
@@ -28,5 +30,36 @@ public class Morpheme
 	{
 		this.form = form;
 		this.pos  = pos;
+	}
+	
+	public String getForm()
+	{
+		return form;
+	}
+	
+	public String getPOS()
+	{
+		return pos;
+	}
+	
+	public boolean isForm(String form)
+	{
+		return this.form.equals(form);
+	}
+	
+	public boolean isPOS(String pos)
+	{
+		return this.pos.equals(pos);
+	}
+	
+	public String toString()
+	{
+		StringBuilder build = new StringBuilder();
+		
+		build.append(form);
+		build.append(UNPunct.FORWARD_SLASH);
+		build.append(pos);
+		
+		return build.toString();
 	}
 }
