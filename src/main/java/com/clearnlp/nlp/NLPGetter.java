@@ -95,6 +95,17 @@ public class NLPGetter
 	
 	// ============================= getter: component =============================
 	
+	static public AbstractComponent[] getComponents(String path, String language, List<String> modes) throws IOException
+	{
+		int i, size = modes.size();
+		AbstractComponent[] components = new AbstractComponent[size];
+		
+		for (i=0; i<size; i++)
+			components[i] = getComponent(path, language, modes.get(i));
+		
+		return components;
+	}
+	
 	static public AbstractComponent[] getComponents(ZipFile file, String language, List<String> modes) throws IOException
 	{
 		int i, size = modes.size();
@@ -104,6 +115,11 @@ public class NLPGetter
 			components[i] = getComponent(file, language, modes.get(i));
 		
 		return components;
+	}
+	
+	static public AbstractComponent getComponent(String path, String language, String mode) throws IOException
+	{
+		return getComponent(getObjectInputStream(path, mode), language, mode);
 	}
 	
 	static public AbstractComponent getComponent(ZipFile file, String language, String mode) throws IOException
@@ -124,6 +140,15 @@ public class NLPGetter
 		}
 		
 		throw new IllegalArgumentException("The requested mode '"+mode+"' is not supported.");
+	}
+	
+	static private ObjectInputStream getObjectInputStream(String path, String mode) throws IOException
+	{
+		if (mode.equals(NLPLib.MODE_MORPH))
+			return null;
+			
+		InputStream stream = UTInput.getInputStreamsFromClasspath(path+"/"+mode);
+		return new ObjectInputStream(new BufferedInputStream(new GZIPInputStream(stream)));
 	}
 	
 	static private ObjectInputStream getObjectInputStream(ZipFile file, String mode) throws IOException

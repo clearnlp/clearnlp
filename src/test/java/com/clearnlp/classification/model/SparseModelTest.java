@@ -62,7 +62,7 @@ public class SparseModelTest
 		for (int i=0; i<labels.length; i++)
 			assertEquals(i, model.getLabelIndex(labels[i]));
 
-		double[][] weights = {{1,0.1,0.01,0.001,0.0001},{3,0.3,0.03,0.003,0.0003},{2,0.2,0.02,0.002,0.0002}};
+		float[][] weights = {{1,0.1f,0.01f,0.001f,0.0001f},{3,0.3f,0.03f,0.003f,0.0003f},{2,0.2f,0.02f,0.002f,0.0002f}};
 		model.initWeightVector();
 		
 		for (int i=0; i<weights.length; i++)
@@ -98,17 +98,17 @@ public class SparseModelTest
 		
 		StringPrediction p = model.predictBest(x);
 		assertEquals("B", p.label);
-		assertEquals(true, p.score == 3.303);
+		assertEquals("3.303", String.format("%.3f", p.score));
 		
 		List<StringPrediction> list = model.predictAll(x);
 		
 		p = list.get(1);
 		assertEquals("C", p.label);
-		assertEquals(true, p.score == 2.202);
+		assertEquals("2.202", String.format("%.3f", p.score));
 		
 		p = list.get(2);
 		assertEquals("A", p.label);
-		assertEquals(true, p.score == 1.101);
+		assertEquals("1.101", String.format("%.3f", p.score));
 		
 		x = new SparseFeatureVector(true);
 		
@@ -117,7 +117,7 @@ public class SparseModelTest
 		
 		p = model.predictAll(x).get(2);
 		assertEquals("A", p.label);
-		assertEquals(true, 1.204 == p.score);
+		assertEquals("1.204", String.format("%.3f", p.score));
 	}
 	
 	@Test
@@ -133,7 +133,7 @@ public class SparseModelTest
 		model.initLabelArray();
 		model.addFeatures(features);
 		
-		double[] weights = {1,0.1,0.01,0.001,0.0001};
+		float[] weights = {1,0.1f,0.01f,0.001f,0.0001f};
 		
 		model.initWeightVector();
 		model.copyWeights(weights);
@@ -145,13 +145,13 @@ public class SparseModelTest
 		
 		StringPrediction p = model.predictBest(vector);
 		assertEquals("A", p.label);
-		assertEquals(true, p.score == 1.101);
+		assertEquals("1.101", String.format("%.3f", p.score));
 		
 		List<StringPrediction> list = model.predictAll(vector);
 		
 		p = list.get(1);
 		assertEquals("B", p.label);
-		assertEquals(true, p.score == -1.101);
+		assertEquals("-1.101", String.format("%.3f", p.score));
 		
 		model  = saveAndGetModel(model);
 		vector = new SparseFeatureVector(true);
@@ -161,6 +161,6 @@ public class SparseModelTest
 		
 		p = model.predictBest(vector);
 		assertEquals("A", p.label);
-		assertEquals(true, 1.204 == p.score);
+		assertEquals("1.204", String.format("%.3f", p.score));
 	}
 }

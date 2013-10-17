@@ -44,6 +44,7 @@ public class SRLState extends DefaultState
 	List<String>   l_argns;
 	IntOpenHashSet s_skip;
 	Map<String,ObjectDoublePair<DEPNode>> m_argns;
+	Map<String,ObjectDoublePair<DEPNode>> m_refs;
 
 	DEPNode[] lm_deps, rm_deps;
 	DEPNode[] ln_sibs, rn_sibs;
@@ -58,6 +59,7 @@ public class SRLState extends DefaultState
 		s_skip  = new IntOpenHashSet();
 		l_argns = Lists.newArrayList();
 		m_argns = Maps.newHashMap();
+		m_refs  = Maps.newHashMap();
 		
 		initArcs(tree);
 	}
@@ -169,6 +171,11 @@ public class SRLState extends DefaultState
 		return m_argns.get(label);
 	}
 	
+	public ObjectDoublePair<DEPNode> getReferentArgument(String label)
+	{
+		return m_refs.get(label);
+	}
+	
 	public DEPNode getLeftmostDependent(int id)
 	{
 		return lm_deps[id];
@@ -217,6 +224,11 @@ public class SRLState extends DefaultState
 	}
 	
 	public void putCoreNumberedArgument(String label, ObjectDoublePair<DEPNode> p)
+	{
+		m_argns.put(label, p);
+	}
+	
+	public void putReferentArgument(String label, ObjectDoublePair<DEPNode> p)
 	{
 		m_argns.put(label, p);
 	}

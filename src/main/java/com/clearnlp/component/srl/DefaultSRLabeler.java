@@ -27,6 +27,7 @@ import java.io.ObjectInputStream;
 
 import com.clearnlp.classification.feature.JointFtrXml;
 import com.clearnlp.classification.model.StringModel;
+import com.clearnlp.classification.prediction.StringPrediction;
 import com.clearnlp.classification.train.StringTrainSpace;
 import com.clearnlp.component.state.SRLState;
 import com.clearnlp.dependency.DEPNode;
@@ -68,6 +69,9 @@ public class DefaultSRLabeler extends AbstractSRLabeler
 	{
 		super(xmls, spaces, models, lexica);
 	}
+	
+	@Override
+	protected boolean rerankFromArgument(StringPrediction prediction, DEPNode arg) {return false;}
 
 	@Override
 	protected String getHardLabel(SRLState state, String label) {return null;}
@@ -77,4 +81,7 @@ public class DefaultSRLabeler extends AbstractSRLabeler
 	
 	@Override
 	protected void postLabel(SRLState state) {}
+	
+	@Override
+	protected DEPNode getPossibleDescendent(DEPNode pred, DEPNode arg) {return null;}
 }

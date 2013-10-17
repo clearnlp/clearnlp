@@ -37,7 +37,7 @@ abstract public class AbstractOneVsAll extends AbstractAlgorithm
 	 * @param currLabel the label to get the weight vector for.
 	 * @return the weight vector for the specific label given the training space.
 	 */
-	abstract public double[] getWeight(AbstractTrainSpace space, int currLabel);
+	abstract public float[] getWeight(AbstractTrainSpace space, int currLabel);
 	
 	/** @return an array of 1 or -1. */
 	protected byte[] getBinaryLabels(IntArrayList ys, int currLabel)
@@ -51,7 +51,7 @@ abstract public class AbstractOneVsAll extends AbstractAlgorithm
 		return aY;
 	}
 	
-	protected double getScore(double[] weight, int[] x, double[] v, double bias)
+	protected double getScore(float[] weight, int[] x, double[] v, double bias)
 	{
 		double score = weight[0] * bias;
 		int i, size = x.length;
@@ -67,7 +67,7 @@ abstract public class AbstractOneVsAll extends AbstractAlgorithm
 		return score;
 	}
 	
-	protected void updateWeight(double[] weight, double cost, int[] x, double[] v, double bias)
+	protected void updateWeight(float[] weight, double cost, int[] x, double[] v, double bias)
 	{
 		int i, size = x.length;
 		weight[0] += cost * bias;

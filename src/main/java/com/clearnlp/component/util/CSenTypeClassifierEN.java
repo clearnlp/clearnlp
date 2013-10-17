@@ -113,7 +113,7 @@ public class CSenTypeClassifierEN extends AbstractComponent
 				break;
 		}
 		
-		if (verb.isLemma("be"))
+		if (verb.isLemma("be") || verb.isLemma("do") || verb.isLemma("have"))
 		{
 			for (; i<size; i++)
 			{
@@ -158,7 +158,7 @@ public class CSenTypeClassifierEN extends AbstractComponent
 					return false;	
 			}
 			
-			if (dep.isLabel(P_SBJ) || dep.isLabel(DEPLibEn.DEP_EXPL))
+			if (node.id < verb.id && (dep.isLabel(P_SBJ) || dep.isLabel(DEPLibEn.DEP_EXPL)))
 				return false;
 		}
 		

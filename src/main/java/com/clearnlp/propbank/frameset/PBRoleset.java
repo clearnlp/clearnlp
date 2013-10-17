@@ -167,6 +167,11 @@ public class PBRoleset implements Serializable, Comparable<PBRoleset>
 		s_name = name;
 	}
 	
+	public boolean isValidArgumentNumber(String n)
+	{
+		return m_roles.containsKey(n);
+	}
+	
 	public boolean isValidArgument(String label)
 	{
 		// TODO: to be removed

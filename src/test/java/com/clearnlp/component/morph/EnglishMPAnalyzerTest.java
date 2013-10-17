@@ -27,6 +27,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import com.clearnlp.dependency.DEPNode;
 import com.clearnlp.morphology.MPTag;
 
 
@@ -42,21 +43,23 @@ public class EnglishMPAnalyzerTest
 				{"na" , "TO", "to"},
 
 				// ordinal
-				{"1st"   , "XX", MPTag.LEMMA_ORDINAL},
-				{"12nd"  , "XX", MPTag.LEMMA_ORDINAL},
-				{"23rd"  , "XX", MPTag.LEMMA_ORDINAL},
-				{"34th"  , "XX", MPTag.LEMMA_ORDINAL},
-				{"first" , "XX", MPTag.LEMMA_ORDINAL},
-				{"third" , "XX", MPTag.LEMMA_ORDINAL},
-				{"fourth", "XX", MPTag.LEMMA_ORDINAL},
+				{"1st"   , "XX" , MPTag.LEMMA_ORDINAL},
+				{"12nd"  , "XX" , MPTag.LEMMA_ORDINAL},
+				{"23rd"  , "XX" , MPTag.LEMMA_ORDINAL},
+				{"34th"  , "XX" , MPTag.LEMMA_ORDINAL},
+				{"first" , "XX" , MPTag.LEMMA_ORDINAL},
+				{"third" , "XX" , MPTag.LEMMA_ORDINAL},
+				{"fourth", "XX" , MPTag.LEMMA_ORDINAL},
+				{"1st"   , "NNP", "1st"},
 				
 				// cardinal
-				{"zero"    , "XX", MPTag.LEMMA_CARDINAL},
-				{"ten"     , "XX", MPTag.LEMMA_CARDINAL},
-				{"tens"    , "XX", MPTag.LEMMA_CARDINAL},
-				{"eleven"  , "XX", MPTag.LEMMA_CARDINAL},
-				{"fourteen", "XX", MPTag.LEMMA_CARDINAL},
-				{"thirties", "XX", MPTag.LEMMA_CARDINAL},
+				{"zero"    , "NN" , MPTag.LEMMA_CARDINAL},
+				{"ten"     , "CD" , MPTag.LEMMA_CARDINAL},
+				{"tens"    , "NNS", MPTag.LEMMA_CARDINAL},
+				{"eleven"  , "CD" , MPTag.LEMMA_CARDINAL},
+				{"fourteen", "CD" , MPTag.LEMMA_CARDINAL},
+				{"thirties", "NNS", MPTag.LEMMA_CARDINAL},
+				{"ten"     , "NNP", "ten"},
 				
 				// verb: 3rd-person singular
 				{"studies", "VBZ", "study"},
@@ -100,12 +103,13 @@ public class EnglishMPAnalyzerTest
 				{"wove"     , "VBD", "weave"},
 				
 				// noun: plural
-				{"studies"  , "NNS", "study"},
-				{"crosses"  , "NNS", "cross"},
-				{"areas"    , "NNS", "area"},
-				{"gentlemen", "NNS", "gentleman"},
-				{"vertebrae", "NNS", "vertebra"},
-				{"foci"     , "NNS", "focus"},
+				{"studies"  , "NNS" , "study"},
+				{"crosses"  , "NNS" , "cross"},
+				{"areas"    , "NNS" , "area"},
+				{"gentlemen", "NNS" , "gentleman"},
+				{"vertebrae", "NNS" , "vertebra"},
+				{"foci"     , "NNS" , "focus"},
+				{"Tens"     , "NNPS", "ten"},
 
 				// noun: irregular
 				{"indices"   , "NNS", "index"},
@@ -175,12 +179,15 @@ public class EnglishMPAnalyzerTest
 				{"....!!!!????----****====~~~~,,,,", "XX", "..!!??--**==~~,,"}};
 		
 		EnglishMPAnalyzer analyzer = new EnglishMPAnalyzer();
-		String lemma;
+		DEPNode node;
 		
 		for (String[] token : tokens)
 		{
-			lemma = analyzer.getLemma(token[0], token[1]);
-			assertEquals(token[2], lemma);
+			node = new DEPNode();
+			node.form = token[0];
+			node.pos  = token[1];
+			analyzer.analyze(node);
+			assertEquals(token[2], node.lemma);
 		}
 	}
 }

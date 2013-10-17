@@ -45,7 +45,6 @@ import java.util.Set;
 
 import com.clearnlp.classification.model.AbstractModel;
 import com.clearnlp.morphology.AbstractAffixReplacer;
-import com.clearnlp.morphology.Morpheme;
 import com.clearnlp.util.map.Prob2DMap;
 
 /**
@@ -63,30 +62,30 @@ public class EnglishSuffixReplacer extends AbstractAffixReplacer
 	}
 	
 	@Override
-	public Morpheme getBaseMorpheme(Map<String,Set<String>> baseMap, String form)
+	public String getBaseForm(Map<String,Set<String>> baseMap, String form)
 	{
-		return getBaseMorpheme(baseMap.get(s_basePOS), form);
+		return getBaseForm(baseMap.get(s_basePOS), form);
 	}
 
 	@Override
-	public Morpheme getBaseMorpheme(Set<String> baseSet, String form)
+	public String getBaseForm(Set<String> baseSet, String form)
 	{
 		if (!form.endsWith(s_affixForm)) return null;
 
-		int      subLen = form.length() - s_affixForm.length();
-		String   stem   = form.substring(0, subLen);
-		Morpheme base   = getBaseMorphemeAux(baseSet, stem);
+		int    subLen = form.length() - s_affixForm.length();
+		String stem   = form.substring(0, subLen);
+		String base   = getBaseFormAux(baseSet, stem);
 		
 		if (b_doubleConsonants && base == null && isDoubleConsonant(form, subLen))
 		{
 			stem = form.substring(0, subLen-1);
-			base = getBaseMorphemeAux(baseSet, stem);
+			base = getBaseFormAux(baseSet, stem);
 		}
 		
 		return base;
 	}
 	
-	private Morpheme getBaseMorphemeAux(Set<String> baseSet, String stem)
+	private String getBaseFormAux(Set<String> baseSet, String stem)
 	{
 		String base;
 		
@@ -95,7 +94,7 @@ public class EnglishSuffixReplacer extends AbstractAffixReplacer
 			base = stem + replacement;
 			
 			if (baseSet.contains(base))
-				return new Morpheme(base, s_basePOS);
+				return base;
 		}
 		
 		return null;

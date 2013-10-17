@@ -51,8 +51,8 @@ public class DEPState extends DefaultState implements IDEPLabel
 	StringIntPair[]      g_labels;
 	int			      	 i_lambda;
 	int			     	 i_beta;
-	int                  n_trans;
-	double               d_score;
+	public int                  n_trans;
+	public double               d_score;
 	IntOpenHashSet       s_reduce;
 	
 	public DEPState(DEPTree tree)
@@ -276,6 +276,11 @@ public class DEPState extends DefaultState implements IDEPLabel
 		d_tree.resetHeads(heads);
 	}
 	
+	public double getScore()
+	{
+		return d_score / n_trans;
+	}
+	
 //	====================================== BOOLEANS ======================================
 
 	public boolean isLambdaValid()
@@ -452,7 +457,7 @@ public class DEPState extends DefaultState implements IDEPLabel
 	
 	public void addBranch(List<StringInstance> instances)
 	{
-		l_branches.add(new ObjectsDoubleTriple<List<StringInstance>,StringIntPair[]>(instances, d_tree.getHeads(), d_score/n_trans));
+		l_branches.add(new ObjectsDoubleTriple<List<StringInstance>,StringIntPair[]>(instances, d_tree.getHeads(), getScore()));
 	}
 	
 	public List<ObjectsDoubleTriple<List<StringInstance>,StringIntPair[]>> getBranches()

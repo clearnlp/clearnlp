@@ -216,7 +216,7 @@ public class LGAsk
 	private void addPrefix(DEPTree tree, DEPNode verb, DEPNode ref)
 	{
 		DEPNode ask = getNode(tree.get(0), "Ask", "ask", CTLibEn.POS_VB, DEPLibEn.DEP_ROOT, null);
-		verb.setHead(ask);
+		verb.setHead(ask, DEPLibEn.DEP_CCOMP);
 		tree.add(1, ask);
 		
 		if (ref == null && !DEPLibEn.containsRelativizer(verb))
@@ -313,7 +313,7 @@ public class LGAsk
 		
 		DEPNode root = tree.getFirstRoot();
 		if (root == null)	return null;
-		DEPNode dep;
+		DEPNode dep, dobj = null;
 		
 		for (DEPArc arc : root.getDependents())
 		{
@@ -321,7 +321,12 @@ public class LGAsk
 			
 			if (MPLibEn.isVerb(dep.pos))
 				return generateQuestion(dep);
+			else if (arc.isLabel(DEPLibEn.DEP_DOBJ))
+				dobj = arc.getNode();
 		}
+		
+		if (dobj != null && (dep = dobj.getFirstDependentByLabel(DEPLibEn.DEP_CCOMP)) != null)
+			return generateQuestion(dep);
 		
 		return null;
 	}
@@ -359,7 +364,9 @@ public class LGAsk
 		DEPTree tree = new DEPTree();
 		DEPNode rel, aux;
 		
+		verb.setHead(tree.get(0), DEPLibEn.DEP_ROOT);
 		rel = setRelativizer(tree, verb, added);
+		
 		aux = setAuxiliary(tree, verb, added, rel);
 		setRest(tree, verb, added);
 		resetDEPTree(tree, verb);
@@ -412,6 +419,9 @@ public class LGAsk
 	/** Called by {@link LGAsk#generateQuestionFromAsk(DEPTree, String)}. */
 	private DEPNode setAuxiliary(DEPTree tree, DEPNode verb, Set<DEPNode> added, DEPNode rel)
 	{
+		if (!verb.isLabel(DEPLibEn.DEP_XCOMP) && verb.getFirstDependentByLabel(DEPLibEn.P_SBJ) == null)
+			return null;
+		
 		if (rel != null && DEPLibEn.P_SBJ.matcher(rel.getLabel()).find())
 			return null;
 
@@ -451,7 +461,8 @@ public class LGAsk
 				return null;
 			}
 		}
-		else if (verb.isLemma(ENAux.BE))
+			
+		if (verb.isLemma(ENAux.BE))
 		{
 			tree .add(verb);
 			added.add(verb);
@@ -506,7 +517,6 @@ public class LGAsk
 	/** Called by {@link LGAsk#generateQuestionFromAsk(DEPTree, String)}. */
 	private void resetDEPTreePost(DEPTree tree, DEPNode root)
 	{
-		root.setHead(tree.get(0), DEPLibEn.DEP_ROOT);
 		String end = UNPunct.QUESTION_MARK;
 		String vtype;
 		
@@ -618,7 +628,7 @@ public class LGAsk
 			node.pos = CTLibEn.POS_PRPS;
 			remove.addAll(node.getDependentNodeList());
 		}
-		else if (node.isPos(CTLibEn.POS_PRP) && !ENPronoun.is1stSingular(node.lemma))
+		else if (node.isPos(CTLibEn.POS_PRP) && !ENPronoun.is1stSingular(node.lemma) && !node.isLemma("it"))
 		{
 			if (node.lemma.endsWith("self"))
 				node.form = node.lemma = ENPronoun.YOURSELF;

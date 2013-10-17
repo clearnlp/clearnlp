@@ -21,8 +21,8 @@ import java.util.Set;
 import com.clearnlp.classification.feature.JointFtrXml;
 import com.clearnlp.classification.model.StringModel;
 import com.clearnlp.classification.train.StringTrainSpace;
+import com.clearnlp.component.morph.DefaultMPAnalyzer;
 import com.clearnlp.component.state.POSState;
-import com.clearnlp.dependency.DEPNode;
 
 /**
  * Part-of-speech tagger using document frequency cutoffs.
@@ -66,11 +66,14 @@ public class DefaultPOSTagger extends AbstractPOSTagger
 //	====================================== ABSTRACT METHODS ======================================
 
 	@Override
-	protected void morphologicalAnalyze(DEPNode node)
+	protected void initMorphologicalAnalyzer()
 	{
-		node.lemma = node.lowerSimplifiedForm;
+		mp_analyzer = new DefaultMPAnalyzer();
 	}
 	
 	@Override
-	protected boolean applyRules(POSState state) {return false;}
+	protected boolean applyRules(POSState state)
+	{
+		return false;
+	}
 }

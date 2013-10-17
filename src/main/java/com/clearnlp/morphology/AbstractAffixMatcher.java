@@ -45,7 +45,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import com.clearnlp.util.pair.Pair;
 import com.google.common.collect.Lists;
 
 
@@ -83,26 +82,15 @@ abstract public class AbstractAffixMatcher
 		l_replacers.add(replacer);
 	}
 	
-	protected Morpheme getAffixMorpheme()
-	{
-		return new Morpheme(s_affixCanonicalForm, s_affixPOS);
-	}
-	
 	/** 
 	 * Returns (BaseMorpheme, SuffixMorphem) if exists; otherwise, {@code null}.
 	 * @param form the word-form in lower-case.
 	 */
-	abstract public Pair<Morpheme,Morpheme> getMorphemes(Map<String,Set<String>> baseMap, String form);
-	
-	/** 
-	 * Returns (BaseMorpheme, SuffixMorphem) if exists; otherwise, {@code null}.
-	 * @param form the word-form in lower-case.
-	 */
-	abstract public Pair<Morpheme,Morpheme> getMorphemes(Set<String> baseSet, String form);
+	abstract public String getBaseForm(Map<String,Set<String>> baseMap, String form, String pos);
 
 	/** 
 	 * Returns (BaseMorpheme, SuffixMorphem) if exists; otherwise, {@code null}.
 	 * @param form the word-form in lower-case.
 	 */
-	abstract public Pair<Morpheme,Morpheme> getMorphemes(Set<String> baseSet, String form, String pos);
+	abstract public String getBaseForm(Set<String> baseSet, String form, String pos);
 }

@@ -65,12 +65,12 @@ abstract public class AbstractAffixReplacer
 	 * @param form the word-form in lower-case.
 	 * @return the base morpheme of the word form if exists; otherwise, {@code null}.
 	 */
-	abstract public Morpheme getBaseMorpheme(Map<String,Set<String>> baseMap, String form);
+	abstract public String getBaseForm(Map<String,Set<String>> baseMap, String form);
 
 	/**
 	 * Returns the base morpheme of the word form if exists; otherwise, {@code null}.
 	 * @param form the word-form in lower-case.
 	 * @return the base morpheme of the word form if exists; otherwise, {@code null}.
 	 */
-	abstract public Morpheme getBaseMorpheme(Set<String> baseSet, String form);
+	abstract public String getBaseForm(Set<String> baseSet, String form);
 }

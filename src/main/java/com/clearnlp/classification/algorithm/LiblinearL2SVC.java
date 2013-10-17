@@ -53,7 +53,7 @@ public class LiblinearL2SVC extends AbstractLiblinear
 	}
 	
 	@Override
-	public double[] getWeight(AbstractTrainSpace space, int currLabel)
+	public float[] getWeight(AbstractTrainSpace space, int currLabel)
 	{
 		Random rand = new Random(5);
 		
@@ -65,7 +65,7 @@ public class LiblinearL2SVC extends AbstractLiblinear
 		ArrayList<double[]> vs = space.getVs();
 		
 		double[] alpha  = new double[N];
-		double[] weight = new double[D];
+		float [] weight = new float[D];
 		double G, d, alpha_old;
 		
 		// Projected gradient, for shrinking and stopping

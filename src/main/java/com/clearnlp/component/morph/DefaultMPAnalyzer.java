@@ -16,7 +16,6 @@
 package com.clearnlp.component.morph;
 
 import com.clearnlp.dependency.DEPNode;
-import com.clearnlp.morphology.DefaultMPToken;
 import com.clearnlp.morphology.MPLib;
 
 
@@ -28,15 +27,8 @@ import com.clearnlp.morphology.MPLib;
 public class DefaultMPAnalyzer extends AbstractMPAnalyzer
 {
 	@Override
-	public String getLemma(String form, String pos)
-	{
-		return MPLib.simplifyBasic(form).toLowerCase();
-	}
-	
-	@Override
 	public void analyze(DEPNode node)
 	{
-		node.lemma = getLemma(node.form, node.pos);
-		node.setMPToken(new DefaultMPToken());
+		node.lemma = MPLib.getSimplifiedLowercaseWordForm(node.form);
 	}
 }

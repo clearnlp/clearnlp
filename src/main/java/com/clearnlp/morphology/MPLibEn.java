@@ -47,7 +47,7 @@ public class MPLibEn extends MPLib
 	/** Derivations of a verb "do". */
 	static public final Pattern RE_DO		= Pattern.compile("^(do|does|did|done|doing)$");
 	/** Common wh-pronouns. */
-	static public final Pattern RE_WH_COMMON = Pattern.compile("^(how|what|which|who|whom|whose|where|when)$");
+	static public final Pattern RE_WH_COMMON = Pattern.compile("^(how|what|which|who|whom|whose|where|when|why)$");
 	/** Negations. */
 	static public final Pattern RE_NEG = Pattern.compile("^(never|not|n't|'nt|no)$");
 

@@ -45,10 +45,6 @@ import java.util.Map;
 import java.util.Set;
 
 import com.clearnlp.morphology.AbstractAffixMatcher;
-import com.clearnlp.morphology.MPTag;
-import com.clearnlp.morphology.Morpheme;
-import com.clearnlp.util.pair.Pair;
-import com.google.common.collect.Lists;
 
 /**
  * @since 2.0.0
@@ -62,23 +58,22 @@ public class EnglishInflection
 	Map<String,String>         exception_map;
 	List<AbstractAffixMatcher> suffix_matchers;
 	
-	public EnglishInflection(String basePOS, Set<String> baseSet, String exceptionPOS, Map<String,String> exceptionMap, List<AbstractAffixMatcher> affixMatchers)
+	public EnglishInflection(String basePOS, Set<String> baseSet, Map<String,String> exceptionMap, List<AbstractAffixMatcher> affixMatchers)
 	{
-		init(basePOS, baseSet, exceptionPOS, exceptionMap, affixMatchers);
+		init(basePOS, baseSet, exceptionMap, affixMatchers);
 	}
 	
-	private void init(String basePOS, Set<String> baseSet, String exceptionPOS, Map<String,String> exceptionMap, List<AbstractAffixMatcher> affixMatchers)
+	private void init(String basePOS, Set<String> baseSet, Map<String,String> exceptionMap, List<AbstractAffixMatcher> affixMatchers)
 	{
 		base_pos        = basePOS;
 		base_set        = baseSet;
-		exception_pos   = exceptionPOS;
 		exception_map   = exceptionMap;
 		suffix_matchers = affixMatchers;
 		
-		if (base_set == null)
-			throw new IllegalArgumentException("The base set must not be null");
+		if      (base_set == null)
+			throw new IllegalArgumentException("The base set must not be null.");
 		else if (suffix_matchers == null)
-			throw new IllegalArgumentException("The suffix matcher list must not be null");
+			throw new IllegalArgumentException("The suffix matcher list must not be null.");
 	}
 	
 	public String getBasePOS()
@@ -101,91 +96,45 @@ public class EnglishInflection
 		return suffix_matchers;
 	}
 	
-	public boolean isBase(String form)
+	public boolean isBaseForm(String form)
 	{
 		return base_set.contains(form);
 	}
 	
 	/** @param form the word-form in lower-case. */
-	public EnglishMPToken getInflection(String form, String pos)
+	public String getBaseForm(String form, String pos)
 	{
-		EnglishMPToken token;
+		String token;
 		
-		if ((token = getInflectionFromExceptions(form)) != null)
+		if ((token = getBaseFormFromExceptions(form)) != null)
 			return token;
 		
-		if ((token = getInflectionFromSuffixes(form, pos)) != null)
+		if ((token = getBaseFormFromSuffixes(form, pos)) != null)
 			return token;
-		
-//		if ((token = getInflectionFromBases(form)) != null)
-//			return token;
 		
 		return null;
 	}
-	
-	public EnglishMPToken getInflectionFromBases(String form)
-	{
-		EnglishMPToken token = null;
-		
-		if (base_set.contains(form))
-		{
-			Morpheme b = new Morpheme(form, base_pos);
-			token = new EnglishMPToken(b);
-		}
-		
-		return token;
-	}
-	
-	public EnglishMPToken getInflectionFromExceptions(String form)
+
+	public String getBaseFormFromExceptions(String form)
 	{ 
 		String base;
 		
 		if (exception_map != null && (base = exception_map.get(form)) != null)
-		{
-			Morpheme b = new Morpheme(base, base_pos);
-			Morpheme i = new Morpheme(MPTag.IRREGULAR_MORPHEME, exception_pos);
-			return new EnglishMPToken(b, i);
-		}
+			return base;
 		
 		return null;
 	}
 	
-	public EnglishMPToken getInflectionFromSuffixes(String form, String pos)
+	public String getBaseFormFromSuffixes(String form, String pos)
 	{
-		Pair<Morpheme,Morpheme> morphemes;
+		String base;
 		
 		for (AbstractAffixMatcher matcher : suffix_matchers)
 		{
-			morphemes = matcher.getMorphemes(base_set, form, pos);
-			if (morphemes != null) return new EnglishMPToken(morphemes.o1, morphemes.o2);
+			base = matcher.getBaseForm(base_set, form, pos);
+			if (base != null) return base;
 		}
 		
 		return null;
-	}
-	
-	/** @param form the word-form in lower-case. */
-	public List<EnglishMPToken> getInflections(String form)
-	{
-		List<EnglishMPToken> tokens = getInflectionsFromSuffixes(form);
-		EnglishMPToken token;
-		
-		if ((token = getInflectionFromExceptions(form)) != null)
-			tokens.add(token);
-		
-		return tokens;
-	}
-	
-	public List<EnglishMPToken> getInflectionsFromSuffixes(String form)
-	{
-		List<EnglishMPToken> tokens = Lists.newArrayList();
-		Pair<Morpheme,Morpheme> morphemes;
-		
-		for (AbstractAffixMatcher matcher : suffix_matchers)
-		{
-			morphemes = matcher.getMorphemes(base_set, form);
-			if (morphemes != null) tokens.add(new EnglishMPToken(morphemes.o1, morphemes.o2));
-		}
-		
-		return tokens;
 	}
 }

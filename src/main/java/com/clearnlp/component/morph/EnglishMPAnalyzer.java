@@ -35,17 +35,14 @@ import com.clearnlp.morphology.AbstractAffixMatcher;
 import com.clearnlp.morphology.MPLib;
 import com.clearnlp.morphology.MPLibEn;
 import com.clearnlp.morphology.MPTag;
-import com.clearnlp.morphology.Morpheme;
 import com.clearnlp.morphology.english.EnglishAffixMatcherFactory;
 import com.clearnlp.morphology.english.EnglishInflection;
-import com.clearnlp.morphology.english.EnglishMPToken;
 import com.clearnlp.morphology.english.EnglishSuffixMatcher;
 import com.clearnlp.pattern.PTLib;
 import com.clearnlp.util.UTInput;
 import com.clearnlp.util.UTOutput;
 import com.clearnlp.util.UTXml;
 import com.clearnlp.util.map.Prob2DMap;
-import com.clearnlp.util.pair.Pair;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -63,10 +60,10 @@ public class EnglishMPAnalyzer extends AbstractMPAnalyzer
 	private EnglishInflection inf_noun;
 	private EnglishInflection inf_adjective;
 	private EnglishInflection inf_adverb;
-	private EnglishInflection inf_cardinal;
 	
 	/** Abbreviation replacement rules */
 	private Map<String,String> rule_abbreviation;
+	private Set<String> base_cardinal;
 	/** Ordinal base-forms */
 	private Set<String> base_ordinal;
 	
@@ -79,14 +76,14 @@ public class EnglishMPAnalyzer extends AbstractMPAnalyzer
 		
 		try
 		{
-			base_ordinal      = UTInput.getStringSet(UTInput.getInputStreamsFromClasspath(DTEnglish.ORDINAL_BASE));
-			rule_abbreviation = getAbbreviationMap(UTInput.getInputStreamsFromClasspath(DTEnglish.ABBREVIATOIN_RULE));
-			
 			inf_verb      = getInflectionRules(inflection, DTEnglish.VERB     , CTLibEn.POS_VB, MPTag.IVX);
 			inf_noun      = getInflectionRules(inflection, DTEnglish.NOUN     , CTLibEn.POS_NN, MPTag.INX);
 			inf_adjective = getInflectionRules(inflection, DTEnglish.ADJECTIVE, CTLibEn.POS_JJ, MPTag.IJX);
 			inf_adverb    = getInflectionRules(inflection, DTEnglish.ADVERB   , CTLibEn.POS_RB, MPTag.IRX);
-			inf_cardinal  = getInflectionRules(inflection, DTEnglish.CARDINAL , CTLibEn.POS_CD, MPTag.ICX);
+
+			base_cardinal     = UTInput.getStringSet(UTInput.getInputStreamsFromClasspath(DTEnglish.CARDINAL_BASE));
+			base_ordinal      = UTInput.getStringSet(UTInput.getInputStreamsFromClasspath(DTEnglish.ORDINAL_BASE));
+			rule_abbreviation = getAbbreviationMap(UTInput.getInputStreamsFromClasspath(DTEnglish.ABBREVIATOIN_RULE));
 		}
 		catch (IOException e) {e.printStackTrace();}
 	}
@@ -101,7 +98,7 @@ public class EnglishMPAnalyzer extends AbstractMPAnalyzer
 		List<AbstractAffixMatcher> affixMatchers = new EnglishAffixMatcherFactory().createAffixMatchers(eAffixes);
 		Set<String> baseSet = UTInput.getStringSet(baseStream);
 		
-		return new EnglishInflection(basePOS, baseSet, irregularPOS, exceptionMap, affixMatchers);
+		return new EnglishInflection(basePOS, baseSet, exceptionMap, affixMatchers);
 	}
 	
 //	private void initDerivationRules()
@@ -156,50 +153,6 @@ public class EnglishMPAnalyzer extends AbstractMPAnalyzer
 		return map;
 	}
 	
-	/** @param form the lower simplified word-form. */
-	public List<EnglishMPToken> getInflections(String form)
-	{
-		List<EnglishMPToken> tokens = Lists.newArrayList();
-		
-		tokens.addAll(inf_verb     .getInflections(form));
-		tokens.addAll(inf_noun     .getInflections(form));
-		tokens.addAll(inf_adjective.getInflections(form));
-		tokens.addAll(inf_adverb   .getInflections(form));
-		tokens.addAll(inf_cardinal .getInflections(form));
-
-		return tokens;
-	}
-	
-	/** @param form the lower simplified word-form. */
-	public EnglishMPToken getInflection(String form, String pos)
-	{
-		EnglishMPToken token;
-		
-		if ((token = inf_cardinal.getInflection(form, pos)) != null)
-			return token;
-		
-		if (MPLibEn.isVerb(pos))
-			return inf_verb.getInflection(form, pos);
-			
-		if (MPLibEn.isNoun(pos))
-			return inf_noun.getInflection(form, pos);
-		
-		if (MPLibEn.isAdjective(pos))
-			return inf_adjective.getInflection(form, pos);
-		
-		if (MPLibEn.isAdverb(pos))
-			return inf_adverb.getInflection(form, pos);
-			
-		return null;
-	}
-	
-	@Override
-	public String getLemma(String form, String pos)
-	{
-		Pair<String,EnglishMPToken> p = getLemmaAndMPToken(MPLib.getSimplifiedLowercaseWordForm(form), pos);
-		return p.o1;
-	}
-	
 	@Override
 	/**
 	 * Analyzes the lemma and morphemes of the word-form in the specific node.
@@ -210,39 +163,23 @@ public class EnglishMPAnalyzer extends AbstractMPAnalyzer
 		if (node.lowerSimplifiedForm == null)
 			node.lowerSimplifiedForm = MPLib.getSimplifiedLowercaseWordForm(node.form);
 		
-		Pair<String,EnglishMPToken> p = getLemmaAndMPToken(node.lowerSimplifiedForm, node.pos);
-		if (p.o2 == null) p.o2 = new EnglishMPToken();
-		
-		node.setLemma  (p.o1);
-		node.setMPToken(p.o2);
-	}
-	
-	private Pair<String,EnglishMPToken> getLemmaAndMPToken(String form, String pos)
-	{
-		Pair<String,EnglishMPToken> p = new Pair<String,EnglishMPToken>(null, null);
-		p.o1 = getAbbreviation(form, pos);
-		
-		if (p.o1 == null)
-			p.o1 = getOrdinal(form);
-		
-		if (p.o1 == null && inf_cardinal.isBase(form))
-			p.o1 = MPTag.LEMMA_CARDINAL;
-		
-		if (p.o1 == null)
+		if (node.pos.equals(CTLibEn.POS_NNP))
 		{
-			p.o2 = getInflection(form, pos);
-			
-			if (p.o2 != null)
-			{
-				Morpheme base = p.o2.getBaseMorpheme();
-				p.o1 = base.isPOS(CTLibEn.POS_CD) ? MPTag.LEMMA_CARDINAL : base.getForm();
-			}
+			node.lemma = node.form.toLowerCase();
+			return;
 		}
 		
-		if (p.o1 == null)
-			p.o1 = form;
+		if ((node.lemma = getAbbreviation(node.lowerSimplifiedForm, node.pos)) != null)
+			return;
 		
-		return p;
+		if ((node.lemma = getBaseFormFromInflection(node.lowerSimplifiedForm, node.pos)) == null)
+			node.lemma = node.lowerSimplifiedForm;
+		
+		if (!node.isPos(CTLibEn.POS_NNPS))
+		{
+			if      (isCardinal(node.lemma))	node.setLemma(MPTag.LEMMA_CARDINAL);
+			else if (isOrdinal(node.lemma))		node.setLemma(MPTag.LEMMA_ORDINAL);	
+		}
 	}
 	
 	/** Called by {@link #analyze(DEPNode)}. */
@@ -252,13 +189,32 @@ public class EnglishMPAnalyzer extends AbstractMPAnalyzer
 		return rule_abbreviation.get(key);
 	}
 	
-	/** Called by {@link #analyze(DEPNode)}. */
-	private String getOrdinal(String form)
+	/** @param form the lower simplified word-form. */
+	private String getBaseFormFromInflection(String form, String pos)
 	{
-		if (form.equals("0st") || form.equals("0nd") || form.equals("0rd") || form.equals("0th") || base_ordinal.contains(form))
-			return MPTag.LEMMA_ORDINAL;
-
+		if (MPLibEn.isVerb(pos))
+			return inf_verb.getBaseForm(form, pos);
+			
+		if (MPLibEn.isNoun(pos))
+			return inf_noun.getBaseForm(form, pos);
+		
+		if (MPLibEn.isAdjective(pos))
+			return inf_adjective.getBaseForm(form, pos);
+		
+		if (MPLibEn.isAdverb(pos))
+			return inf_adverb.getBaseForm(form, pos);
+			
 		return null;
+	}
+	
+	private boolean isCardinal(String form)
+	{
+		return base_cardinal.contains(form);
+	}
+	
+	private boolean isOrdinal(String form)
+	{
+		return form.equals("0st") || form.equals("0nd") || form.equals("0rd") || form.equals("0th") || base_ordinal.contains(form);
 	}
 	
 //	------------------------------------ EVALUATION ------------------------------------ 
@@ -277,24 +233,25 @@ public class EnglishMPAnalyzer extends AbstractMPAnalyzer
 	
 	private void check(String outputDir, String pos) throws IOException
 	{
-		BufferedReader fin = UTInput.createBufferedFileReader(outputDir+"/"+pos+".exc.removed");
-		PrintStream fout = UTOutput.createPrintBufferedFileStream(outputDir+"/"+pos+".exc.kept");
-		String line, f, m, p;
-		String[] tmp;
-
-		while ((line = fin.readLine()) != null)
-		{
-			tmp = PTLib.splitSpace(line);
-			f   = tmp[0];
-			m   = tmp[1];
-			p   = tmp[2];
-			
-			if (!m.equals(getLemma(f, p)))
-				fout.println(f+" "+m);
-		}
-		
-		fin.close();
-		fout.close();
+//		BufferedReader fin = UTInput.createBufferedFileReader(outputDir+"/"+pos+".exc.removed");
+//		PrintStream fout = UTOutput.createPrintBufferedFileStream(outputDir+"/"+pos+".exc.kept");
+//		String f, m, p;
+//		String[] tmp;
+//		String line;
+//
+//		while ((line = fin.readLine()) != null)
+//		{
+//			tmp = PTLib.splitSpace(line);
+//			f   = tmp[0];
+//			m   = tmp[1];
+//			p   = tmp[2];
+//			
+//			if (!m.equals(getLemma(f, p)))
+//				fout.println(f+" "+m);
+//		}
+//		
+//		fin.close();
+//		fout.close();
 	}
 	
 	public void trim(String outputDir)
@@ -318,7 +275,7 @@ public class EnglishMPAnalyzer extends AbstractMPAnalyzer
 		Set<String> sAccept = UTInput.getStringSet(UTInput.getInputStreamsFromClasspath(DTEnglish.PATH + pos + ".accept"));
 		Set<String> baseSet = inflection.getBaseSet();
 		Map<String,String> excMap = inflection.getExceptionMap();
-		Morpheme baseMorphem;
+//		Morpheme baseMorphem;
 		List<String> list;
 		String base;
 		
@@ -347,17 +304,17 @@ public class EnglishMPAnalyzer extends AbstractMPAnalyzer
 		{
 			base = excMap.get(form);
 			
-			for (EnglishMPToken token : inflection.getInflectionsFromSuffixes(form))
-			{
-				baseMorphem = token.getBaseMorpheme();
-				
-				if (baseMorphem.isForm(base))
-				{
-					excMap.remove(form);
-					fExcRemoved.println(form+" "+base+" "+getPOS(pos, token.getInflectionMorpheme().getPOS()));
-					break;
-				}
-			}
+//			for (EnglishMPToken token : inflection.getInflectionsFromSuffixes(form))
+//			{
+//				baseMorphem = token.getBaseMorpheme();
+//				
+//				if (baseMorphem.isForm(base))
+//				{
+//					excMap.remove(form);
+//					fExcRemoved.println(form+" "+base+" "+getPOS(pos, token.getInflectionMorpheme().getPOS()));
+//					break;
+//				}
+//			}
 		}
 		
 		fExcRemoved.close();
@@ -380,22 +337,6 @@ public class EnglishMPAnalyzer extends AbstractMPAnalyzer
 			fExc.println(key+" "+excMap.get(key));
 		
 		fExc.close();
-	}
-	
-	private String getPOS(String basePOS, String iPOS)
-	{
-		switch (iPOS)
-		{
-		case MPTag.ISD: return CTLibEn.POS_VBD;
-		case MPTag.ISG: return CTLibEn.POS_VBG;
-		case MPTag.ISN: return CTLibEn.POS_VBN;
-		case MPTag.ISZ: return CTLibEn.POS_VBZ;
-		case MPTag.ISP: return CTLibEn.POS_NNS;
-		case MPTag.ISR: return basePOS.equals("adverb") ? CTLibEn.POS_RBR : CTLibEn.POS_JJR;
-		case MPTag.IST: return basePOS.equals("adverb") ? CTLibEn.POS_RBS : CTLibEn.POS_JJS;
-		}
-		
-		throw new IllegalArgumentException(iPOS);
 	}
 	
 	public void evaluateInflection(InputStream in) throws Exception

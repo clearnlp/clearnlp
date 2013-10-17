@@ -34,8 +34,6 @@ import com.clearnlp.dependency.DEPNode;
  */
 public class EnglishPOSTagger extends AbstractPOSTagger
 {
-	private EnglishMPAnalyzer m_analyzer;
-	
 //	====================================== CONSTRUCTORS ======================================
 	
 	/** Constructs a part-of-speech tagger for collecting lexica. */
@@ -48,41 +46,32 @@ public class EnglishPOSTagger extends AbstractPOSTagger
 	public EnglishPOSTagger(JointFtrXml[] xmls, StringTrainSpace[] spaces, Object[] lexica)
 	{
 		super(xmls, spaces, lexica);
-		init();
 	}
 	
 	/** Constructs a part-of-speech tagger for developing. */
 	public EnglishPOSTagger(JointFtrXml[] xmls, StringModel[] models, Object[] lexica)
 	{
 		super(xmls, models, lexica);
-		init();
 	}
 	
 	/** Constructs a part-of-speech tagger for bootsrapping. */
 	public EnglishPOSTagger(JointFtrXml[] xmls, StringTrainSpace[] spaces, StringModel[] models, Object[] lexica)
 	{
 		super(xmls, spaces, models, lexica);
-		init();
 	}
 	
 	/** Constructs a part-of-speech tagger for decoding. */
 	public EnglishPOSTagger(ObjectInputStream in)
 	{
 		super(in);
-		init();
-	}
-	
-	private void init()
-	{
-		m_analyzer = new EnglishMPAnalyzer();
 	}
 	
 //	====================================== ABSTRACT METHODS ======================================
 	
 	@Override
-	protected void morphologicalAnalyze(DEPNode node)
+	protected void initMorphologicalAnalyzer()
 	{
-		m_analyzer.analyze(node);
+		mp_analyzer = new EnglishMPAnalyzer();
 	}
 	
 	@Override
@@ -98,6 +87,8 @@ public class EnglishPOSTagger extends AbstractPOSTagger
 	
 	private boolean applyNNP(POSState state)
 	{
+		if (!isDecode()) return false;
+		
 		DEPNode node = state.getInput();
 		DEPNode p2 = state.getNode(node.id-2);
 		

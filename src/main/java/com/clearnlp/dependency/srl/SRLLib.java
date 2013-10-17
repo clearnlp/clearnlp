@@ -61,6 +61,7 @@ public class SRLLib
 	
 	static public final Pattern P_ARG_CONCATENATION = Pattern.compile("^"+PREFIX_CONCATENATION+".+$");
 	static public final Pattern P_ARG_REF = Pattern.compile("^"+PREFIX_REFERENT+".+$");
+	
 	static public String getBaseLabel(String label)
 	{
 		if (label.startsWith(SRLLib.PREFIX_CONCATENATION))

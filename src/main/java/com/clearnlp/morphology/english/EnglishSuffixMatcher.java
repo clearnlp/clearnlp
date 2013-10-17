@@ -46,9 +46,7 @@ import java.util.regex.Pattern;
 
 import com.clearnlp.morphology.AbstractAffixMatcher;
 import com.clearnlp.morphology.AbstractAffixReplacer;
-import com.clearnlp.morphology.Morpheme;
 import com.clearnlp.util.map.Prob2DMap;
-import com.clearnlp.util.pair.Pair;
 import com.google.common.collect.Maps;
 
 
@@ -64,41 +62,33 @@ public class EnglishSuffixMatcher extends AbstractAffixMatcher
 	}
 	
 	@Override
-	public Pair<Morpheme, Morpheme> getMorphemes(Map<String,Set<String>> baseMap, String form)
+	public String getBaseForm(Map<String,Set<String>> baseMap, String form, String pos)
 	{
-		Morpheme base;
+		if (!matchesOriginalPOS(pos)) return null;
+		String base;
 		
 		for (AbstractAffixReplacer replacer : l_replacers)
 		{
-			base = replacer.getBaseMorpheme(baseMap, form);
-			
-			if (base != null)
-				return new Pair<Morpheme, Morpheme>(base, getAffixMorpheme());
+			base = replacer.getBaseForm(baseMap, form);
+			if (base != null) return base;
 		}
 		
 		return null;
 	}
 	
 	@Override
-	public Pair<Morpheme, Morpheme> getMorphemes(Set<String> baseSet, String form)
+	public String getBaseForm(Set<String> baseSet, String form, String pos)
 	{
-		Morpheme base;
+		if (!matchesOriginalPOS(pos)) return null;
+		String base;
 		
 		for (AbstractAffixReplacer replacer : l_replacers)
 		{
-			base = replacer.getBaseMorpheme(baseSet, form);
-			
-			if (base != null)
-				return new Pair<Morpheme, Morpheme>(base, getAffixMorpheme());
+			base = replacer.getBaseForm(baseSet, form);
+			if (base != null) return base;
 		}
 		
 		return null;
-	}
-	
-	@Override
-	public Pair<Morpheme, Morpheme> getMorphemes(Set<String> baseSet, String form, String pos)
-	{
-		return matchesOriginalPOS(pos) ? getMorphemes(baseSet, form) : null;
 	}
 	
 	public void evaluateInflection(Map<String,Map<String,Prob2DMap>> smap, Set<String> baseSet, String goldBase, String form, String pos)

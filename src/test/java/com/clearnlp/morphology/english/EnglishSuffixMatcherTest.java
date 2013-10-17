@@ -30,8 +30,6 @@ import java.util.regex.Pattern;
 
 import org.junit.Test;
 
-import com.clearnlp.morphology.Morpheme;
-import com.clearnlp.util.pair.Pair;
 import com.google.common.collect.Sets;
 
 
@@ -43,24 +41,16 @@ public class EnglishSuffixMatcherTest
 	{
 		EnglishSuffixMatcher matcher = new EnglishSuffixMatcher("ed", "ISD", Pattern.compile("VBD"));
 		Set<String> baseSet = Sets.newHashSet("enter", "zip", "feed", "lead", "burn", "bend");
-		Pair<Morpheme,Morpheme> morphemes;
 		
 		matcher.addReplacer(new EnglishSuffixReplacer("VB", "ed", new String[]{"","eed","ead"}, true));
 		matcher.addReplacer(new EnglishSuffixReplacer("VB", "t" , new String[]{"","d"}, false));
 		
-		morphemes = matcher.getMorphemes(baseSet, "entered");
-		assertEquals("(enter/VB,ed/ISD)", morphemes.toString());
-		morphemes = matcher.getMorphemes(baseSet, "zipped");
-		assertEquals("(zip/VB,ed/ISD)", morphemes.toString());
-		morphemes = matcher.getMorphemes(baseSet, "fed");
-		assertEquals("(feed/VB,ed/ISD)", morphemes.toString());
-		morphemes = matcher.getMorphemes(baseSet, "led");
-		assertEquals("(lead/VB,ed/ISD)", morphemes.toString());
-		morphemes = matcher.getMorphemes(baseSet, "burnt");
-		assertEquals("(burn/VB,ed/ISD)", morphemes.toString());
-		morphemes = matcher.getMorphemes(baseSet, "bent");
-		assertEquals("(bend/VB,ed/ISD)", morphemes.toString());
-		morphemes = matcher.getMorphemes(baseSet, "ended");
-		assertEquals(null, morphemes);
+		assertEquals("enter", matcher.getBaseForm(baseSet, "entered", "VBD"));
+		assertEquals("zip", matcher.getBaseForm(baseSet, "zipped", "VBD"));
+		assertEquals("feed", matcher.getBaseForm(baseSet, "fed", "VBD"));
+		assertEquals("lead", matcher.getBaseForm(baseSet, "led", "VBD"));
+		assertEquals("burn", matcher.getBaseForm(baseSet, "burnt", "VBD"));
+		assertEquals("bend", matcher.getBaseForm(baseSet, "bent", "VBD"));
+		assertEquals(null, matcher.getBaseForm(baseSet, "ended", "VBD"));
 	}
 }

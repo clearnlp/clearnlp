@@ -49,7 +49,7 @@ abstract public class AbstractMulticlass extends AbstractAlgorithm
 		updateWeights(space);
 	}
 	
-	protected double[] getScores(int L, int[] x, double[] v, double[] weights)
+	protected double[] getScores(int L, int[] x, double[] v, float[] weights)
 	{
 		double[] scores = new double[L];
 		int i, label, len = x.length;

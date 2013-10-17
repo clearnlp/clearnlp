@@ -32,6 +32,7 @@ import com.clearnlp.classification.train.StringTrainSpace;
 import com.clearnlp.classification.vector.StringFeatureVector;
 import com.clearnlp.component.AbstractStatisticalComponent;
 import com.clearnlp.component.evaluation.POSEval;
+import com.clearnlp.component.morph.AbstractMPAnalyzer;
 import com.clearnlp.component.state.POSState;
 import com.clearnlp.dependency.DEPNode;
 import com.clearnlp.dependency.DEPTree;
@@ -58,6 +59,8 @@ abstract public class AbstractPOSTagger extends AbstractStatisticalComponent<POS
 	protected Prob2DMap			 p_ambi;	// ambiguity classes (for collection)
 	protected Map<String,String> m_ambi;	// ambiguity classes
 	
+	protected AbstractMPAnalyzer mp_analyzer;
+	
 //	====================================== CONSTRUCTORS ======================================
 
 	/** Constructs a part-of-speech tagger for collecting lexica. */
@@ -73,30 +76,34 @@ abstract public class AbstractPOSTagger extends AbstractStatisticalComponent<POS
 	public AbstractPOSTagger(JointFtrXml[] xmls, StringTrainSpace[] spaces, Object[] lexica)
 	{
 		super(xmls, spaces, lexica);
+		initMorphologicalAnalyzer();
 	}
 	
 	/** Constructs a part-of-speech tagger for developing. */
 	public AbstractPOSTagger(JointFtrXml[] xmls, StringModel[] models, Object[] lexica)
 	{
 		super(xmls, models, lexica, new POSEval());
+		initMorphologicalAnalyzer();
 	}
 	
 	/** Constructs a part-of-speech tagger for bootsrapping. */
 	public AbstractPOSTagger(JointFtrXml[] xmls, StringTrainSpace[] spaces, StringModel[] models, Object[] lexica)
 	{
 		super(xmls, spaces, models, lexica);
+		initMorphologicalAnalyzer();
 	}
 	
 	/** Constructs a part-of-speech tagger for decoding. */
 	public AbstractPOSTagger(ObjectInputStream in)
 	{
 		super(in);
+		initMorphologicalAnalyzer();
 	}
 	
 //	====================================== ABSTRACT METHODS ======================================
 	
+	abstract protected void initMorphologicalAnalyzer();
 	abstract protected boolean applyRules(POSState state);
-	abstract protected void morphologicalAnalyze(DEPNode node);
 	
 //	====================================== LOAD/SAVE MODELS ======================================
 	
@@ -257,7 +264,7 @@ abstract public class AbstractPOSTagger extends AbstractStatisticalComponent<POS
 			if (!applyRules(state))
 				node.pos = getLabel(insts, state);
 			
-			morphologicalAnalyze(node);
+			mp_analyzer.analyze(node);
 		}
 		
 		return insts;

@@ -37,6 +37,20 @@ import java.util.Set;
  */
 public class UTArray
 {
+	static public double[] copyOf(float[] array, int newLength)
+	{
+		if (newLength > array.length)
+			throw new IndexOutOfBoundsException();
+		
+		double[] newArray = new double[newLength];
+		int i;
+		
+		for (i=0; i<newLength; i++)
+			newArray[i] = array[i];
+		
+		return newArray;
+	}
+	
 	static public <T extends Comparable<? extends T>>void sortReverseOrder(T[] array)
 	{
 		Arrays.sort(array, Collections.reverseOrder());

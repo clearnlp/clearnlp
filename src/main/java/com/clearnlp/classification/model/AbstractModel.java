@@ -28,7 +28,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -36,6 +35,7 @@ import com.carrotsearch.hppc.cursors.ObjectCursor;
 import com.clearnlp.classification.prediction.StringPrediction;
 import com.clearnlp.classification.vector.SparseFeatureVector;
 import com.clearnlp.collection.map.ObjectIntHashMap;
+import com.clearnlp.util.UTArray;
 import com.clearnlp.util.UTCollection;
 import com.clearnlp.util.pair.Pair;
 
@@ -53,7 +53,7 @@ abstract public class AbstractModel implements Serializable
 	/** The total number of features. */
 	protected int      n_features;
 	/** The weight vector for all labels. */
-	protected double[] d_weights;
+	protected float[]  d_weights;
 	/** The list of all labels. */
 	protected String[] a_labels;
 	/** The map between labels and their indices. */
@@ -88,7 +88,7 @@ abstract public class AbstractModel implements Serializable
 	/** Initializes the weight vector given the label and feature sizes. */
 	public void initWeightVector()
 	{
-		d_weights = isBinaryLabel() ? new double[n_features] : new double[n_features * n_labels];
+		d_weights = isBinaryLabel() ? new float[n_features] : new float[n_features * n_labels];
 	}
 	
 	// ========================= GETTER =========================
@@ -132,14 +132,14 @@ abstract public class AbstractModel implements Serializable
 		return a_labels;
 	}
 	
-	public double[] getWeights()
+	public float[] getWeights()
 	{
 		return d_weights;
 	}
 	
-	public double[] getWeights(int label)
+	public float[] getWeights(int label)
 	{
-		double[] weights = new double[n_features];
+		float[] weights = new float[n_features];
 		int i;
 		
 		for (i=0; i<n_features; i++)
@@ -160,7 +160,7 @@ abstract public class AbstractModel implements Serializable
 			m_labels.put(label, ++n_labels);
 	}
 	
-	public void setWeights(double[] weights)
+	public void setWeights(float[] weights)
 	{
 		d_weights = weights; 
 	}
@@ -169,7 +169,7 @@ abstract public class AbstractModel implements Serializable
 	 * Copies a weight vector for binary classification.
 	 * @param weights the weight vector to be copied. 
 	 */
-	public void copyWeights(double[] weights)
+	public void copyWeights(float[] weights)
 	{
 		System.arraycopy(weights, 0, d_weights, 0, n_features);
 	}
@@ -179,7 +179,7 @@ abstract public class AbstractModel implements Serializable
 	 * @param weights the weight vector to be copied.
 	 * @param label the label of the weight vector.
 	 */
-	public void copyWeights(double[] weights, int label)
+	public void copyWeights(float[] weights, int label)
 	{
 		int i;
 		
@@ -215,7 +215,7 @@ abstract public class AbstractModel implements Serializable
 	{
 		a_labels   = (String[])in.readObject();
 		m_labels   = (ObjectIntHashMap<String>)in.readObject();
-		d_weights  = (double[])in.readObject();
+		d_weights  = (float[])in.readObject();
 		
 		n_labels   = a_labels.length;
 		n_features = d_weights.length;
@@ -275,7 +275,7 @@ abstract public class AbstractModel implements Serializable
 	 */
 	private double[] getScoresMulti(SparseFeatureVector x)
 	{
-		double[] scores = Arrays.copyOf(d_weights, n_labels);
+		double[] scores = UTArray.copyOf(d_weights, n_labels);
 		int      i, index, label, weightIndex, size = x.size();
 		double   weight = 1;
 		

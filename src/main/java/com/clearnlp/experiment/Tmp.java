@@ -1,5 +1,4 @@
 /**
-* Copyright (c) 2009-2012, Regents of the University of Colorado
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -23,12 +22,9 @@
 */
 package com.clearnlp.experiment;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -39,7 +35,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
-import java.util.zip.GZIPOutputStream;
 
 import jregex.MatchResult;
 import jregex.Substitution;
@@ -62,6 +57,7 @@ import com.clearnlp.dependency.DEPLibEn;
 import com.clearnlp.dependency.DEPNode;
 import com.clearnlp.dependency.DEPTree;
 import com.clearnlp.dependency.srl.SRLArc;
+import com.clearnlp.dependency.srl.SRLTree;
 import com.clearnlp.generation.LGVerbEn;
 import com.clearnlp.headrule.HeadRuleMap;
 import com.clearnlp.io.FileExtFilter;
@@ -87,6 +83,8 @@ import com.clearnlp.util.map.Prob2DMap;
 import com.clearnlp.util.pair.IntIntPair;
 import com.clearnlp.util.pair.StringDoublePair;
 import com.clearnlp.util.pair.StringIntPair;
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 
 
@@ -94,17 +92,45 @@ public class Tmp
 {
 	public Tmp(String[] args) throws Exception
 	{
-		ObjectOutputStream out1 = new ObjectOutputStream(new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream("1.obj"))));
-		ObjectOutputStream out2 = new ObjectOutputStream(new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream("2.obj"))));
+		double d1 = 32.08753790083094;
+		double d2 = 0.0737514090539246;
+		double d = d1 + d2;
 		
-		double[] d = new double[193241552];
-		float[]  f = new float[193241552];
+		System.out.println(d);
 		
-		out1.writeObject(d);
-		out2.writeObject(f);
 		
-		out1.close();
-		out2.close();
+	}
+	
+	void generation(String[] args)
+	{
+		Pattern ignore = Pattern.compile("AM-MOD|AM-ADV|C-.+|R-.+");
+		DEPTree tree = new DEPTree();
+		
+		tree.add(new DEPNode(1, "Tell"   , "tell" , "VB" , new DEPFeat()));
+		tree.add(new DEPNode(2, "me"     , "me"   , "PRP", new DEPFeat()));
+		tree.add(new DEPNode(3, "about"  , "about", "IN" , new DEPFeat()));
+		tree.add(new DEPNode(4, "berries", "berry", "NNS", new DEPFeat()));
+
+		tree.get(1).setHead(tree.get(0), DEPLibEn.DEP_ROOT);
+		tree.get(2).setHead(tree.get(1), DEPLibEn.DEP_DOBJ);
+		tree.get(3).setHead(tree.get(1), DEPLibEn.DEP_PREP);
+		tree.get(4).setHead(tree.get(3), DEPLibEn.DEP_POBJ);
+		
+		tree.setDependents();
+		tree.initSHeads();
+		
+		tree.get(1).addFeat(DEPLib.FEAT_PB, "tell.01");
+		tree.get(2).addSHead(tree.get(1), "A2");
+		tree.get(3).addSHead(tree.get(1), "A1");
+		
+		SRLTree sTree = tree.getSRLTree(1);
+		System.out.println(sTree.getRichKeyEn(ignore, "."));
+	}
+	
+	<T>void traverseSRLTrees(String[] args, Function<DEPTree,T> func)
+	{
+		SRLReader reader = new SRLReader(0, 1, 2, 3, 4, 5, 6, 8);
+		reader.open(UTInput.createBufferedFileReader(args[0]));
 	}
 	
 	void findNonHeadsAux(DEPTree tree, Prob2DMap map)
@@ -121,6 +147,14 @@ public class Tmp
 			map.add(node.getLabel(), yn);
 		}
 	}
+	
+	Predicate<DEPNode> isEven = new Predicate<DEPNode>()
+	{
+        @Override public boolean apply(DEPNode node)
+        {
+            return node.id > 0;
+        }               
+    };
 	
 	void extractVerbPP(String[] args)
 	{

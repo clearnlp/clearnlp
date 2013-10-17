@@ -44,7 +44,7 @@ abstract public class AbstractAdaGrad extends AbstractMulticlass
 		d_eps   = eps;
 	}
 	
-	abstract protected boolean update(int L, int y, int[] x, double[] v, double[] gs, double[] weights);
+	abstract protected boolean update(int L, int y, int[] x, double[] v, double[] gs, float[] weights);
 	
 	@Override
 	protected void updateWeights(AbstractTrainSpace space)
@@ -58,7 +58,7 @@ abstract public class AbstractAdaGrad extends AbstractMulticlass
 		ArrayList<int[]>    xs = space.getXs();
 		ArrayList<double[]> vs = space.getVs();
 		
-		double[] cWeights = space.getModel().getWeights();
+		float [] cWeights = space.getModel().getWeights();
 		double[] gs = new double[WS];
 		
 		double stdev, prevScore, currScore = 0;

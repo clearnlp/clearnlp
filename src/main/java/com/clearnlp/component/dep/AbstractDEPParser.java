@@ -238,7 +238,8 @@ abstract public class AbstractDEPParser extends AbstractStatisticalComponentSB<D
 		
 		state.trimStates(n_beams);
 		state.addBranch(insts);
-		
+//		System.out.println(state.getScore());
+//		System.out.println(state.getTree().toStringDEP()+"\n");
 		return insts;
 	}
 	
@@ -249,6 +250,7 @@ abstract public class AbstractDEPParser extends AbstractStatisticalComponentSB<D
 		
 		state.increaseTransitionCount();
 		state.addScore(label.score);
+//		System.out.println(lambda.id+":"+lambda.form+" "+beta.id+":"+beta.form+" "+label.toString()+" "+label.score+" "+state.d_score+" "+state.n_trans+" "+state.getScore());
 		
 		if (label.isArc(LB_LEFT))
 		{

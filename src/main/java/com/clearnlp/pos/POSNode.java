@@ -23,7 +23,6 @@
 */
 package com.clearnlp.pos;
 
-import com.clearnlp.morphology.DefaultMPToken;
 import com.clearnlp.reader.AbstractColumnReader;
 import com.clearnlp.reader.AbstractReader;
 
@@ -44,8 +43,6 @@ public class POSNode
 	public String pos;
 	/** The lemma of the word-form. */
 	public String lemma;
-	/** Morphemes of the word-form. */
-	public DefaultMPToken mpToken;
 	
 	/** Constructs a POS node with dummy values ({@link AbstractReader#DUMMY_TAG}). */
 	public POSNode()
@@ -138,11 +135,6 @@ public class POSNode
 	public boolean isLemma(String lemma)
 	{
 		return this.lemma.equals(lemma);
-	}
-	
-	public void setMPToken(DefaultMPToken token)
-	{
-		this.mpToken = token;
 	}
 	
 	public void setLemma(String lemma)

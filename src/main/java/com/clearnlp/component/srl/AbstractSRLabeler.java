@@ -128,6 +128,8 @@ abstract public class AbstractSRLabeler extends AbstractStatisticalComponent<SRL
 	abstract protected String getHardLabel(SRLState state, String label);
 	abstract protected PBType getPBType(DEPNode pred);
 	abstract protected void postLabel(SRLState state);
+	abstract protected DEPNode getPossibleDescendent(DEPNode pred, DEPNode arg);
+	abstract protected boolean rerankFromArgument(StringPrediction prediction, DEPNode arg);
 	
 //	====================================== LOAD/SAVE MODELS ======================================
 	
@@ -350,8 +352,16 @@ abstract public class AbstractSRLabeler extends AbstractStatisticalComponent<SRL
 				state.setArgument(arg);
 				addArgument(getLabel(state), state);
 				
-				if (state.isLowestCommonAncestor(pred) && s_down.contains(getDUPath(pred, arg)))
-					labelDown(arg.getDependents(), state);
+				if (state.isLowestCommonAncestor(pred))
+				{
+					if (s_down.contains(getDUPath(pred, arg)))
+						labelDown(arg.getDependents(), state);
+					else if ((arg = getPossibleDescendent(pred, arg)) != null)
+						labelDown(arg.getDependents(), state);
+				}
+				
+//				if (state.isLowestCommonAncestor(pred) && s_down.contains(getDUPath(pred, arg)))
+//					labelDown(arg.getDependents(), state);
 			}
 		}
 	}
@@ -409,6 +419,9 @@ abstract public class AbstractSRLabeler extends AbstractStatisticalComponent<SRL
 	private void addArgument(StringPrediction p, SRLState state)
 	{
 		DEPNode arg = state.getCurrentArgument();
+		ObjectDoublePair<DEPNode> prev;
+		DEPNode node;
+
 		state.addArgumentToSkipList();
 		
 		if (!p.label.equals(LB_NO_ARG))
@@ -419,11 +432,9 @@ abstract public class AbstractSRLabeler extends AbstractStatisticalComponent<SRL
 				
 				if (PBLib.isCoreNumberedArgument(p.label))
 				{
-					ObjectDoublePair<DEPNode> prev = state.getCoreNumberedArgument(p.label);
-					
-					if (prev != null)
+					if ((prev = state.getCoreNumberedArgument(p.label)) != null)
 					{
-						DEPNode node = (DEPNode)prev.o;
+						node = (DEPNode)prev.o;
 						node.removeSHeadsByLabel(p.label);
 					}
 					
@@ -678,13 +689,19 @@ abstract public class AbstractSRLabeler extends AbstractStatisticalComponent<SRL
 	
 	protected void rerankPredictions(List<StringPrediction> ps, SRLState state)
 	{
+		DEPNode arg = state.getCurrentArgument();
+		boolean change = false;
+		
 		for (StringPrediction p : ps)
 		{
-			if (rerankFrameMismatch(p, state) || rerankRedundantNumberedArgument(p, state))
+			if (rerankFrameMismatch(p, state) || rerankRedundantNumberedArgument(p, state) || rerankFromArgument(p, arg))
+			{
 				p.score = -1;
+				change = true;
+			}
 		}
 		
-		UTCollection.sortReverseOrder(ps);
+		if (change)	UTCollection.sortReverseOrder(ps);
 	}
 	
 	protected boolean rerankFrameMismatch(StringPrediction prediction, SRLState state)

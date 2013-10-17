@@ -32,7 +32,7 @@ public class AdaGradLR extends AbstractAdaGrad
 		super(alpha, rho, eps);
 	}
 	
-	protected boolean update(int L, int y, int[] x, double[] v, double[] gs, double[] weights)
+	protected boolean update(int L, int y, int[] x, double[] v, double[] gs, float[] weights)
 	{
 		double[] grad = getGradients(L, y, x, v, weights);
 		
@@ -46,7 +46,7 @@ public class AdaGradLR extends AbstractAdaGrad
 		return false;
 	}
 	
-	protected double[] getGradients(int L, int y, int[] x, double[] v, double[] weights)
+	protected double[] getGradients(int L, int y, int[] x, double[] v, float[] weights)
 	{
 		double[] scores = getScores(L, x, v, weights);
 		normalize(scores);
@@ -84,7 +84,7 @@ public class AdaGradLR extends AbstractAdaGrad
 		}
 	}
 	
-	protected void updateWeights(int L, double[] gs, double[] grad, int[] x, double[] v, double[] weights)
+	protected void updateWeights(int L, double[] gs, double[] grad, int[] x, double[] v, float[] weights)
 	{
 		int i, label, len = x.length;
 		

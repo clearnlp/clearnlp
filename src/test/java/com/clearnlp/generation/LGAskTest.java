@@ -65,11 +65,8 @@ public class LGAskTest
 				"What can you do for you?",
 				"Who helped you last time?",
 				"Which of your accounts is locked?",
-				"When should I reset your password?",
 				"What is your username?",
-				"Please enter your password.",
-				"Please enter your password.",
-				"Please be patient."};
+				"What is your username?"};
 		
 		String[] asks = {
 				"Ask when the last time that the user were able to log into Remedy was.",
@@ -99,7 +96,7 @@ public class LGAskTest
 				"Ask what the user can do for the user.",
 				"Ask who helped the user last time.",
 				"Ask which of the user's accounts is locked.",
-				"Ask when I should reset the user's password.",
+				"Ask what the user's username is.",
 				"Ask what the user's username is."};
 		
 		for (i=0; (tree = reader.next()) != null; i++)
@@ -107,15 +104,12 @@ public class LGAskTest
 			tree = ask.generateQuestionFromAsk(tree);
 			assertEquals(questions[i], LGLibEn.getForms(tree, false, " "));
 			
-			if (!tree.get(1).isLemma("please"))
-			{
-				tree = ask.generateAskFromQuestion(tree);
-				assertEquals(asks[i], LGLibEn.getForms(tree, false, " "));
-				
-				root = tree.getFirstRoot().getDependents().get(0).getNode();
-				tree = ask.generateQuestionFromDeclarative(root, false);
-				assertEquals(questions[i], LGLibEn.getForms(tree, false, " "));				
-			}
+			tree = ask.generateAskFromQuestion(tree);
+			assertEquals(asks[i], LGLibEn.getForms(tree, false, " "));
+			
+			root = tree.getFirstRoot().getDependents().get(0).getNode();
+			tree = ask.generateQuestionFromDeclarative(root, false);
+			assertEquals(questions[i], LGLibEn.getForms(tree, false, " "));
 		}
 		
 		testGenerateAskFromQuestion(ask);
@@ -130,19 +124,25 @@ public class LGAskTest
 		
 		String[] asks = {
 			"Ask what the user's name is.",
-			"Ask whether the user can describe what the user is seeing."
+			"Ask whether the user can describe what the user is seeing.",
+			"Ask whether the user is sick of it.",
+			"Ask whether file a claim.",
+			"Ask why the user is having this problem."
 		};
 		
 		String[] questions = {
 			"What is your name?",
-			"Can you describe what you are seeing?"	
+			"Can you describe what you are seeing?",
+			"Are you sick of it?",
+			"File a claim?",
+			"Why are you having this problem?"
 		};
 		
 		for (i=0; (tree = reader.next()) != null; i++)
 		{
 			tree = ask.generateAskFromQuestion(tree);
 			assertEquals(asks[i], LGLibEn.getForms(tree, false, " "));
-			
+
 			tree = ask.generateQuestionFromAsk(tree);
 			assertEquals(questions[i], LGLibEn.getForms(tree, false, " "));
 		}

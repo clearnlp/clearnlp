@@ -298,41 +298,19 @@
 10	.	.	.	_	1	punct	_
 
 1	Ask	ask	VB	pb=ask.02	0	root	_
-2	when	when	WRB	_	4	advmod	4:R-AM-TMP
-3	to	to	TO	_	4	aux	_
-4	reset	reset	VB	pb=reset.01	1	xcomp	1:A1
-5	the	the	DT	_	6	det	_
-6	user	user	NN	_	8	poss	_
-7	's	's	POS	_	6	possessive	_
-8	password	password	NN	p2=NNP	4	dobj	4:A1
-9	.	.	.	_	1	punct	_
-
-1	Ask	ask	VB	pb=ask.02	0	root	_
 2	what	what	WP	_	3	attr	3:R-A2
 3	is	be	VBZ	pb=be.01	1	ccomp	_
 4	your	your	PRP$	_	5	poss	_
 5	username	username	NN	_	3	nsubj	3:A1
 6	?	?	.	_	3	punct	_
 
-1	Ask	ask	VB	pb=ask.02	0	root	_
-2	to	to	TO	_	3	aux	_
-3	enter	enter	VB	pb=enter.01	1	xcomp	1:A1
-4	the	the	DT	_	5	det	_
-5	user	user	NN	_	7	poss	_
-6	's	's	POS	_	5	possessive	_
-7	password	password	NN	p2=NNP	3	dobj	3:A1
-8	.	.	.	_	1	punct	_
-
-1	Ask	ask	VB	pb=ask.02	0	root	_
-2	entering	enter	VBG	pb=enter.01	1	xcomp	1:A1
-3	the	the	DT	_	4	det	_
-4	user	user	NN	_	6	poss	_
-5	's	's	POS	_	4	possessive	_
-6	password	password	NN	p2=NNP	2	dobj	2:A1
-7	.	.	.	_	1	punct	_
-
-1	Ask	ask	VB	pb=ask.02	0	root	_
-2	to	to	TO	_	3	aux	_
-3	be	be	VB	pb=be.01	1	xcomp	1:A1
-4	patient	patient	JJ	_	3	acomp	3:A2
-5	.	.	.	_	1	punct	_
+1	Ask	ask	VB	p2=VBP|pb=ask.01	0	root	_
+2	the	the	DT	_	3	det	_
+3	user	user	NN	_	1	dobj	1:A2=GOL
+4	what	what	WP	_	5	attr	5:R-A2
+5	is	be	VBZ	ACTION=be|pb=be.01	3	ccomp	_
+6	the	the	DT	_	7	det	_
+7	user	user	NN	_	9	poss	_
+8	's	's	POS	_	7	possessive	_
+9	username	username	NN	coref=username	5	nsubj	5:A1=PPT
+10	.	.	.	_	1	punct	_

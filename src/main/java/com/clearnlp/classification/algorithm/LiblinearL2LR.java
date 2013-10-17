@@ -52,7 +52,7 @@ public class LiblinearL2LR extends AbstractLiblinear
 	}
 	
 	@Override
-	public double[] getWeight(AbstractTrainSpace space, int currLabel)
+	public float[] getWeight(AbstractTrainSpace space, int currLabel)
 	{
 		Random rand = new Random(5);
 		
@@ -65,7 +65,7 @@ public class LiblinearL2LR extends AbstractLiblinear
 		ArrayList<double[]> vs = space.getVs();
 		
 		double[] alpha  = new double[2*N];
-		double[] weight = new double[D];
+		float [] weight = new float[D];
 		double G, alpha_old, qd, d, z, gp, gpp, tmpz;
 
 		double alpha_pre = Math.min(0.001 * d_cost, 1e-8);

@@ -38,6 +38,7 @@ import com.clearnlp.dependency.factory.DefaultDEPNodeDatumFactory;
 import com.clearnlp.dependency.factory.IDEPNodeDatum;
 import com.clearnlp.dependency.factory.IDEPNodeDatumFactory;
 import com.clearnlp.dependency.srl.SRLArc;
+import com.clearnlp.morphology.MPLibEn;
 import com.clearnlp.ner.NERNode;
 import com.clearnlp.pos.POSNode;
 import com.clearnlp.reader.AbstractColumnReader;
@@ -1165,6 +1166,26 @@ public class DEPNode extends NERNode implements Comparable<DEPNode>
 		}
 		
 		return build.substring(delim.length());
+	}
+	
+	public String getSubLemmasEnPP(String delim)
+	{
+		StringBuilder build = new StringBuilder();
+		build.append(lemma);
+
+		DEPNode pobj = getFirstDependentByLabel(DEPLibEn.DEP_POBJ);
+		
+		if (pobj != null)
+		{
+			build.append(delim);
+			
+			if (MPLibEn.isNoun(pobj.pos))
+				build.append(pobj.getSubLemmasEnNoun(delim));
+			else
+				build.append(pobj.lemma);
+		}
+		
+		return build.toString();
 	}
 
 	@Override

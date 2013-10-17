@@ -19,7 +19,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.List;
-import java.util.zip.ZipFile;
 
 import org.w3c.dom.Element;
 
@@ -54,8 +53,10 @@ abstract public class NLPDecoder extends AbstractNLP
 		AbstractSegmenter segmenter = readerType.equals(AbstractReader.TYPE_RAW)  ? getSegmenter(eConfig, bTwit) : null;
 		AbstractTokenizer tokenizer = readerType.equals(AbstractReader.TYPE_LINE) ? getTokenizer(eConfig, bTwit) : null;
 
-		ZipFile file = (modelFile != null) ? new ZipFile(modelFile) : null;
-		AbstractComponent[] components = NLPGetter.getComponents(file, language, getModes(readerType));
+//		ZipFile file = (modelFile != null) ? new ZipFile(modelFile) : null;
+//		AbstractComponent[] components = NLPGetter.getComponents(file, language, getModes(readerType));
+		
+		AbstractComponent[] components = NLPGetter.getComponents(modelFile, language, getModes(readerType));
 		
 		LOG.info("Decoding:\n");
 		

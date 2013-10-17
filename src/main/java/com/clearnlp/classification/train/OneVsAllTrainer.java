@@ -58,7 +58,7 @@ public class OneVsAllTrainer
 	
 	private void trainBinary()
 	{
-		double[] weights = a_algorithm.getWeight(t_space, 0);
+		float[] weights = a_algorithm.getWeight(t_space, 0);
 		m_model.copyWeights(weights);
 	}
 	
@@ -96,7 +96,7 @@ public class OneVsAllTrainer
 		
 		public void run()
 		{
-			double[] weights = a_algorithm.getWeight(t_space, curr_label);
+			float[] weights = a_algorithm.getWeight(t_space, curr_label);
 			m_model.copyWeights(weights, curr_label);
 		}
     }

@@ -1,14 +1,34 @@
 1	What	what	WP	_	2	attr	2:R-A2
-2	's	be	VBZ	be.01	0	root	_
+2	's	be	VBZ	pb=be.01	0	root	_
 3	your	your	PRPS	_	4	poss	_
 4	name	name	NN	_	2	nsubj	2:A1
 5	?	.	.	_	2	punct	_
 
 1	Can	can	MD	_	3	aux	3:AM-MOD
 2	you	you	PRP	_	3	nsubj	3:A0
-3	describe	describe	VB	describe.01	0	root	_
+3	describe	describe	VB	pb=describe.01	0	root	_
 4	what	what	WP	_	7	dobj	7:R-A1
 5	you	you	PRP	_	7	nsubj	7:A0
 6	're	be	VBP	_	7	aux	_
 7	seeing	see	VBG	see.01	3	ccomp	3:A1
 8	?	.	.	_	3	punct	_
+
+1	Are	be	VBP	pb=be.01	0	root	_
+2	you	you	PRP	_	1	nsubj	1:A1
+3	sick	sick	JJ	_	1	acomp	1:A2
+4	of	of	IN	_	3	prep	_
+5	it	it	PRP	_	4	pobj	_
+6	?	.	.	_	1	punct	_
+
+1	File	file	VB	pb=file.01	0	root	_
+2	a	a	DT	_	3	det	_
+3	claim	claim	NN	_	1	dobj	1:A1
+4	?	.	.	_	1	punct	_
+
+1	Why	why	WRB	_	4	advmod	4:R-AM-CAU
+2	are	be	VBP	_	4	aux	_
+3	you	you	PRP	_	4	nsubj	4:A0
+4	having	have	VBG	pb=have.03	0	root	_
+5	this	this	DT	_	6	det	_
+6	problem	problem	NN	_	4	dobj	4:A1
+7	?	.	.	_	4	punct	_

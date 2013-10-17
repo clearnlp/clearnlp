@@ -169,6 +169,10 @@ public class EnglishDEPParser extends AbstractDEPParser
 	{
 		DEPNode lambda = state.getLambda();
 		DEPNode beta   = state.getBeta();
+		
+		if (isOutOfDomain(state, lambda, beta))
+			return -1;
+		
 		DEPNode beVerb = lambda.getHead();
 		String  subj   = lambda.getLabel();
 		int     vType  = 0;
@@ -228,6 +232,22 @@ public class EnglishDEPParser extends AbstractDEPParser
 		return -1;
 	}
 	
+	private boolean isOutOfDomain(DEPState state, DEPNode lambda, DEPNode beta)
+	{
+		DEPNode node;
+		int i;
+		
+		for (i=beta.id-1; i>lambda.id; i--)
+		{
+			node = state.getNode(i);
+			
+			if (node.isDependentOf(beta) && (DEPLibEn.isSubject(node.getLabel()) || DEPLibEn.isAuxiliary(node.getLabel())))
+				return true;
+		}
+		
+		return false;
+	}
+	
 	private boolean hasNoDependent(DEPNode head, int bIdx, int eIdx, DEPState state)
 	{
 		DEPNode node;
@@ -283,7 +303,7 @@ public class EnglishDEPParser extends AbstractDEPParser
 			resetAttributeInQuestion(lambda, beta, state);
 		}
 	}
-
+	
 	private void resetVerbPOSTag(DEPNode head, DEPNode dep, DEPState state)
 	{
 		String p2 = head.getFeat(DEPLib.FEAT_POS2);
@@ -383,6 +403,11 @@ public class EnglishDEPParser extends AbstractDEPParser
 		if (node.id < ggHead.id && ggHead.id < gHead.id && gHead.id < head.id && head.isPos(CTLibEn.POS_IN) && MPLibEn.isNoun(gHead.pos) && MPLibEn.isVerb(ggHead.pos))
 		{
 			head.setHead(ggHead);
+			return true;
+		}
+		else if (gHead.id < head.id && head.id < node.id && gHead.isLemma("ask") && head.isLabel(DEPLibEn.DEP_DOBJ) && node.isLabel(DEPLibEn.DEP_CCOMP))
+		{
+			node.setHead(gHead);
 			return true;
 		}
 		

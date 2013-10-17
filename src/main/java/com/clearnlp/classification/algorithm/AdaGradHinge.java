@@ -34,7 +34,7 @@ public class AdaGradHinge extends AbstractAdaGrad
 		super(alpha, rho, eps);
 	}
 	
-	protected boolean update(int L, int y, int[] x, double[] v, double[] gs, double[] weights)
+	protected boolean update(int L, int y, int[] x, double[] v, double[] gs, float[] weights)
 	{
 		IntPrediction max = getPrediction(L, y, x, v, weights);
 		
@@ -48,7 +48,7 @@ public class AdaGradHinge extends AbstractAdaGrad
 		return false;
 	}
 	
-	protected IntPrediction getPrediction(int L, int y, int[] x, double[] v, double[] weights)
+	protected IntPrediction getPrediction(int L, int y, int[] x, double[] v, float[] weights)
 	{
 		double[] scores = getScores(L, x, v, weights);
 		scores[y] -= 1;
@@ -91,7 +91,7 @@ public class AdaGradHinge extends AbstractAdaGrad
 		}
 	}
 	
-	protected void updateWeights(int L, double[] gs, int yp, int yn, int[] x, double[] v, double[] weights)
+	protected void updateWeights(int L, double[] gs, int yp, int yn, int[] x, double[] v, float[] weights)
 	{
 		int i, xi, len = x.length;
 		double vi;

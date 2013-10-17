@@ -259,7 +259,7 @@ public class DEPLibEn extends DEPLib
 		else				return aux.isPos(CTLibEn.POS_TO);
 	}
 	
-	static public void postLabel(DEPTree tree)
+	static public List<List<DEPArc>> postLabel(DEPTree tree)
 	{
 		List<List<DEPArc>> argLists;
 		int i, size = tree.size();
@@ -288,6 +288,7 @@ public class DEPLibEn extends DEPLib
 		}
 		
 		tree.resetDependents();
+		return argLists;
 	}
 	
 	/**

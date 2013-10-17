@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import com.clearnlp.constituent.CTLibEn;
 import com.clearnlp.dependency.DEPLib;
 import com.clearnlp.dependency.DEPNode;
 import com.clearnlp.morphology.MPLibEn;
@@ -185,7 +186,7 @@ public class SRLTree
 		return build.toString();
 	}
 	
-	public String getRichKeyEn(Pattern ignore, String space)
+	public String getRichKeyEn(Pattern ignore, String delim)
 	{
 		StringBuilder build = new StringBuilder();
 		Collections.sort(l_arguments);
@@ -206,7 +207,9 @@ public class SRLTree
 				build.append(":");
 				
 				if (MPLibEn.isNoun(node.pos))
-					value = node.getSubLemmasEnNoun(space);
+					value = node.getSubLemmasEnNoun(delim);
+				else if (node.isPos(CTLibEn.POS_IN))
+					value = node.getSubLemmasEnPP(delim);
 				else
 					value = node.lemma;
 				

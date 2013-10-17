@@ -26,7 +26,6 @@ import com.clearnlp.dependency.DEPTree;
  */
 abstract public class AbstractMPAnalyzer extends AbstractComponent
 {
-	abstract public String getLemma(String form, String pos);
 	abstract public void analyze(DEPNode node);
 	
 	@Override
