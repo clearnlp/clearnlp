@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.zip.ZipFile;
 
 import com.clearnlp.constant.english.ENAux;
 import com.clearnlp.constant.english.ENModal;
@@ -59,6 +60,7 @@ import com.clearnlp.dependency.DEPNode;
 import com.clearnlp.dependency.DEPTree;
 import com.clearnlp.dependency.srl.SRLLib;
 import com.clearnlp.morphology.MPLibEn;
+import com.google.common.collect.Lists;
 
 /**
  * Used for Eliza.
@@ -77,6 +79,11 @@ public class LGAsk
 	public LGAsk()
 	{
 		g_verb = new LGVerbEn();
+	}
+	
+	public LGAsk(ZipFile file)
+	{
+		g_verb = new LGVerbEn(file);
 	}
 	
 	/** Generates a declarative sentence with "ask" from a question. */
@@ -337,7 +344,7 @@ public class LGAsk
 		tree.setDependents();
 		
 		DEPNode root = tree.getFirstRoot();
-		if (root == null)	return null;
+		if (root == null) return null;
 		DEPNode dep, dobj = null;
 		
 		for (DEPArc arc : root.getDependents())
@@ -345,15 +352,35 @@ public class LGAsk
 			dep = arc.getNode();
 			
 			if (MPLibEn.isVerb(dep.pos))
-				return generateQuestion(dep);
-			else if (arc.isLabel(DEPLibEn.DEP_DOBJ))
-				dobj = arc.getNode();
+				return generateQuestion(dep, getPrevDependents(tree, root, dep));
+			else if (dep.isLabel(DEPLibEn.DEP_DOBJ))
+				dobj = dep;
 		}
 		
 		if (dobj != null && (dep = dobj.getFirstDependentByLabel(DEPLibEn.DEP_CCOMP)) != null)
-			return generateQuestion(dep);
+			return generateQuestion(dep, null);
 		
 		return null;
+	}
+	
+	private List<DEPNode> getPrevDependents(DEPTree tree, DEPNode root, DEPNode verb)
+	{
+		List<DEPNode> list = Lists.newArrayList();
+		int i, size = root.id;
+		DEPNode node;
+		
+		for (i=1; i<size; i++)
+		{
+			node = tree.get(i);
+			
+			if (node.isDependentOf(root))
+			{
+				node.setHead(verb);
+				list.addAll(node.getSubNodeSortedList());				
+			}
+		}
+		
+		return list;
 	}
 	
 	/** Generates a question from a declarative sentence. */
@@ -368,7 +395,30 @@ public class LGAsk
 		DEPNode root = tree.getFirstRoot();
 		if (root == null)	return null;
 		
-		return generateQuestion(root);
+		return generateQuestion(root, getPrevDependents(tree, root));
+	}
+	
+	private List<DEPNode> getPrevDependents(DEPTree tree, DEPNode verb)
+	{
+		List<DEPNode> list = Lists.newArrayList();
+		int i, bIdx = -1;
+		DEPNode node;
+				
+		for (i=verb.id-1; i>0; i--)
+		{
+			node = tree.get(i);
+			
+			if (DEPLibEn.getRefDependentNode(node) != null)
+			{
+				bIdx = node.getSubNodeSortedList().get(0).id;
+				break;
+			}
+		}
+		
+		for (i=1; i<bIdx; i++)
+			list.add(tree.get(i));
+		
+		return list;
 	}
 	
 	/** Generates a question from a declarative sentence. */
@@ -383,11 +433,17 @@ public class LGAsk
 	}
 	
 	/** Called by {@link LGAsk#generateQuestionFromAsk(DEPTree, String)}. */
-	public DEPTree generateQuestion(DEPNode verb)
+	public DEPTree generateQuestion(DEPNode verb, List<DEPNode> prevNodes)
 	{
 		Set<DEPNode> added = new HashSet<DEPNode>();
 		DEPTree tree = new DEPTree();
 		DEPNode rel, aux;
+		
+		if (prevNodes != null)
+		{
+			tree.addAll(prevNodes);
+			added.addAll(prevNodes);
+		}
 		
 		verb.setHead(tree.get(0), DEPLibEn.DEP_ROOT);
 		rel = setRelativizer(tree, verb, added);
@@ -432,7 +488,7 @@ public class LGAsk
 						head = head.getHead();
 					}
 				}
-
+				
 				addSubtree(tree, rel, added);
 				return rel;
 			}

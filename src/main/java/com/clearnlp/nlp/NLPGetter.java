@@ -171,7 +171,7 @@ public class NLPGetter
 	{
 		if (mode.equals(NLPLib.MODE_MORPH))
 			return null;
-			
+		
 		InputStream stream = UTInput.getInputStreamsFromClasspath(path+"/"+mode);
 		return new ObjectInputStream(new BufferedInputStream(new GZIPInputStream(stream)));
 	}

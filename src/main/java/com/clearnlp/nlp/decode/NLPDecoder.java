@@ -41,6 +41,7 @@
 package com.clearnlp.nlp.decode;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.List;
@@ -79,12 +80,17 @@ abstract public class NLPDecoder extends AbstractNLP
 		
 		AbstractSegmenter segmenter = readerType.equals(AbstractReader.TYPE_RAW)  ? getSegmenter(eConfig, bTwit) : null;
 		AbstractTokenizer tokenizer = readerType.equals(AbstractReader.TYPE_LINE) ? getTokenizer(eConfig, bTwit) : null;
-		AbstractComponent[] components;
+		AbstractComponent[] components = null;
 		
 		if (modelFile != null && !modelFile.equals(UNConstant.EMPTY))
-			components = NLPGetter.getComponents(new ZipFile(modelFile), language, getModes(readerType));
+		{
+			if (new File(modelFile).isFile())
+				components = NLPGetter.getComponents(new ZipFile(modelFile), language, getModes(readerType));
+			else
+				components = NLPGetter.getComponents(modelFile, language, getModes(readerType));			
+		}
 		else
-			components = NLPGetter.getComponents(modelFile, language, getModes(readerType));
+			new IllegalArgumentException("Model must be specified");
 		
 		LOG.info("Decoding:\n");
 		

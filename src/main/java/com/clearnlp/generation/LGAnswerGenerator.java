@@ -79,7 +79,7 @@ public class LGAnswerGenerator
 	
 	public String getAnswer(List<DEPTree> rTrees, List<ArgInfo> rArgs, String conjunction, String delim, boolean verbose, boolean trivialize)
 	{
-		List<Pair<String,String>> answers = getShortAnswers(rTrees, rArgs, conjunction, delim, trivialize);
+		List<Pair<String,String>> answers = getShortAnswers(rTrees, rArgs, conjunction, delim, verbose, trivialize);
 		if (verbose) answers = getLongAnswers(rTrees, rArgs, conjunction, delim);
 		return joinAnswers(answers, conjunction, delim);
 	}
@@ -101,7 +101,7 @@ public class LGAnswerGenerator
 		return answers;
 	}
 	
-	public List<Pair<String,String>> getShortAnswers(List<DEPTree> rTrees, List<ArgInfo> rArgs, String conjunction, String delim, boolean trivialize)
+	public List<Pair<String,String>> getShortAnswers(List<DEPTree> rTrees, List<ArgInfo> rArgs, String conjunction, String delim, boolean verbose, boolean trivialize)
 	{
 		List<Pair<String,String>> answers = new ArrayList<Pair<String,String>>();
 		Pair<DEPTree,SRLTree> p;
@@ -112,20 +112,20 @@ public class LGAnswerGenerator
 		{
 			rArg = rArgs.get(i);
 			p = getTrees(rTrees.get(i), rArg.getPredicateId());
-			answers.add(getShortAnswer(p.o1, p.o2, rArg, delim, trivialize));
+			answers.add(getShortAnswer(p.o1, p.o2, rArg, delim, verbose, trivialize));
 			rTrees.set(i, p.o1);
 		}
 		
 		return answers;
 	}
 	
-	public Pair<String,String> getShortAnswer(DEPTree rTree, SRLTree sTree, ArgInfo rArg, String delim, boolean trivialize)
+	public Pair<String,String> getShortAnswer(DEPTree rTree, SRLTree sTree, ArgInfo rArg, String delim, boolean verbose, boolean trivialize)
 	{
 		removeDependents(rTree.get(DEPLib.ROOT_ID), sTree.getPredicate());
 		SRLLib.relinkRelativeClause(sTree);
 		SRLLib.relinkCoordination(sTree);
 		
-		return getShortAnswerAux(rTree, sTree, rArg, delim, trivialize);
+		return getShortAnswerAux(rTree, sTree, rArg, delim, verbose, trivialize);
 	}
 	
 	private Pair<DEPTree,SRLTree> getTrees(DEPTree dTree, int predID)
@@ -154,8 +154,10 @@ public class LGAnswerGenerator
 		verb.removeDependents(remove);
 	}
 	
-	private void removeDependents(DEPNode root, DEPNode verb, Set<DEPNode> keep, boolean trivialize)
+	private void removeDependents(DEPNode root, DEPNode verb, Set<DEPNode> keep, boolean verbose, boolean trivialize)
 	{
+		if (verbose) return;
+		
 		List<DEPArc> remove = new ArrayList<DEPArc>();
 		boolean changeDo = true, hasModal = false;
 		DEPNode dep;
@@ -202,7 +204,7 @@ public class LGAnswerGenerator
 		}
 	}
 	
-	private Pair<String,String> getShortAnswerAux(DEPTree rTree, SRLTree sTree, ArgInfo rArg, String delim, boolean trivialize)
+	private Pair<String,String> getShortAnswerAux(DEPTree rTree, SRLTree sTree, ArgInfo rArg, String delim, boolean verbose, boolean trivialize)
 	{
 		DEPNode root = rTree.get(DEPLib.ROOT_ID);
 		DEPNode pred = sTree.getPredicate();
@@ -215,7 +217,7 @@ public class LGAnswerGenerator
 				return null;
 			else
 			{
-				removeDependents(root, pred, getSubNodeSet(pred, nodes), trivialize);
+				removeDependents(root, pred, getSubNodeSet(pred, nodes), verbose, trivialize);
 				stripArgs(pred, nodes);
 				return getAnswerString(nodes, delim);
 			}
@@ -229,7 +231,7 @@ public class LGAnswerGenerator
 				return null;
 			else
 			{
-				removeDependents(root, pred, getSubNodeSet(pred, dep), trivialize);
+				removeDependents(root, pred, getSubNodeSet(pred, dep), verbose, trivialize);
 				return getAnswerString(dep, delim);				
 			}
 		}

@@ -40,8 +40,7 @@
  */
 package com.clearnlp.nlp;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -60,7 +59,7 @@ import com.clearnlp.util.UTXml;
  */
 abstract public class AbstractNLP
 {
-	protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
+	protected final Logger LOG = Logger.getLogger(this.getClass());
 	
 	final public String TAG_READER	= "reader";
 	final public String TAG_TYPE	= "type";

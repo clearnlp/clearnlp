@@ -46,8 +46,7 @@ import java.io.LineNumberReader;
 import java.io.PrintStream;
 import java.util.ArrayList;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import com.carrotsearch.hppc.IntArrayList;
 import com.clearnlp.classification.model.AbstractModel;
@@ -62,7 +61,7 @@ import com.clearnlp.util.UTInput;
  */
 abstract public class AbstractTrainSpace
 {
-	protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
+	protected final Logger LOG = Logger.getLogger(this.getClass());
 	
 	/** The flag to indicate sparse vector space. */
 	static public final byte VECTOR_SPARSE = 0;

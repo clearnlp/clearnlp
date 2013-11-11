@@ -1,4 +1,0 @@
-male firstname:Jinho lastname:Choi
-male firstname:James lastname:Martin
-female firstname:Martha lastname:Palmer
-female firstname:Tamara lastname:Sumner

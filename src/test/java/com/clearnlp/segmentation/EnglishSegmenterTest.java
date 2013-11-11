@@ -41,13 +41,14 @@
 package com.clearnlp.segmentation;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
+import java.io.File;
 import java.io.StringReader;
 import java.util.List;
+import java.util.zip.ZipFile;
 
 import org.junit.Test;
 
-import com.clearnlp.segmentation.EnglishSegmenter;
+import com.clearnlp.dictionary.DTLib;
 import com.clearnlp.tokenization.EnglishTokenizer;
 import com.clearnlp.util.UTArray;
 
@@ -58,10 +59,11 @@ import com.clearnlp.util.UTArray;
 public class EnglishSegmenterTest
 {
 	@Test
-	public void testEnglishSegmenter() throws FileNotFoundException
+	public void testEnglishSegmenter() throws Exception
 	{
 		String src = "He said, \"I'd like to know Mr. Choi.\" He's the owner of ClearNLP";
-		EnglishSegmenter tok = new EnglishSegmenter(new EnglishTokenizer());
+		EnglishSegmenter tok = new EnglishSegmenter(new EnglishTokenizer(new ZipFile(new File(DTLib.DICTIONARY_JAR))));
+//		EnglishSegmenter tok = new EnglishSegmenter(new EnglishTokenizer());
 		BufferedReader reader = new BufferedReader(new StringReader(src));
 		
 		for (List<String> sentence : tok.getSentences(reader))

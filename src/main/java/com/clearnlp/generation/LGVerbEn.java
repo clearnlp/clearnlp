@@ -54,10 +54,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import com.clearnlp.constant.universal.UNConstant;
 import com.clearnlp.constant.universal.UNPunct;
-import com.clearnlp.dictionary.DTEnglish;
 import com.clearnlp.morphology.MPLibEn;
 import com.clearnlp.pattern.PTLib;
 import com.clearnlp.util.UTInput;
@@ -69,6 +70,7 @@ import com.google.common.collect.Lists;
  */
 public class LGVerbEn
 {
+	final String  VERB_TENSE    = "dictionary/english/verb.tense";
 	final Pattern TENSE_MULTI   = Pattern.compile("\\"+UNPunct.PIPE);
 	final Pattern TENSE_BETWEEN = Pattern.compile(UNConstant.TAB);
 	
@@ -78,7 +80,16 @@ public class LGVerbEn
 	{
 		try
 		{
-			initTenseMap(UTInput.getInputStreamsFromClasspath(DTEnglish.VERB_TENSE));
+			initTenseMap(UTInput.getInputStreamsFromClasspath(VERB_TENSE));
+		}
+		catch (IOException e) {e.printStackTrace();}
+	}
+	
+	public LGVerbEn(ZipFile file)
+	{
+		try
+		{
+			initTenseMap(file.getInputStream(new ZipEntry(VERB_TENSE)));
 		}
 		catch (IOException e) {e.printStackTrace();}
 	}

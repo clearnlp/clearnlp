@@ -50,12 +50,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import org.w3c.dom.Element;
 
 import com.clearnlp.constituent.CTLibEn;
 import com.clearnlp.dependency.DEPNode;
-import com.clearnlp.dictionary.DTEnglish;
 import com.clearnlp.morphology.AbstractAffixMatcher;
 import com.clearnlp.morphology.MPLib;
 import com.clearnlp.morphology.MPLibEn;
@@ -79,6 +80,20 @@ import com.google.common.collect.Sets;
  */
 public class EnglishMPAnalyzer extends AbstractMPAnalyzer
 {
+	final String PATH          = "dictionary/english/";
+	final String VERB          = "verb";
+	final String NOUN          = "noun";
+	final String ADJECTIVE     = "adjective";
+	final String ADVERB        = "adverb";
+	final String EXT_BASE      = ".base";
+	final String EXT_EXCEPTION = ".exc";
+
+	final String INFLECTION_SUFFIX = PATH + "inflection_suffix.xml";
+	final String DERIVATION_SUFFIX = PATH + "derivation_suffix.xml";
+	final String ABBREVIATOIN_RULE = PATH + "abbreviation.rule";
+	final String CARDINAL_BASE     = PATH + "cardinal.base";
+	final String ORDINAL_BASE      = PATH + "ordinal.base";
+
 	final String FIELD_DELIM = "_";
 
 	private EnglishInflection inf_verb;
@@ -97,27 +112,58 @@ public class EnglishMPAnalyzer extends AbstractMPAnalyzer
 	/** Constructs an English morphological analyzer from the dictionary in a classpath. */
 	public EnglishMPAnalyzer()
 	{
-		Element inflection = UTXml.getDocumentElement(UTInput.getInputStreamsFromClasspath(DTEnglish.INFLECTION_SUFFIX));
+		Element inflection = UTXml.getDocumentElement(UTInput.getInputStreamsFromClasspath(INFLECTION_SUFFIX));
 		
 		try
 		{
-			inf_verb      = getInflectionRules(inflection, DTEnglish.VERB     , CTLibEn.POS_VB, MPTag.IVX);
-			inf_noun      = getInflectionRules(inflection, DTEnglish.NOUN     , CTLibEn.POS_NN, MPTag.INX);
-			inf_adjective = getInflectionRules(inflection, DTEnglish.ADJECTIVE, CTLibEn.POS_JJ, MPTag.IJX);
-			inf_adverb    = getInflectionRules(inflection, DTEnglish.ADVERB   , CTLibEn.POS_RB, MPTag.IRX);
+			inf_verb      = getInflectionRules(inflection, VERB     , CTLibEn.POS_VB, MPTag.IVX);
+			inf_noun      = getInflectionRules(inflection, NOUN     , CTLibEn.POS_NN, MPTag.INX);
+			inf_adjective = getInflectionRules(inflection, ADJECTIVE, CTLibEn.POS_JJ, MPTag.IJX);
+			inf_adverb    = getInflectionRules(inflection, ADVERB   , CTLibEn.POS_RB, MPTag.IRX);
 
-			base_cardinal     = UTInput.getStringSet(UTInput.getInputStreamsFromClasspath(DTEnglish.CARDINAL_BASE));
-			base_ordinal      = UTInput.getStringSet(UTInput.getInputStreamsFromClasspath(DTEnglish.ORDINAL_BASE));
-			rule_abbreviation = getAbbreviationMap(UTInput.getInputStreamsFromClasspath(DTEnglish.ABBREVIATOIN_RULE));
+			base_cardinal     = UTInput.getStringSet(UTInput.getInputStreamsFromClasspath(CARDINAL_BASE));
+			base_ordinal      = UTInput.getStringSet(UTInput.getInputStreamsFromClasspath(ORDINAL_BASE));
+			rule_abbreviation = getAbbreviationMap(UTInput.getInputStreamsFromClasspath(ABBREVIATOIN_RULE));
+		}
+		catch (IOException e) {e.printStackTrace();}
+	}
+
+	private EnglishInflection getInflectionRules(Element eInflection, String type, String basePOS, String irregularPOS) throws IOException
+	{
+		Element     eAffixes        = UTXml.getFirstElementByTagName(eInflection, type);
+		InputStream baseStream      = UTInput.getInputStreamsFromClasspath(PATH + type + EXT_BASE);
+		InputStream exceptionStream = UTInput.getInputStreamsFromClasspath(PATH + type + EXT_EXCEPTION);
+		
+		Map<String,String> exceptionMap = (exceptionStream != null) ? UTInput.getStringMap(exceptionStream, PTLib.SPACE) : null;
+		List<AbstractAffixMatcher> affixMatchers = new EnglishAffixMatcherFactory().createAffixMatchers(eAffixes);
+		Set<String> baseSet = UTInput.getStringSet(baseStream);
+		
+		return new EnglishInflection(basePOS, baseSet, exceptionMap, affixMatchers);
+	}
+	
+	public EnglishMPAnalyzer(ZipFile file)
+	{
+		try
+		{
+			Element inflection = UTXml.getDocumentElement(file.getInputStream(new ZipEntry(INFLECTION_SUFFIX)));
+			
+			inf_verb      = getInflectionRules(file, inflection, VERB     , CTLibEn.POS_VB, MPTag.IVX);
+			inf_noun      = getInflectionRules(file, inflection, NOUN     , CTLibEn.POS_NN, MPTag.INX);
+			inf_adjective = getInflectionRules(file, inflection, ADJECTIVE, CTLibEn.POS_JJ, MPTag.IJX);
+			inf_adverb    = getInflectionRules(file, inflection, ADVERB   , CTLibEn.POS_RB, MPTag.IRX);
+
+			base_cardinal     = UTInput.getStringSet(file.getInputStream(new ZipEntry(CARDINAL_BASE)));
+			base_ordinal      = UTInput.getStringSet(file.getInputStream(new ZipEntry(ORDINAL_BASE)));
+			rule_abbreviation = getAbbreviationMap(file.getInputStream(new ZipEntry(ABBREVIATOIN_RULE)));
 		}
 		catch (IOException e) {e.printStackTrace();}
 	}
 	
-	private EnglishInflection getInflectionRules(Element eInflection, String type, String basePOS, String irregularPOS) throws IOException
+	private EnglishInflection getInflectionRules(ZipFile file, Element eInflection, String type, String basePOS, String irregularPOS) throws IOException
 	{
 		Element     eAffixes        = UTXml.getFirstElementByTagName(eInflection, type);
-		InputStream baseStream      = UTInput.getInputStreamsFromClasspath(DTEnglish.PATH + type + DTEnglish.EXT_BASE);
-		InputStream exceptionStream = UTInput.getInputStreamsFromClasspath(DTEnglish.PATH + type + DTEnglish.EXT_EXCEPTION);
+		InputStream baseStream      = file.getInputStream(new ZipEntry(PATH + type + EXT_BASE));
+		InputStream exceptionStream = file.getInputStream(new ZipEntry(PATH + type + EXT_EXCEPTION));
 		
 		Map<String,String> exceptionMap = (exceptionStream != null) ? UTInput.getStringMap(exceptionStream, PTLib.SPACE) : null;
 		List<AbstractAffixMatcher> affixMatchers = new EnglishAffixMatcherFactory().createAffixMatchers(eAffixes);
@@ -248,10 +294,10 @@ public class EnglishMPAnalyzer extends AbstractMPAnalyzer
 	{
 		try
 		{
-			check(outputDir, DTEnglish.VERB);
-			check(outputDir, DTEnglish.NOUN);
-			check(outputDir, DTEnglish.ADJECTIVE);
-			check(outputDir, DTEnglish.ADVERB);
+			check(outputDir, VERB);
+			check(outputDir, NOUN);
+			check(outputDir, ADJECTIVE);
+			check(outputDir, ADVERB);
 		}
 		catch (IOException e) {e.printStackTrace();}
 	}
@@ -283,10 +329,10 @@ public class EnglishMPAnalyzer extends AbstractMPAnalyzer
 	{
 		try
 		{
-			trim(outputDir, DTEnglish.VERB     , inf_verb);
-			trim(outputDir, DTEnglish.NOUN     , inf_noun);
-			trim(outputDir, DTEnglish.ADJECTIVE, inf_adjective);
-			trim(outputDir, DTEnglish.ADVERB   , inf_adverb);
+			trim(outputDir, VERB     , inf_verb);
+			trim(outputDir, NOUN     , inf_noun);
+			trim(outputDir, ADJECTIVE, inf_adjective);
+			trim(outputDir, ADVERB   , inf_adverb);
 		}
 		catch (Exception e) {e.printStackTrace();}
 	}
@@ -297,7 +343,7 @@ public class EnglishMPAnalyzer extends AbstractMPAnalyzer
 		PrintStream fExcRemoved  = UTOutput.createPrintBufferedFileStream(outputDir+"/"+pos+".exc.removed");
 		PrintStream fBase = UTOutput.createPrintBufferedFileStream(outputDir+"/"+pos+".base");
 		PrintStream fExc  = UTOutput.createPrintBufferedFileStream(outputDir+"/"+pos+".exc");
-		Set<String> sAccept = UTInput.getStringSet(UTInput.getInputStreamsFromClasspath(DTEnglish.PATH + pos + ".accept"));
+		Set<String> sAccept = UTInput.getStringSet(UTInput.getInputStreamsFromClasspath(PATH + pos + ".accept"));
 		Set<String> baseSet = inflection.getBaseSet();
 		Map<String,String> excMap = inflection.getExceptionMap();
 //		Morpheme baseMorphem;

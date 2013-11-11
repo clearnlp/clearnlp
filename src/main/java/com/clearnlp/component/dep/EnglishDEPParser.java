@@ -399,7 +399,10 @@ public class EnglishDEPParser extends AbstractDEPParser
 		for (i=1; i<size; i++)
 		{
 			node = state.getNode(i);
-			postProcessPP(node);
+			
+			if (!postProcessPP(node))
+				postProcessBeProperNounAdjective(node, state);
+			
 			if (MPLibEn.isVerb(node.pos)) vCount++;
 		}
 		
@@ -434,6 +437,44 @@ public class EnglishDEPParser extends AbstractDEPParser
 		{
 			node.setHead(gHead);
 			return true;
+		}
+		
+		return false;
+	}
+	
+	private boolean postProcessBeProperNounAdjective(DEPNode be, DEPState state)
+	{
+		if (be.isLemma(ENAux.BE) && MPLibEn.isVerb(be.pos) && be.id+2 < state.getTreeSize())
+		{
+			DEPNode jj = state.getNode(be.id+2);
+			
+			if (MPLibEn.isAdjective(jj.pos) && jj.isDependentOf(be) && jj.isLabel(DEPLibEn.DEP_NSUBJ))
+			{
+				DEPNode nnp = state.getNode(be.id+1);
+				
+				if (nnp.isPos(CTLibEn.POS_NNP) && nnp.isDependentOf(jj) && nnp.isLabel(DEPLibEn.DEP_NPADVMOD) && !containsDependent(state, be, DEPLibEn.DEP_ATTR, jj.id))
+				{
+					nnp.setHead(be, DEPLibEn.DEP_NSUBJ);
+					jj.setLabel(DEPLibEn.DEP_ATTR);
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	private boolean containsDependent(DEPState state, DEPNode head, String label, int bIdx)
+	{
+		DEPNode node;
+		int i;
+		
+		for (i=state.getTreeSize()-1; i>bIdx; i--)
+		{
+			node = state.getNode(i);
+			
+			if (node.isDependentOf(head) && node.isLabel(label))
+				return true;
 		}
 		
 		return false;

@@ -47,6 +47,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 import jregex.MatchResult;
@@ -55,7 +57,6 @@ import jregex.Substitution;
 import jregex.TextBuffer;
 
 import com.carrotsearch.hppc.ObjectIntOpenHashMap;
-import com.clearnlp.dictionary.DTTokenizer;
 import com.clearnlp.morphology.MPLib;
 import com.clearnlp.pattern.PTLib;
 import com.clearnlp.pattern.PTLink;
@@ -71,6 +72,14 @@ import com.clearnlp.util.pair.StringBooleanPair;
  */
 public class EnglishTokenizer extends AbstractTokenizer
 {
+	final String PATH          = "dictionary/tokenizer/";
+	final String ABBREVIATIONS = PATH + "abbreviations.txt";
+	final String COMPOUNDS     = PATH + "compounds.txt";
+	final String EMOTICONS     = PATH + "emoticons.txt";
+	final String HYPHENS       = PATH + "hyphens.txt";
+	final String NON_UTF8      = PATH + "non-utf8.txt";
+	final String UNITS         = PATH + "units.txt";
+	
 	protected final String S_DELIM			= " ";
 	protected final String S_PROTECTED		= "PR0T_";
 	protected final String S_D0D			= "_DPPD_";
@@ -115,10 +124,21 @@ public class EnglishTokenizer extends AbstractTokenizer
 	
 	public EnglishTokenizer()
 	{
+		init();
+		initDictionaries();
+	}
+	
+	public EnglishTokenizer(ZipFile file)
+	{
+		init();
+		initDictionaries(file);
+	}
+	
+	private void init()
+	{
 		initReplacers();
 		initMapsD0D();
 		initPatterns();
-		initDictionaries();
 	}
 	
 	public List<StringBooleanPair> getTokenList(String str)
@@ -153,7 +173,23 @@ public class EnglishTokenizer extends AbstractTokenizer
 		recoverPatterns(lTokens, P_RECOVER_HYPHEN, "-");
 		recoverPatterns(lTokens, P_RECOVER_APOSTROPHY, "'");
 		recoverPatterns(lTokens, P_RECOVER_AMPERSAND, "&");
+		handleSingleToken(lTokens);
+		
 		return lTokens;
+	}
+	
+	private void handleSingleToken(List<StringBooleanPair> lTokens)
+	{
+		if (lTokens.size() == 1)
+		{
+			StringBooleanPair p = lTokens.get(0);
+			
+			if (p.s.equalsIgnoreCase("no."))
+			{
+				p.s = p.s.substring(0, p.s.length()-1);
+				lTokens.add(new StringBooleanPair(".", false));
+			}
+		}
 	}
 	
 	/** Called by {@link EnglishTokenizer#EnglishTokenizer(ZipInputStream)}. */
@@ -258,39 +294,29 @@ public class EnglishTokenizer extends AbstractTokenizer
 	{
 		try
 		{
-			T_EMOTICONS     = UTInput.getStringSet(UTInput.getInputStreamsFromClasspath(DTTokenizer.EMOTICONS));
-			T_ABBREVIATIONS = UTInput.getStringSet(UTInput.getInputStreamsFromClasspath(DTTokenizer.ABBREVIATIONS));
-			P_HYPHEN_LIST   = getHyphenPatterns(UTInput.getInputStreamsFromClasspath(DTTokenizer.HYPHENS));
-			initDictionariesComounds(UTInput.getInputStreamsFromClasspath(DTTokenizer.COMPOUNDS));
-			initDictionariesUnits(UTInput.getInputStreamsFromClasspath(DTTokenizer.UNITS));
-			initDictionaryNonUTF8(UTInput.getInputStreamsFromClasspath(DTTokenizer.NON_UTF8));
+			T_EMOTICONS     = UTInput.getStringSet(UTInput.getInputStreamsFromClasspath(EMOTICONS));
+			T_ABBREVIATIONS = UTInput.getStringSet(UTInput.getInputStreamsFromClasspath(ABBREVIATIONS));
+			P_HYPHEN_LIST   = getHyphenPatterns(UTInput.getInputStreamsFromClasspath(HYPHENS));
+			initDictionariesComounds(UTInput.getInputStreamsFromClasspath(COMPOUNDS));
+			initDictionariesUnits(UTInput.getInputStreamsFromClasspath(UNITS));
+			initDictionaryNonUTF8(UTInput.getInputStreamsFromClasspath(NON_UTF8));
 		}
 		catch (Exception e) {e.printStackTrace();}
 	}
 	
-//	private void initDictionaries(ZipInputStream in)
-//	{
-//		ZipEntry entry;
-//
-//		try
-//		{
-//			while ((entry = in.getNextEntry()) != null)
-//			{
-//				switch (entry.getName())
-//				{
-//				case DTTokenizer.EMOTICONS    : T_EMOTICONS     = UTInput.getStringSet(in); break;
-//				case DTTokenizer.ABBREVIATIONS: T_ABBREVIATIONS = UTInput.getStringSet(in); break;
-//				case DTTokenizer.HYPHENS      : P_HYPHEN_LIST   = getHyphenPatterns(in);    break;
-//				case DTTokenizer.COMPOUNDS    : initDictionariesComounds(in); break;
-//				case DTTokenizer.UNITS        : initDictionariesUnits(in);    break;
-//				case DTTokenizer.NON_UTF8     : initDictionaryNonUTF8(in);    break;
-//				}
-//			}
-//			
-//			in.close();
-//		}
-//		catch (Exception e) {e.printStackTrace();}
-//	}
+	private void initDictionaries(ZipFile file)
+	{
+		try
+		{
+			T_EMOTICONS     = UTInput.getStringSet(file.getInputStream(new ZipEntry(EMOTICONS)));
+			T_ABBREVIATIONS = UTInput.getStringSet(file.getInputStream(new ZipEntry(ABBREVIATIONS)));
+			P_HYPHEN_LIST   = getHyphenPatterns(file.getInputStream(new ZipEntry(HYPHENS)));
+			initDictionariesComounds(file.getInputStream(new ZipEntry(COMPOUNDS)));
+			initDictionariesUnits(file.getInputStream(new ZipEntry(UNITS)));
+			initDictionaryNonUTF8(file.getInputStream(new ZipEntry(NON_UTF8)));
+		}
+		catch (Exception e) {e.printStackTrace();}
+	}
 	
 	/** Called by {@link EnglishTokenizer#initDictionaries(ZipInputStream)}. */
 	private Pattern getHyphenPatterns(InputStream in) throws Exception

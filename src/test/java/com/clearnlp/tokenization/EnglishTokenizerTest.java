@@ -42,9 +42,12 @@ package com.clearnlp.tokenization;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.File;
+import java.util.zip.ZipFile;
+
 import org.junit.Test;
 
-import com.clearnlp.tokenization.EnglishTokenizer;
+import com.clearnlp.dictionary.DTLib;
 
 /**
  * @since 1.1.0
@@ -55,8 +58,8 @@ public class EnglishTokenizerTest
 	@Test
 	public void testTokenize() throws Exception
 	{
-		EnglishTokenizer tok = new EnglishTokenizer();
-//		EnglishTokenizer tok = new EnglishTokenizer(new FileInputStream("/Users/jdchoi/Documents/Workspace/clearnlp-dictionary/target/clearnlp-dictionary-1.0.0-SNAPSHOT.jar"));
+		EnglishTokenizer tok = new EnglishTokenizer(new ZipFile(new File(DTLib.DICTIONARY_JAR)));
+//		EnglishTokenizer tok = new EnglishTokenizer();
 		String src, trg;
 		
 		// spaces

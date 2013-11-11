@@ -51,8 +51,6 @@ import com.clearnlp.dependency.DEPLibEn;
 import com.clearnlp.dependency.DEPNode;
 import com.clearnlp.dependency.DEPTree;
 import com.clearnlp.morphology.MPLibEn;
-import com.clearnlp.reader.DEPReader;
-import com.clearnlp.util.UTInput;
 
 /**
  * @since 1.4.0
@@ -179,7 +177,7 @@ public class CSenTypeClassifierEN extends AbstractComponent
 				if (dep.isLabel(P_AUX) && !node.isLemma("do"))
 					return false;
 				
-				if (node.isPos(CTLibEn.POS_TO) || node.isPos(CTLibEn.POS_MD) || node.pos.startsWith("W"))
+				if ((node.isPos(CTLibEn.POS_TO) && node.containsDependent(DEPLibEn.DEP_POBJ)) || node.isPos(CTLibEn.POS_MD) || node.pos.startsWith("W"))
 					return false;	
 			}
 			
@@ -190,16 +188,18 @@ public class CSenTypeClassifierEN extends AbstractComponent
 		return true;
 	}
 	
-	static public void main(String[] args)
-	{
-		DEPReader fin = new DEPReader(0, 1, 2, 3, 4, 5, 6);
-		DEPTree tree = new DEPTree();
-		
-		fin.open(UTInput.createBufferedFileReader(args[0]));
-		tree = fin.next();
-		
-		CSenTypeClassifierEN sen = new CSenTypeClassifierEN();
-		tree.setDependents();
-		System.out.println(sen.isInterrogative(tree.get(1)));
-	}
+//	static public void main(String[] args)
+//	{
+//		DEPReader fin = new DEPReader(0, 1, 2, 3, 4, 5, 6);
+//		DEPTree tree = new DEPTree();
+//		DEPNode verb;
+//		
+//		fin.open(UTInput.createBufferedFileReader(args[0]));
+//		tree = fin.next();
+//		
+//		CSenTypeClassifierEN sen = new CSenTypeClassifierEN();
+//		tree.setDependents();
+//		verb = tree.get(9);
+//		System.out.println(sen.isImperative(verb));
+//	}
 }

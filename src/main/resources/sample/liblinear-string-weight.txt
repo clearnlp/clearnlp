@@ -1,4 +1,0 @@
-male firstname:Jinho:0.8 lastname:Choi:0.3
-male firstname:James:0.8 lastname:Martin:0.3
-female firstname:Martha:0.8 lastname:Palmer:0.3
-female firstname:Tamara:0.8 lastname:Sumner:0.3

@@ -42,8 +42,7 @@ package com.clearnlp.classification.algorithm;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import com.clearnlp.classification.prediction.StringPrediction;
 import com.clearnlp.util.UTMath;
@@ -55,7 +54,7 @@ import com.clearnlp.util.UTMath;
  */
 abstract public class AbstractAlgorithm
 {
-	protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
+	protected final Logger LOG = Logger.getLogger(this.getClass());
 	
 	/** The flag to indicate L2-regularized L1-loss support vector classification (dual). */
 	static public final byte SOLVER_LIBLINEAR_LR2_L1_SVC = 0;

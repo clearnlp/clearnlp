@@ -40,8 +40,7 @@
  */
 package com.clearnlp.component;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import com.clearnlp.dependency.DEPTree;
 
@@ -51,7 +50,7 @@ import com.clearnlp.dependency.DEPTree;
  */
 abstract public class AbstractComponent
 {
-	protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
+	protected final Logger LOG = Logger.getLogger(this.getClass());
 	
 	abstract public void process(DEPTree tree);
 }

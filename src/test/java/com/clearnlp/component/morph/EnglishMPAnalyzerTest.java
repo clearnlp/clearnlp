@@ -42,9 +42,13 @@ package com.clearnlp.component.morph;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.File;
+import java.util.zip.ZipFile;
+
 import org.junit.Test;
 
 import com.clearnlp.dependency.DEPNode;
+import com.clearnlp.dictionary.DTLib;
 import com.clearnlp.morphology.MPTag;
 
 
@@ -195,7 +199,7 @@ public class EnglishMPAnalyzerTest
 				{"...!!!???---***===~~~,,,", "XX", "..!!??--**==~~,,"},
 				{"....!!!!????----****====~~~~,,,,", "XX", "..!!??--**==~~,,"}};
 		
-		EnglishMPAnalyzer analyzer = new EnglishMPAnalyzer();
+		EnglishMPAnalyzer analyzer = new EnglishMPAnalyzer(new ZipFile(new File(DTLib.DICTIONARY_JAR)));
 		DEPNode node;
 		
 		for (String[] token : tokens)

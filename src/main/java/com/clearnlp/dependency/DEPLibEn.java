@@ -316,6 +316,9 @@ public class DEPLibEn extends DEPLib
 	{
 		DEPNode head = prep.getHead();
 		
+		if (head.isLabel(DEPLibEn.DEP_POBJ))
+			head = head.getHead();
+		
 		if (MPLibEn.isNoun(head.pos) || head.isPos(CTLibEn.POS_IN) || head.isPos(CTLibEn.POS_RP))
 		{
 			DEPNode gHead = head.getHead();

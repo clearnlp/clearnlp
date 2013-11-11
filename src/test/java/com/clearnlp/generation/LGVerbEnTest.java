@@ -42,9 +42,12 @@ package com.clearnlp.generation;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.File;
+import java.util.zip.ZipFile;
+
 import org.junit.Test;
 
-import com.clearnlp.generation.LGVerbEn;
+import com.clearnlp.dictionary.DTLib;
 
 
 /** @author Jinho D. Choi ({@code jdchoi77@gmail.com}) */
@@ -112,7 +115,8 @@ public class LGVerbEnTest
 	@Test
 	public void testGetPastForm() throws Exception
 	{
-		LGVerbEn verb = new LGVerbEn();
+		LGVerbEn verb = new LGVerbEn(new ZipFile(new File(DTLib.DICTIONARY_JAR)));
+//		LGVerbEn verb = new LGVerbEn();
 		
 		assertEquals("foreshowed", verb.getPastForm("foreshow"));
 		assertEquals("foreshown", verb.getPastParticipleForm("foreshow"));

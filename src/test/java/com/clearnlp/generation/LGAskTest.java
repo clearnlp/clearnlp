@@ -42,10 +42,14 @@ package com.clearnlp.generation;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.File;
+import java.util.zip.ZipFile;
+
 import org.junit.Test;
 
 import com.clearnlp.dependency.DEPNode;
 import com.clearnlp.dependency.DEPTree;
+import com.clearnlp.dictionary.DTLib;
 import com.clearnlp.reader.SRLReader;
 import com.clearnlp.util.UTInput;
 
@@ -57,7 +61,7 @@ public class LGAskTest
 	{
 		SRLReader reader = new SRLReader(0, 1, 2, 3, 4, 5, 6, 7);
 		reader.open(UTInput.createBufferedFileReader("src/test/resources/generation/ask.txt"));
-		LGAsk ask = new LGAsk();
+		LGAsk ask = new LGAsk(new ZipFile((new File(DTLib.DICTIONARY_JAR))));
 		DEPTree tree;
 		DEPNode root;
 		int i;
@@ -91,7 +95,8 @@ public class LGAskTest
 				"Who helped you last time?",
 				"Which of your accounts is locked?",
 				"What is your username?",
-				"What is your username?"};
+				"What is your username?",
+				"On a scale of 0 to 10, how much do you like Doritos?"};
 		
 		String[] asks = {
 				"Ask when the last time that the user were able to log into Remedy was.",
@@ -122,7 +127,8 @@ public class LGAskTest
 				"Ask who helped the user last time.",
 				"Ask which of the user's accounts is locked.",
 				"Ask what the user's username is.",
-				"Ask what the user's username is."};
+				"Ask what the user's username is.",
+				"Ask on a scale of 0 to 10, how much the user likes Doritos."};
 		
 		for (i=0; (tree = reader.next()) != null; i++)
 		{
@@ -174,11 +180,11 @@ public class LGAskTest
 	}
 	
 	@Test
-	public void testGenerateQuestionFromDeclarative()
+	public void testGenerateQuestionFromDeclarative() throws Exception
 	{
 		SRLReader reader = new SRLReader(0, 1, 2, 3, 4, 5, 6, 7);
 		reader.open(UTInput.createBufferedFileReader("src/test/resources/generation/ask3.txt"));
-		LGAsk ask = new LGAsk();
+		LGAsk ask = new LGAsk(new ZipFile((new File(DTLib.DICTIONARY_JAR))));
 		DEPTree tree;
 		int i;
 

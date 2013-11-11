@@ -314,3 +314,19 @@
 8	's	's	POS	_	7	possessive	_
 9	username	username	NN	coref=username	5	nsubj	5:A1=PPT
 10	.	.	.	_	1	punct	_
+
+1	On	on	IN	_	9	prep	_
+2	a	a	DT	_	3	det	_
+3	scale	scale	NN	_	1	pobj	_
+4	of	of	IN	_	3	prep	_
+5	0	0	CD	_	4	pobj	_
+6	to	to	TO	p2=IN	9	prep	_
+7	10	0	CD	_	6	pobj	_
+8	,	,	,	_	9	punct	_
+9	Ask	ask	VB	p2=NNP|pb=ask.01	0	root	_
+10	how	how	WRB	_	11	advmod	_
+11	much	much	JJ	p2=RB	14	advmod	14:R-AM-EXT
+12	the	the	DT	_	13	det	_
+13	user	user	NN	_	14	nsubj	14:A0
+14	likes	like	VBZ	pb=like.01	9	ccomp	9:A1=PPT
+15	Doritos	doritos	NNP	p2=NNS	14	dobj	14:A1
