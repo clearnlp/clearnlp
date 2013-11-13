@@ -1,16 +1,8 @@
 <configuration>
+    <model>general-en</model>
     <language>en</language>
-    <dictionary>model/dictionary-1.1.0.zip</dictionary>
-
-    <reader type="pos">
-        <column index="2" field="form"/>
-        <column index="4" field="pos"/>
+    
+    <reader type="raw">
+        <column index="1" field="form"/>
     </reader>
-
-    <train>
-        <algorithm name="liblinear" solver="0" cost="0.1" eps="0.1" bias="0.7" note="domain-specific"/>
-        <algorithm name="liblinear" solver="0" cost="0.2" eps="0.1" bias="0.6" note="general"/>
-        <threads>24</threads>
-    </train>
 </configuration>
-

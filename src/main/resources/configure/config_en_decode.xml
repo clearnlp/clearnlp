@@ -1,8 +1,8 @@
 <configuration>
-    <reader type="column">
-        <column index="2" field="form"/>
-    </reader>
-    
+    <model>general-en</model>
     <language>en</language>
-    <model>/Users/jdchoi/Documents/Workspace/ClearNLP/src/main/resources/model/ontonotes-1.5.0.jar</model>
+    
+    <reader type="raw">
+        <column index="1" field="form"/>
+    </reader>
 </configuration>
