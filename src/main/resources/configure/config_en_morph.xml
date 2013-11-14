@@ -1,7 +1,8 @@
 <configuration>
+    <model>general-en</model>
     <language>en</language>
 
-    <reader type="raw">
+    <reader type="column">
         <column index="1" field="form"/>
         <column index="2" field="pos"/>
     </reader>

@@ -53,17 +53,32 @@ public class FloatArrayList extends com.carrotsearch.hppc.FloatArrayList impleme
 {
 	private static final long serialVersionUID = 9046519864011388204L;
 	
+	public FloatArrayList()
+	{
+		super();
+	}
+	
+	public FloatArrayList(float[] array)
+	{
+		super();
+		addAll(array);
+	}
+	
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException
 	{
-		float[] array = (float[])in.readObject();
-		int i, size = array.length;
-		
-		for (i=0; i<size; i++) add(i);
-		trimToSize();
+		addAll((float[])in.readObject());
 	}
 
 	private void writeObject(ObjectOutputStream o) throws IOException
 	{
 		o.writeObject(toArray());
+	}
+	
+	public void addAll(float[] array)
+	{
+		int i, size = array.length;
+		
+		for (i=0; i<size; i++) add(i);
+		trimToSize();		
 	}
 }

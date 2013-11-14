@@ -42,7 +42,11 @@ package com.clearnlp.experiment;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -58,10 +62,10 @@ import jregex.MatchResult;
 import jregex.Substitution;
 import jregex.TextBuffer;
 
-import com.carrotsearch.hppc.FloatArrayList;
 import com.carrotsearch.hppc.IntArrayDeque;
 import com.carrotsearch.hppc.IntArrayList;
 import com.carrotsearch.hppc.IntDeque;
+import com.clearnlp.collection.list.FloatArrayList;
 import com.clearnlp.constant.universal.UNPunct;
 import com.clearnlp.constituent.CTLibEn;
 import com.clearnlp.constituent.CTNode;
@@ -112,9 +116,33 @@ public class Tmp
 	public Tmp(String[] args) throws Exception
 	{
 		FloatArrayList list = new FloatArrayList();
+		
 		list.add(0);
 		list.add(1);
 		list.add(2);
+		
+		float[] array = new float[3];
+		System.arraycopy(array, 0, list, 0, 3);
+	}
+	
+	void testObjectStream() throws Exception
+	{
+		FloatArrayList list = new FloatArrayList();
+		
+		list.add(0);
+		list.add(1);
+		list.add(2);
+	
+		System.out.println(Arrays.toString(list.toArray()));
+		
+		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("tmp.txt"));
+		out.writeObject(list);
+		out.close();
+		
+		ObjectInputStream in = new ObjectInputStream(new FileInputStream("tmp.txt"));
+		list = (FloatArrayList)in.readObject();
+		in.close();
+		
 		System.out.println(Arrays.toString(list.toArray()));
 	}
 	
