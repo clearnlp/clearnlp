@@ -58,6 +58,7 @@ import jregex.MatchResult;
 import jregex.Substitution;
 import jregex.TextBuffer;
 
+import com.carrotsearch.hppc.FloatArrayList;
 import com.carrotsearch.hppc.IntArrayDeque;
 import com.carrotsearch.hppc.IntArrayList;
 import com.carrotsearch.hppc.IntDeque;
@@ -110,13 +111,11 @@ public class Tmp
 {
 	public Tmp(String[] args) throws Exception
 	{
-		double d1 = 32.08753790083094;
-		double d2 = 0.0737514090539246;
-		double d = d1 + d2;
-		
-		System.out.println(d);
-		
-		
+		FloatArrayList list = new FloatArrayList();
+		list.add(0);
+		list.add(1);
+		list.add(2);
+		System.out.println(Arrays.toString(list.toArray()));
 	}
 	
 	void generation(String[] args)

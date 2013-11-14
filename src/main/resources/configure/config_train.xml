@@ -1,0 +1,8 @@
+<configuration>
+    <language>en</language>
+    <model>/Users/jdchoi/Documents/Workspace/models/general-en-2.0.0.jar</model>
+
+    <reader type="raw">
+        <column index="1" field="form"/>
+    </reader>
+</configuration>
