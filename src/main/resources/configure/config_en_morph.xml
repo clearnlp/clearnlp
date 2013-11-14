@@ -1,8 +1,7 @@
 <configuration>
     <language>en</language>
-    <dictionary>model/dictionary-1.1.0.zip</dictionary>
 
-    <reader type="pos">
+    <reader type="raw">
         <column index="1" field="form"/>
         <column index="2" field="pos"/>
     </reader>

@@ -3,10 +3,10 @@
     <language>en</language>
 
     <reader type="raw">
-        <column index="1"  field="id"/>
-        <column index="2"  field="form"/>
-        <column index="3"  field="lemma"/>
-        <column index="4"  field="pos"/>
-        <column index="5"  field="feats"/>
+        <column index="1" field="id"/>
+        <column index="2" field="form"/>
+        <column index="3" field="lemma"/>
+        <column index="4" field="pos"/>
+        <column index="5" field="feats"/>
     </reader>
 </configuration>
