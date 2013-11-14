@@ -1,11 +1,8 @@
 <configuration>
+    <model>general-en</model>
     <language>en</language>
-    <dictionary>model/dictionary-1.1.0.zip</dictionary>
-    <pos_model>model/ontonotes-en-pos-1.1.0g.jar</pos_model>
-    <dep_model>model/ontonotes-en-dep-1.1.0b3.jar</dep_model>
-    <pred_model>model/ontonotes-en-pred-1.2.0.jar</pred_model>
 
-    <reader type="srl">
+    <reader type="raw">
         <column index="1" field="id"/>
         <column index="2" field="form"/>
         <column index="3" field="lemma"/>
@@ -13,12 +10,5 @@
         <column index="5" field="feats"/>
         <column index="6" field="headId"/>
         <column index="7" field="deprel"/>
-        <column index="9" field="sheads"/>
     </reader>
-    
-    <train>
-        <algorithm name="liblinear" solver="0" cost="0.1" eps="0.1" bias="-1"/>
-        <algorithm name="liblinear" solver="0" cost="0.1" eps="0.1" bias="0.1"/>
-        <threads>8</threads>
-    </train>
 </configuration>
