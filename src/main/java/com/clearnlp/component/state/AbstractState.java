@@ -38,47 +38,63 @@
  * See the License for the specific language governing permissions and
  * limitations under the License. 
  */
-package com.clearnlp.nlp.engine;
+package com.clearnlp.component.state;
 
-import java.io.FileInputStream;
-
-import org.kohsuke.args4j.Option;
-
-import com.clearnlp.classification.feature.JointFtrXml;
-import com.clearnlp.util.UTArgs4j;
+import com.clearnlp.classification.feature.FtrToken;
+import com.clearnlp.dependency.DEPNode;
+import com.clearnlp.dependency.DEPTree;
 
 /**
- * @since 2.0.0
+ * @since 2.0.1
  * @author Jinho D. Choi ({@code jdchoi77@gmail.com})
  */
-public class AbstractNLPTrain
+abstract public class AbstractState
 {
-	protected final String DELIM_FILENAME = ":";
+	protected DEPTree d_tree;
+	protected int     t_size;
 	
-	@Option(name="-c", usage="configuration file (required)", required=true, metaVar="<filename>")
-	protected String s_configFile;
-	@Option(name="-f", usage="feature template files delimited by '"+DELIM_FILENAME+"' (required)", required=true, metaVar="<filename>")
-	protected String s_featureFiles;
-	@Option(name="-i", usage="input directory containing training files (required)", required=true, metaVar="<directory>")
-	protected String s_trainDir;
-	@Option(name="-z", usage="mode (pos|dep|pred|role|srl)", required=true, metaVar="<string>")
-	protected String s_mode;
-
-	public AbstractNLPTrain() {}
-	
-	public AbstractNLPTrain(String[] args)
+	public AbstractState(DEPTree tree)
 	{
-		UTArgs4j.initArgs(this, args);
+		setTree(tree);
 	}
 	
-	protected JointFtrXml[] getFeatureTemplates(String[] featureFiles) throws Exception
+	abstract public Object[] getGoldLabels();
+	
+//	====================================== TREE ======================================
+	
+	public DEPTree getTree()
 	{
-		int i, size = featureFiles.length;
-		JointFtrXml[] xmls = new JointFtrXml[size];
+		return d_tree;
+	}
+	
+	public int getTreeSize()
+	{
+		return t_size;
+	}
+
+	public void setTree(DEPTree tree)
+	{
+		d_tree = tree;
+		t_size = tree.size();		
+	}
+	
+//	====================================== NODE ======================================
+
+	public DEPNode getNode(int id)
+	{
+		return d_tree.get(id);
+	}
+	
+	protected DEPNode getNode(FtrToken token, int cIdx, int bIdx, int eIdx)
+	{
+		if (token.offset == 0)
+			return d_tree.get(cIdx);
+
+		cIdx += token.offset;
 		
-		for (i=0; i<size; i++)
-			xmls[i] = new JointFtrXml(new FileInputStream(featureFiles[i]));
+		if (bIdx < cIdx && cIdx < eIdx)
+			return getNode(cIdx);
 		
-		return xmls;
+		return null;
 	}
 }

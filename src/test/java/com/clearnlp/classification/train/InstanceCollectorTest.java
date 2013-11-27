@@ -38,91 +38,79 @@
  * See the License for the specific language governing permissions and
  * limitations under the License. 
  */
-package com.clearnlp.collection.list;
+package com.clearnlp.classification.train;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import static org.junit.Assert.assertEquals;
 
-import com.carrotsearch.hppc.cursors.FloatCursor;
+import org.junit.Test;
+
+import com.clearnlp.classification.instance.StringInstance;
+import com.clearnlp.classification.model.StringOnlineModel;
+import com.clearnlp.classification.vector.StringFeatureVector;
 
 /**
  * @since 2.0.1
  * @author Jinho D. Choi ({@code jdchoi77@gmail.com})
  */
-public class FloatArrayList extends com.carrotsearch.hppc.FloatArrayList implements Serializable
+public class InstanceCollectorTest
 {
-	private static final long serialVersionUID = 9046519864011388204L;
-	
-	public FloatArrayList()
+	@Test
+	public void testStringOnlineModel()
 	{
-		super();
+		StringOnlineModel model = new StringOnlineModel();
+	
+		model.addInstance(new StringInstance("L1", getStringFeatureVector1()));
+		model.addInstance(new StringInstance("L2", getStringFeatureVector2()));
+		model.addInstance(new StringInstance("L2", getStringFeatureVector3()));
+		
+		model.build(1, 1);
+		assertEquals("[L2]", model.getLabels().toString());
+		assertEquals("{A=[a2=>1], B=[b1=>2], C=[c2=>3]}", model.getFeatureMap().toString());
 	}
 	
-	public FloatArrayList(int initialCapacity)
+	@Test
+	public void testInstanceCollector()
 	{
-		super(initialCapacity);
-	}
-	
-	public FloatArrayList(float[] array)
-	{
-		super();
-		addAll(array);
-	}
-	
-	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException
-	{
-		addAll((float[])in.readObject());
-	}
+		InstanceCollector collector = new InstanceCollector();
+		
+		collector.addInstance(new StringInstance("L1", getStringFeatureVector1()));
+		collector.addInstance(new StringInstance("L2", getStringFeatureVector2()));
+		collector.addInstance(new StringInstance("L2", getStringFeatureVector3()));
 
-	private void writeObject(ObjectOutputStream o) throws IOException
-	{
-		o.writeObject(toArray());
+		assertEquals("[L1, L2]", collector.getLabels().toString());
+		assertEquals("[A, B, C]", collector.getFeatureTypes().toString());
+		assertEquals(2, collector.getLabelCount("L2"));
+		assertEquals("[a1=>1, a2=>2]", collector.getFeatureMap("A").toString());
 	}
 	
-	public void addAll(float[] array)
+	private StringFeatureVector getStringFeatureVector1()
 	{
-		int i, size = array.length;
+		StringFeatureVector vector = new StringFeatureVector();
 		
-		for (i=0; i<size; i++) add(array[i]);
-		trimToSize();
+		vector.addFeature("A", "a1");
+		vector.addFeature("B", "b1");
+		
+		return vector;
 	}
 	
-	public float[] toArray(int beginIndex, int endIndex)
+	private StringFeatureVector getStringFeatureVector2()
 	{
-		float[] array = new float[endIndex - beginIndex];
-		int i;
+		StringFeatureVector vector = new StringFeatureVector();
 		
-		for (i=0; beginIndex < endIndex; beginIndex++,i++)
-			array[i] = get(beginIndex);
+		vector.addFeature("A", "a2");
+		vector.addFeature("C", "c2");
 		
-		return array;
+		return vector;
 	}
 	
-	public double[] toDoubleArray()
+	private StringFeatureVector getStringFeatureVector3()
 	{
-		return toDoubleArray(0, size());
-	}
-	
-	public double[] toDoubleArray(int beginIndex, int endIndex)
-	{
-		double[] array = new double[endIndex - beginIndex];
-		int i;
+		StringFeatureVector vector = new StringFeatureVector();
 		
-		for (i=0; beginIndex < endIndex; beginIndex++,i++)
-			array[i] = get(beginIndex);
+		vector.addFeature("A", "a2");
+		vector.addFeature("B", "b1");
+		vector.addFeature("C", "c2");
 		
-		return array;
-	}
-	
-	public FloatArrayList clone()
-	{
-		FloatArrayList list = new FloatArrayList(size());
-		
-		for (FloatCursor f : this)
-			list.add(f.value);
-		
-		return list;
+		return vector;
 	}
 }

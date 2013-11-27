@@ -732,6 +732,14 @@ public class DEPTree extends ArrayList<DEPNode>
 		return tags;
 	}
 	
+	public void setPOSTags(String[] tags)
+	{
+		int i, size = size();
+		
+		for (i=1; i<size; i++)
+			get(i).setPOSTag(tags[i]);
+	}
+	
 	public StringIntPair[] getHeads()
 	{
 		return getHeads(size());

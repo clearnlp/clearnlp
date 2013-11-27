@@ -51,9 +51,9 @@ import java.util.regex.Matcher;
 
 import com.clearnlp.classification.feature.FtrToken;
 import com.clearnlp.classification.feature.JointFtrXml;
+import com.clearnlp.classification.instance.StringInstance;
 import com.clearnlp.classification.model.StringModel;
 import com.clearnlp.classification.prediction.StringPrediction;
-import com.clearnlp.classification.train.StringInstance;
 import com.clearnlp.classification.train.StringTrainSpace;
 import com.clearnlp.classification.vector.StringFeatureVector;
 import com.clearnlp.collection.map.ObjectIntHashMap;

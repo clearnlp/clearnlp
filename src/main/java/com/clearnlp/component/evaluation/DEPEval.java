@@ -57,6 +57,12 @@ public class DEPEval extends AbstractEval
 	
 	public DEPEval()
 	{
+		clear();
+	}
+	
+	@Override
+	public void clear()
+	{
 		n_total = 0;
 		n_las   = 0;
 		n_uas   = 0;

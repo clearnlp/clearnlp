@@ -38,47 +38,87 @@
  * See the License for the specific language governing permissions and
  * limitations under the License. 
  */
-package com.clearnlp.nlp.engine;
+package com.clearnlp.classification.algorithm.online;
 
-import java.io.FileInputStream;
+import java.util.Collections;
+import java.util.List;
 
-import org.kohsuke.args4j.Option;
-
-import com.clearnlp.classification.feature.JointFtrXml;
-import com.clearnlp.util.UTArgs4j;
+import com.clearnlp.classification.instance.IntInstance;
+import com.clearnlp.classification.model.StringOnlineModel;
+import com.clearnlp.classification.prediction.IntPrediction;
+import com.clearnlp.classification.vector.SparseFeatureVector;
+import com.clearnlp.util.UTMath;
 
 /**
- * @since 2.0.0
+ * AdaGrad algorithm using hinge loss.
+ * @since 1.3.0
  * @author Jinho D. Choi ({@code jdchoi77@gmail.com})
  */
-public class AbstractNLPTrain
+public class OnlineAdaGradHinge extends AbstractOnlineAdaGrad
 {
-	protected final String DELIM_FILENAME = ":";
-	
-	@Option(name="-c", usage="configuration file (required)", required=true, metaVar="<filename>")
-	protected String s_configFile;
-	@Option(name="-f", usage="feature template files delimited by '"+DELIM_FILENAME+"' (required)", required=true, metaVar="<filename>")
-	protected String s_featureFiles;
-	@Option(name="-i", usage="input directory containing training files (required)", required=true, metaVar="<directory>")
-	protected String s_trainDir;
-	@Option(name="-z", usage="mode (pos|dep|pred|role|srl)", required=true, metaVar="<string>")
-	protected String s_mode;
-
-	public AbstractNLPTrain() {}
-	
-	public AbstractNLPTrain(String[] args)
+	/**
+	 * @param alpha the learning rate.
+	 * @param rho the smoothing denominator.
+	 */
+	public OnlineAdaGradHinge(double alpha, double rho)
 	{
-		UTArgs4j.initArgs(this, args);
+		super(alpha, rho);
 	}
 	
-	protected JointFtrXml[] getFeatureTemplates(String[] featureFiles) throws Exception
+	@Override
+	protected boolean update(StringOnlineModel model, IntInstance instance, double[] gs)
 	{
-		int i, size = featureFiles.length;
-		JointFtrXml[] xmls = new JointFtrXml[size];
+		IntPrediction max = getPrediction(model, instance, gs);
 		
-		for (i=0; i<size; i++)
-			xmls[i] = new JointFtrXml(new FileInputStream(featureFiles[i]));
+		if (max.label != instance.getLabel())
+		{
+			updateCounts (model, instance, gs, instance.getLabel(), max.label);
+			updateWeights(model, instance, gs, instance.getLabel(), max.label);
+			return true;
+		}
 		
-		return xmls;
+		return false;
 	}
-}
+	
+	private IntPrediction getPrediction(StringOnlineModel model, IntInstance instance, double[] gs)
+	{
+		List<IntPrediction> ps = model.getIntPredictions(instance.getFeatureVector());
+	
+		ps.get(instance.getLabel()).score -= 1d;
+		return Collections.max(ps);
+	}
+	
+	private void updateCounts(StringOnlineModel model, IntInstance instance, double[] gs, int yp, int yn)
+	{
+		SparseFeatureVector x = instance.getFeatureVector();
+		int i, len = x.size();
+		double d;
+		
+		for (i=0; i<len; i++)
+		{
+			d = UTMath.sq(x.getWeight(i));
+			
+			gs[model.getWeightIndex(yp, x.getIndex(i))] += d;
+			gs[model.getWeightIndex(yn, x.getIndex(i))] += d;
+		}
+	}
+	
+	private void updateWeights(StringOnlineModel model, IntInstance instance, double[] gs, int yp, int yn)
+	{
+		SparseFeatureVector x = instance.getFeatureVector();
+		int i, xi, len = x.size();
+		double vi, cost;
+		
+		for (i=0; i<len; i++)
+		{
+			xi = x.getIndex(i);
+			vi = x.getWeight(i);
+			
+			cost = getCost(model, gs, yp, xi) * vi;
+			model.updateWeight(yp, xi, (float)cost);
+			
+			cost = -getCost(model, gs, yn, xi) * vi;
+			model.updateWeight(yn, xi, (float)cost);
+		}
+	}
+}	

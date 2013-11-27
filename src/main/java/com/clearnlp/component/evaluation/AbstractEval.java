@@ -51,4 +51,5 @@ abstract public class AbstractEval
 	abstract public void countAccuracy(DEPTree sTree, Object[] gLabels);
 	abstract public double[] getAccuracies();
 	abstract public String toString();
+	abstract public void clear();
 }

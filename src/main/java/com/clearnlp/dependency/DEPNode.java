@@ -311,6 +311,11 @@ public class DEPNode extends NERNode implements Comparable<DEPNode>
 		return d_head.isNode(node);
 	}
 	
+	public boolean isDependentOf(DEPNode node, String label)
+	{
+		return d_head.isNode(node) && d_head.isLabel(label);
+	}
+	
 	public boolean isSiblingOf(DEPNode node)
 	{
 		return node.isDependentOf(getHead());

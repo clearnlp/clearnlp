@@ -38,33 +38,97 @@
  * See the License for the specific language governing permissions and
  * limitations under the License. 
  */
-package com.clearnlp.classification.train;
+package com.clearnlp.component.state;
 
-import com.clearnlp.classification.vector.StringFeatureVector;
-
+import com.clearnlp.classification.feature.FtrToken;
+import com.clearnlp.dependency.DEPNode;
+import com.clearnlp.dependency.DEPTree;
 
 /**
  * @since 2.0.0
  * @author Jinho D. Choi ({@code jdchoi77@gmail.com})
  */
-public class StringInstance
+public class TagState extends AbstractState
 {
-	private String s_label;
-	private StringFeatureVector f_vector;
+	private String[] g_labels;
+	private int      i_input;
+ 	
+ 	public TagState(DEPTree tree)
+	{
+		super(tree);
+		init (tree);
+	}
+ 	
+//	====================================== INITIALIZATION ======================================
 	
-	public StringInstance(String label, StringFeatureVector vector)
-	{	
-		s_label  = label;
-		f_vector = vector;
+	private void init(DEPTree tree)
+	{
+		i_input = 1;
 	}
 	
-	public String getLabel()
+//	====================================== INPUT ======================================
+	
+	public DEPNode getInput()
 	{
-		return s_label;
+		return getNode(i_input);
 	}
 	
-	public StringFeatureVector getFeatureVector()
+	public void setInput(int id)
 	{
-		return f_vector;
+		i_input = id;
+	}
+	
+//	====================================== LABELS ======================================
+
+	public String getGoldLabel()
+	{
+		return g_labels[i_input];
+	}
+	
+	@Override
+	public Object[] getGoldLabels()
+	{
+		return g_labels;
+	}
+	
+	public void setGoldLabels(String[] labels)
+	{
+		g_labels = labels;
+	}
+	
+//	====================================== BOOLEANS ======================================
+	
+	/** @return {@code true} if the current node is the first node in the tree. */
+	public boolean isInputFirstNode()
+	{
+		return i_input == 1;
+	}
+	
+	/** @return {@code true} if the current node is the last node in the tree. */
+	public boolean isInputLastNode()
+	{
+		return i_input + 1 == t_size;
+	}
+	
+	/** @return {@code true} if the tagging should be terminated. */
+	public boolean isTerminate()
+	{
+		return i_input >= t_size;
+	}
+	
+//	====================================== MOVES ======================================
+
+	/** Moves the current point to the next node to process. */
+	public void moveForward()
+	{
+		i_input++;
+	}
+	
+//	====================================== NODES ======================================
+	
+	public DEPNode getNode(FtrToken token)
+	{
+		return getNode(token, i_input, 0, t_size);
 	}
 }
+

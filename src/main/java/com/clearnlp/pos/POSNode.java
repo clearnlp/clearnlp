@@ -40,6 +40,7 @@
  */
 package com.clearnlp.pos;
 
+import com.clearnlp.classification.prediction.StringPrediction;
 import com.clearnlp.reader.AbstractColumnReader;
 import com.clearnlp.reader.AbstractReader;
 
@@ -60,6 +61,8 @@ public class POSNode
 	public String pos;
 	/** The lemma of the word-form. */
 	public String lemma;
+	/** The top 2 predictions */
+	private StringPrediction[] s_autoPOSTags;
 	
 	/** Constructs a POS node with dummy values ({@link AbstractReader#DUMMY_TAG}). */
 	public POSNode()
@@ -154,9 +157,29 @@ public class POSNode
 		return this.lemma.equals(lemma);
 	}
 	
+	public void setPOSTag(String pos)
+	{
+		this.pos = pos;
+	}
+	
 	public void setLemma(String lemma)
 	{
 		this.lemma = lemma;
+	}
+	
+	public StringPrediction get1stAutoPOSTag()
+	{
+		return s_autoPOSTags[0];
+	}
+	
+	public StringPrediction get2ndAutoPOSTag()
+	{
+		return s_autoPOSTags[1];
+	}
+	
+	public void setAutoPOSTags(StringPrediction fst, StringPrediction snd)
+	{
+		s_autoPOSTags = new StringPrediction[]{fst, snd};
 	}
 	
 	/* (non-Javadoc)

@@ -48,6 +48,7 @@ import java.util.Map;
 
 import com.carrotsearch.hppc.ObjectIntOpenHashMap;
 import com.carrotsearch.hppc.cursors.ObjectCursor;
+import com.clearnlp.classification.instance.StringInstance;
 import com.clearnlp.classification.model.StringModel;
 import com.clearnlp.classification.vector.SparseFeatureVector;
 import com.clearnlp.classification.vector.StringFeatureVector;

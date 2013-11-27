@@ -52,8 +52,14 @@ abstract public class AbstractAccuracyEval extends AbstractEval
 	
 	public AbstractAccuracyEval()
 	{
+		clear();
+	}
+	
+	@Override
+	public void clear()
+	{
 		n_total   = 0;
-		n_correct = 0;
+		n_correct = 0; 
 	}
 	
 	@Override
@@ -65,6 +71,6 @@ abstract public class AbstractAccuracyEval extends AbstractEval
 	@Override
 	public String toString()
 	{
-		return String.format("ACC: %5.2f (%d/%d)\n", 100d*n_correct/n_total, n_correct, n_total);
+		return String.format("ACC: %5.2f (%d/%d)", 100d*n_correct/n_total, n_correct, n_total);
 	}
 }

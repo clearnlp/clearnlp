@@ -23,8 +23,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /**
- * Copyright 2012/09-2013/04, 2013/11-Present, University of Massachusetts Amherst
- * Copyright 2013/05-2013/10, IPSoft Inc.
+ * Copyright 2012/09-2013/04, University of Massachusetts Amherst
+ * Copyright 2013/05-Present, IPSoft Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,47 +38,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License. 
  */
-package com.clearnlp.nlp.engine;
+package com.clearnlp.classification.algorithm.online;
 
-import java.io.FileInputStream;
-
-import org.kohsuke.args4j.Option;
-
-import com.clearnlp.classification.feature.JointFtrXml;
-import com.clearnlp.util.UTArgs4j;
+import com.clearnlp.classification.model.StringOnlineModel;
 
 /**
- * @since 2.0.0
+ * @since 2.0.1
  * @author Jinho D. Choi ({@code jdchoi77@gmail.com})
  */
-public class AbstractNLPTrain
+public interface IOnlineAlgorithm
 {
-	protected final String DELIM_FILENAME = ":";
-	
-	@Option(name="-c", usage="configuration file (required)", required=true, metaVar="<filename>")
-	protected String s_configFile;
-	@Option(name="-f", usage="feature template files delimited by '"+DELIM_FILENAME+"' (required)", required=true, metaVar="<filename>")
-	protected String s_featureFiles;
-	@Option(name="-i", usage="input directory containing training files (required)", required=true, metaVar="<directory>")
-	protected String s_trainDir;
-	@Option(name="-z", usage="mode (pos|dep|pred|role|srl)", required=true, metaVar="<string>")
-	protected String s_mode;
-
-	public AbstractNLPTrain() {}
-	
-	public AbstractNLPTrain(String[] args)
-	{
-		UTArgs4j.initArgs(this, args);
-	}
-	
-	protected JointFtrXml[] getFeatureTemplates(String[] featureFiles) throws Exception
-	{
-		int i, size = featureFiles.length;
-		JointFtrXml[] xmls = new JointFtrXml[size];
-		
-		for (i=0; i<size; i++)
-			xmls[i] = new JointFtrXml(new FileInputStream(featureFiles[i]));
-		
-		return xmls;
-	}
+	void updateWeights(StringOnlineModel model, int[] indices);
 }

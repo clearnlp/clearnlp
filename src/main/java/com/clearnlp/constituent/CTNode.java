@@ -518,6 +518,20 @@ public class CTNode implements Comparable<CTNode>
 		return null;
 	}
 	
+	public int getDistanceToTop()
+	{
+		CTNode node = getParent();
+		int dist = 0;
+		
+		while (node != null)
+		{
+			dist++;
+			node = node.getParent();
+		}
+		
+		return dist;
+	}
+	
 //	======================== Setters ========================
 	
 	public void setTags(String tags)

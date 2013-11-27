@@ -38,91 +38,107 @@
  * See the License for the specific language governing permissions and
  * limitations under the License. 
  */
-package com.clearnlp.collection.list;
+package com.clearnlp.classification.train;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.Map;
+import java.util.Set;
 
-import com.carrotsearch.hppc.cursors.FloatCursor;
+import com.clearnlp.classification.instance.StringInstance;
+import com.clearnlp.classification.vector.StringFeatureVector;
+import com.clearnlp.collection.map.ObjectIntHashMap;
+import com.clearnlp.util.UTHppc;
+import com.google.common.collect.Maps;
 
 /**
  * @since 2.0.1
  * @author Jinho D. Choi ({@code jdchoi77@gmail.com})
  */
-public class FloatArrayList extends com.carrotsearch.hppc.FloatArrayList implements Serializable
+public class InstanceCollector
 {
-	private static final long serialVersionUID = 9046519864011388204L;
+	private Deque<StringInstance> s_instances;
+	private ObjectIntHashMap<String> m_labels;
+	private Map<String,ObjectIntHashMap<String>> m_features;
 	
-	public FloatArrayList()
+	public InstanceCollector()
 	{
-		super();
+		s_instances = new ArrayDeque<StringInstance>();
+		m_labels    = new ObjectIntHashMap<String>();
+		m_features  = Maps.newHashMap();
 	}
 	
-	public FloatArrayList(int initialCapacity)
+	public void addInstance(StringInstance instance)
 	{
-		super(initialCapacity);
+		s_instances.add(instance);
+		addLabel(instance.getLabel());
+		addFeatures(instance.getFeatureVector());
 	}
 	
-	public FloatArrayList(float[] array)
+	/** Called by {@link #addLexica(StringInstance)}. */
+	private void addLabel(String label)
 	{
-		super();
-		addAll(array);
+		m_labels.put(label, m_labels.get(label)+1);
 	}
 	
-	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException
+	/** Called by {@link #addLexica(StringInstance)}. */
+	private void addFeatures(StringFeatureVector vector)
 	{
-		addAll((float[])in.readObject());
+		ObjectIntHashMap<String> map;
+		int i, size = vector.size();
+		String type, value;
+		
+		for (i=0; i<size; i++)
+		{
+			type  = vector.getType(i);
+			value = vector.getValue(i);
+			
+			if (m_features.containsKey(type))
+			{
+				map = m_features.get(type);
+				map.put(value, map.get(value)+1);
+			}
+			else
+			{
+				map = new ObjectIntHashMap<String>();
+				map.put(value, 1);
+				m_features.put(type, map);
+			}
+		}
 	}
 
-	private void writeObject(ObjectOutputStream o) throws IOException
+	public StringInstance pollInstance()
 	{
-		o.writeObject(toArray());
+		return s_instances.poll();
 	}
 	
-	public void addAll(float[] array)
+	public Set<String> getLabels()
 	{
-		int i, size = array.length;
-		
-		for (i=0; i<size; i++) add(array[i]);
-		trimToSize();
+		return UTHppc.getKeySet(m_labels);
 	}
 	
-	public float[] toArray(int beginIndex, int endIndex)
+	public Set<String> getFeatureTypes()
 	{
-		float[] array = new float[endIndex - beginIndex];
-		int i;
-		
-		for (i=0; beginIndex < endIndex; beginIndex++,i++)
-			array[i] = get(beginIndex);
-		
-		return array;
+		return m_features.keySet();
 	}
 	
-	public double[] toDoubleArray()
+	public int getLabelCount(String label)
 	{
-		return toDoubleArray(0, size());
+		return m_labels.get(label);
 	}
 	
-	public double[] toDoubleArray(int beginIndex, int endIndex)
+	public ObjectIntHashMap<String> getFeatureMap(String type)
 	{
-		double[] array = new double[endIndex - beginIndex];
-		int i;
-		
-		for (i=0; beginIndex < endIndex; beginIndex++,i++)
-			array[i] = get(beginIndex);
-		
-		return array;
+		return m_features.get(type);
 	}
 	
-	public FloatArrayList clone()
+	public void clearLabels()
 	{
-		FloatArrayList list = new FloatArrayList(size());
-		
-		for (FloatCursor f : this)
-			list.add(f.value);
-		
-		return list;
+		m_labels.clear();
+	}
+	
+	public void clearFeatures()
+	{
+		m_features.clear();
 	}
 }

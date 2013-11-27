@@ -179,6 +179,11 @@ public class StringFeatureVector extends AbstractFeatureVector
 		return s_types.size();
 	}
 	
+	public boolean isEmpty()
+	{
+		return s_types.isEmpty();
+	}
+	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */

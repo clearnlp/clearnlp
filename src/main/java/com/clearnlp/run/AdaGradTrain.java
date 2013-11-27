@@ -145,14 +145,10 @@ public class AdaGradTrain extends AbstractRun
 			algorithm = new AdaGradLR(alpha, rho, eps); break;
 		}
 		
-		AbstractModel model = space.getModel();
-		
-		model.initWeightVector();
 		algorithm.train(space);
-
-		return model;
+		return space.getModel();
 	}
-
+	
 	static public void main(String[] args)
 	{
 		new AdaGradTrain(args);

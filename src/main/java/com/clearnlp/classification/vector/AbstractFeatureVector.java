@@ -97,7 +97,7 @@ abstract public class AbstractFeatureVector
 	 */
 	public double getWeight(int index)
 	{
-		return d_weights.get(index);
+		return b_weight ? d_weights.get(index) : 1d;
 	}
 	
 	/**

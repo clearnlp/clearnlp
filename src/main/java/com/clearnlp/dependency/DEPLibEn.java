@@ -409,7 +409,6 @@ public class DEPLibEn extends DEPLib
 		if (c == null)	return false;
 		Pair<DEPNode,SRLArc> p = getLastPrepositionWithoutDependent(verb);
 		if (p == null)	return false;
-		
 		DEPNode comp = c.o1;
 		
 		comp.setHead(p.o1, DEP_POBJ);
@@ -458,7 +457,7 @@ public class DEPLibEn extends DEPLib
 			if (dep.id < verb.id)
 				return null;
 			
-			if (dep.isPos(CTLibEn.POS_IN) && (sHead = dep.getSHead(verb)) != null)
+			if ((dep.isPos(CTLibEn.POS_IN) || dep.isPos(CTLibEn.POS_TO)) && (sHead = dep.getSHead(verb)) != null)
 				return dep.getDependents().isEmpty() ? new Pair<DEPNode,SRLArc>(dep, sHead) : null;
 			
 //			if (dep.isPos(CTLibEn.POS_IN))

@@ -159,6 +159,11 @@ public class SparseFeatureVector extends AbstractFeatureVector
 		if (b_weight)	d_weights.trimToSize();
 	}
 	
+	public boolean isEmpty()
+	{
+		return i_indices.isEmpty();
+	}
+	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */

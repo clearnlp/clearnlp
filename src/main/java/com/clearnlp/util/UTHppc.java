@@ -43,14 +43,26 @@ package com.clearnlp.util;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import com.carrotsearch.hppc.IntContainer;
 import com.carrotsearch.hppc.IntOpenHashSet;
 import com.carrotsearch.hppc.ObjectIntOpenHashMap;
 import com.carrotsearch.hppc.cursors.ObjectCursor;
+import com.google.common.collect.Sets;
 
 public class UTHppc
 {
+	static public <T>Set<T> getKeySet(ObjectIntOpenHashMap<T> map)
+	{
+		Set<T> set = Sets.newHashSet();
+		
+		for (ObjectCursor<T> cur : map.keys())
+			set.add(cur.value);
+		
+		return set;
+	}
+	
 	static public int max(IntContainer c)
 	{
 		int max = Integer.MIN_VALUE;

@@ -40,6 +40,8 @@
  */
 package com.clearnlp.classification.prediction;
 
+import com.clearnlp.util.UTMath;
+
 /**
  * String prediction.
  * @since 1.0.0
@@ -64,10 +66,6 @@ public class IntPrediction implements Comparable<IntPrediction>
 	@Override
 	public int compareTo(IntPrediction p)
 	{
-		double d = score - p.score;
-		
-		if      (d > 0)	return -1;
-		else if (d < 0)	return  1;
-		else			return  0;
+		return UTMath.signnum(score - p.score);
 	}
 }

@@ -66,6 +66,7 @@ import com.carrotsearch.hppc.IntArrayDeque;
 import com.carrotsearch.hppc.IntArrayList;
 import com.carrotsearch.hppc.IntDeque;
 import com.clearnlp.collection.list.FloatArrayList;
+import com.clearnlp.collection.map.ObjectIntHashMap;
 import com.clearnlp.constant.universal.UNPunct;
 import com.clearnlp.constituent.CTLibEn;
 import com.clearnlp.constituent.CTNode;
@@ -115,14 +116,81 @@ public class Tmp
 {
 	public Tmp(String[] args) throws Exception
 	{
-		FloatArrayList list = new FloatArrayList();
+		Set<String> ids = UTInput.getStringSet(new FileInputStream(args[0]));
+		ObjectIntHashMap<String> scm = new ObjectIntHashMap<>();
+		ObjectIntHashMap<String> wcm = new ObjectIntHashMap<>();
+		Pattern p = Pattern.compile("/");
+		String root = args[1];
+		CTReader reader;
+		String genre;
+		CTTree tree;
+		int sc, wc;
 		
-		list.add(0);
-		list.add(1);
-		list.add(2);
+		for (String id : ids)
+		{
+			reader = new CTReader(UTInput.createBufferedFileReader(root+"/"+id+".parse"));
+			genre  = p.split(id)[0];
+			sc = wc = 0;
+			
+			while ((tree = reader.nextTree()) != null)
+			{
+				wc += tree.getTokens().size();
+				sc ++;
+			}
+			
+			scm.put(genre, scm.get(genre)+sc);
+			wcm.put(genre, wcm.get(genre)+wc);
+		}
 		
-		float[] array = new float[3];
-		System.arraycopy(array, 0, list, 0, 3);
+		System.out.println(scm.toString());
+		System.out.println(wcm.toString());
+	}
+	
+	public void processOntoNotes(String[] args) throws Exception
+	{
+		String MY_DIR = args[0];
+		String O5_DIR = args[1];
+		
+		File root = new File(MY_DIR);
+		CTReader myReader, o5Reader;
+		String myPath, o5Path;
+		CTTree myTree, o5Tree;
+		
+		for (File genre : root.listFiles())
+		{
+			if (!genre.isDirectory()) continue;
+			
+			for (File source : genre.listFiles())
+			{
+				if (!source.isDirectory()) continue;
+				
+				for (File section : source.listFiles())
+				{
+					if (!section.isDirectory())	continue;
+					
+					for (File myParse : section.listFiles(new FileExtFilter("parse")))
+					{
+						myPath = myParse.getPath();
+						o5Path = O5_DIR + myPath.substring(MY_DIR.length());
+
+						myReader = new CTReader(UTInput.createBufferedFileReader(myPath));
+						o5Reader = new CTReader(UTInput.createBufferedFileReader(o5Path));
+						
+						while ((myTree = myReader.nextTree()) != null)
+						{
+							o5Tree = o5Reader.nextTree();
+//							
+							if (!myTree.compareBrackets(o5Tree))
+							{
+								System.out.println(myPath);
+//								System.out.println(">"+myTree.toStringLine());
+//								System.out.println("<"+o5Tree.toStringLine());
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 	
 	void testObjectStream() throws Exception

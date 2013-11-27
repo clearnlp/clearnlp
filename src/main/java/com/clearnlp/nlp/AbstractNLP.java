@@ -40,6 +40,8 @@
  */
 package com.clearnlp.nlp;
 
+import java.io.File;
+
 import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -51,6 +53,7 @@ import com.clearnlp.reader.AbstractReader;
 import com.clearnlp.reader.JointReader;
 import com.clearnlp.reader.LineReader;
 import com.clearnlp.reader.RawReader;
+import com.clearnlp.util.UTFile;
 import com.clearnlp.util.UTXml;
 
 /**
@@ -74,6 +77,8 @@ abstract public class AbstractNLP
 	final public String TAG_BOOTSTRAPS	= "bootstraps";
 	final public String TAG_BEAMS		= "beams";
 	final public String TAG_MARGIN		= "margin";
+	final public String TAG_DFC			= "documentFrequencyCutoff";
+	final public String TAG_DTC			= "documentTokenCount";
 	
 	final public String TAG_LANGUAGE	= "language";
 	final public String TAG_TWIT		= "twit";
@@ -82,6 +87,16 @@ abstract public class AbstractNLP
 	final public String TAG_FRAMES		= "frames";
 	final public String TAG_MODE		= "mode";
 	final public String TAG_PATH		= "path";
+	
+	// ============================= getter: mode =============================
+	
+	protected String[] getFilenames(String filePath)
+	{
+		if (new File(filePath).isDirectory())
+			return UTFile.getSortedFileListBySize(filePath, ".*", true);
+		
+		return new String[]{filePath};
+	}
 	
 	// ============================= getter: mode =============================
 	

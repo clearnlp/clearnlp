@@ -48,12 +48,12 @@ import java.io.PrintStream;
 
 import org.kohsuke.args4j.Option;
 
+import com.clearnlp.classification.instance.StringInstance;
 import com.clearnlp.classification.model.SparseModel;
 import com.clearnlp.classification.model.StringModel;
 import com.clearnlp.classification.prediction.StringPrediction;
 import com.clearnlp.classification.train.AbstractTrainSpace;
 import com.clearnlp.classification.train.SparseTrainSpace;
-import com.clearnlp.classification.train.StringInstance;
 import com.clearnlp.classification.train.StringTrainSpace;
 import com.clearnlp.classification.vector.SparseFeatureVector;
 import com.clearnlp.util.UTInput;

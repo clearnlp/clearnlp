@@ -315,6 +315,33 @@ public class CTTree
 	{
 		return isRange(loc.terminalId, loc.height);
 	}
+	
+	public boolean compareBrackets(CTTree tree)
+	{
+		int i, size = ls_termainals.size();
+		
+		if (size != tree.getTerminals().size())
+			return false;
+		
+		CTNode node1, node2;
+		
+		for (i=0; i<size; i++)
+		{
+			node1 = getTerminal(i);
+			node2 = tree.getTerminal(i);
+			
+			if (node1.getDistanceToTop() != node2.getDistanceToTop())
+				return false;
+			
+			if (!node1.form.equals(node2.form))
+			{
+				System.out.println(node1.form+" "+node2.form);
+				return false;
+			}
+		}
+		
+		return true;
+	}
 
 //	======================== Strings ========================
 	

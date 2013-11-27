@@ -50,9 +50,9 @@ import java.util.regex.Matcher;
 import com.clearnlp.classification.algorithm.AbstractAlgorithm;
 import com.clearnlp.classification.feature.FtrToken;
 import com.clearnlp.classification.feature.JointFtrXml;
+import com.clearnlp.classification.instance.StringInstance;
 import com.clearnlp.classification.model.StringModel;
 import com.clearnlp.classification.prediction.StringPrediction;
-import com.clearnlp.classification.train.StringInstance;
 import com.clearnlp.classification.train.StringTrainSpace;
 import com.clearnlp.classification.vector.StringFeatureVector;
 import com.clearnlp.component.AbstractStatisticalComponentSB;
@@ -293,7 +293,6 @@ abstract public class AbstractDEPParser extends AbstractStatisticalComponentSB<D
 		
 		state.increaseTransitionCount();
 		state.addScore(label.score);
-//		System.out.println(lambda.id+":"+lambda.form+" "+beta.id+":"+beta.form+" "+label.toString()+" "+label.score+" "+state.d_score+" "+state.n_trans+" "+state.getScore());
 		
 		if (label.isArc(LB_LEFT))
 		{

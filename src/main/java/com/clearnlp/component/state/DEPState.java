@@ -48,7 +48,7 @@ import java.util.List;
 import com.carrotsearch.hppc.IntOpenHashSet;
 import com.clearnlp.classification.feature.FtrToken;
 import com.clearnlp.classification.feature.JointFtrXml;
-import com.clearnlp.classification.train.StringInstance;
+import com.clearnlp.classification.instance.StringInstance;
 import com.clearnlp.component.label.IDEPLabel;
 import com.clearnlp.dependency.DEPHead;
 import com.clearnlp.dependency.DEPLabel;

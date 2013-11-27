@@ -54,6 +54,12 @@ abstract public class AbstractF1Eval extends AbstractEval
 	
 	public AbstractF1Eval()
 	{
+		clear();
+	}
+	
+	@Override
+	public void clear()
+	{
 		p_total   = 0;
 		r_total   = 0;
 		n_correct = 0;

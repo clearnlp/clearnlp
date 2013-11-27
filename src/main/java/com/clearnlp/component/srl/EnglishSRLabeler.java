@@ -195,7 +195,9 @@ public class EnglishSRLabeler extends AbstractSRLabeler
 						if (roleset.isValidArgumentNumber(n) && !containsNumberedArugment(args, n, i+1, size))
 						{
 							node = arg.getNode();
-							node.getSHead(pred).setLabel(SRLLib.PREFIX_REFERENT+"A"+n);
+							
+							if (node.getSHead(pred) != null)
+								node.getSHead(pred).setLabel(SRLLib.PREFIX_REFERENT+"A"+n);
 						}
 					}
 					

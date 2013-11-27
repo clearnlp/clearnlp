@@ -54,6 +54,8 @@ import com.clearnlp.pattern.PTPunct;
  */
 public class MPLib
 {
+	static final public String META_URL = "#url#";
+	
 	static final public Pattern ALPHA_CHAR = Pattern.compile("\\p{Alpha}");
 	static final public Pattern ALNUM_CHAR = Pattern.compile("\\p{Alnum}");
 	static public boolean isAlpha(String form)
@@ -76,7 +78,7 @@ public class MPLib
 	 */
 	static public String simplifyBasic(String form)
 	{
-		if (PTLink.containsURL(form))	return "#url#";
+		if (PTLink.containsURL(form))	return META_URL;
 		
 		form = PTNumber.collapseDigits(form);
 		form = PTPunct.collapsePunctuation(form);

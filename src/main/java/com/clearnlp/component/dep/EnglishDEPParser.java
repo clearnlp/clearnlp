@@ -212,8 +212,8 @@ public class EnglishDEPParser extends AbstractDEPParser
 			if (p2 != null && p2.equals(CTLibEn.POS_VBN))	vType = 1;
 		}
 		
-		if (vType > 0 && subj != null && (DEPLibEn.isSubject(subj) || (subj.equals(DEPLibEn.DEP_ATTR) && hasNoDependent(beVerb, 1, beta.id, state))))
-		{
+		if (vType > 0 && subj != null && (DEPLibEn.isSubject(subj) || (subj.equals(DEPLibEn.DEP_ATTR) && hasNoDependent(beVerb, 1, lambda.id, state) && hasNoDependent(beVerb, lambda.id+1, beta.id, state))))
+		{//System.out.println(beVerb.form+" "+lambda.id+" "+beta.id+"\n"+state.getTree().toStringDEP());
 			DEPNode gHead = beVerb.getHead();
 			
 			// be - subj(lambda) -  vb[ng](beta)
@@ -325,7 +325,6 @@ public class EnglishDEPParser extends AbstractDEPParser
 		else if (beta.isDependentOf(lambda))
 		{
 			resetVerbPOSTag(lambda, beta, state);
-			resetAttributeInQuestion(lambda, beta, state);
 		}
 	}
 	
@@ -360,24 +359,6 @@ public class EnglishDEPParser extends AbstractDEPParser
 		return false;
 	}
 	
-	/**
-	 * PRE
-	 * : beta is a apposition of lambda.
-	 * : lambda is a nominal subject of "be"-verb, where be.id < lambda.id. 
-	 */
-	private boolean resetAttributeInQuestion(DEPNode lambda, DEPNode beta, DEPState state)
-	{
-		DEPNode head = lambda.getHead();
-		
-		if (head != null && head.id < lambda.id && head.isLemma(ENAux.BE) && beta.isLabel(DEPLibEn.DEP_APPOS) && lambda.isLabel(DEPLibEn.DEP_NSUBJ))
-		{
-			beta.setHead(head, DEPLibEn.DEP_ATTR);
-			return true;
-		}
-		
-		return false;
-	}
-	
 	@Override
 	protected boolean isNotHead(DEPNode node)
 	{
@@ -401,7 +382,8 @@ public class EnglishDEPParser extends AbstractDEPParser
 			node = state.getNode(i);
 			
 			if (!postProcessPP(node))
-				postProcessBeProperNounAdjective(node, state);
+				if (!postProcessBeProperNounAdjective(node, state))
+					postProcessAttributeInQuestion(node, state);
 			
 			if (MPLibEn.isVerb(node.pos)) vCount++;
 		}
@@ -462,6 +444,34 @@ public class EnglishDEPParser extends AbstractDEPParser
 		}
 		
 		return false;
+	}
+	
+	private boolean postProcessAttributeInQuestion(DEPNode appos, DEPState state)
+	{
+		if (!appos.isLabel(DEPLibEn.DEP_APPOS))
+			return false;
+		
+		DEPNode nsubj = appos.getHead();
+		if (nsubj == null || !nsubj.isLabel(DEPLibEn.DEP_NSUBJ) || nsubj.id > appos.id)
+			return false;
+		
+		DEPNode be = nsubj.getHead();
+		if (be == null || !be.isLemma(ENAux.BE) || be.id > appos.id)
+			return false;
+		
+		int i, size = state.getTreeSize();
+		DEPNode node;
+		
+		for (i=appos.id; i<size; i++)
+		{
+			node = state.getNode(i);
+					
+			if (node.isDependentOf(be, DEPLibEn.DEP_ATTR))
+				return false;
+		}
+		
+		appos.setHead(be, DEPLibEn.DEP_ATTR);
+		return true;
 	}
 	
 	private boolean containsDependent(DEPState state, DEPNode head, String label, int bIdx)

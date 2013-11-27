@@ -38,47 +38,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License. 
  */
-package com.clearnlp.nlp.engine;
+package com.clearnlp.classification.algorithm.online;
 
-import java.io.FileInputStream;
-
-import org.kohsuke.args4j.Option;
-
-import com.clearnlp.classification.feature.JointFtrXml;
-import com.clearnlp.util.UTArgs4j;
+import com.clearnlp.classification.instance.IntInstance;
+import com.clearnlp.classification.model.StringOnlineModel;
 
 /**
- * @since 2.0.0
+ * Abstract algorithm.
+ * @since 1.3.2
  * @author Jinho D. Choi ({@code jdchoi77@gmail.com})
  */
-public class AbstractNLPTrain
+abstract public class AbstractOnlineAdaGrad implements IOnlineAlgorithm
 {
-	protected final String DELIM_FILENAME = ":";
+	protected final int MAX_ITER = 1000;
 	
-	@Option(name="-c", usage="configuration file (required)", required=true, metaVar="<filename>")
-	protected String s_configFile;
-	@Option(name="-f", usage="feature template files delimited by '"+DELIM_FILENAME+"' (required)", required=true, metaVar="<filename>")
-	protected String s_featureFiles;
-	@Option(name="-i", usage="input directory containing training files (required)", required=true, metaVar="<directory>")
-	protected String s_trainDir;
-	@Option(name="-z", usage="mode (pos|dep|pred|role|srl)", required=true, metaVar="<string>")
-	protected String s_mode;
-
-	public AbstractNLPTrain() {}
+	protected double d_alpha;
+	protected double d_rho;
 	
-	public AbstractNLPTrain(String[] args)
+	public AbstractOnlineAdaGrad(double alpha, double rho)
 	{
-		UTArgs4j.initArgs(this, args);
+		d_alpha = alpha;
+		d_rho   = rho;
 	}
 	
-	protected JointFtrXml[] getFeatureTemplates(String[] featureFiles) throws Exception
-	{
-		int i, size = featureFiles.length;
-		JointFtrXml[] xmls = new JointFtrXml[size];
+	abstract protected boolean update(StringOnlineModel model, IntInstance instance, double[] gs);
+	
+	@Override
+	public void updateWeights(StringOnlineModel model, int[] indices)
+	{	
+		double[] gs = new double[model.getLabelSize() * model.getFeatureSize()];
+		int i, size = model.getInstanceSize();
 		
 		for (i=0; i<size; i++)
-			xmls[i] = new JointFtrXml(new FileInputStream(featureFiles[i]));
-		
-		return xmls;
+			update(model, model.getInstance(indices[i]), gs);
+	}
+	
+	protected double getCost(StringOnlineModel model, double[] gs, int y, int x)
+	{
+		return d_alpha / (d_rho + Math.sqrt(gs[model.getWeightIndex(y, x)]));
 	}
 }

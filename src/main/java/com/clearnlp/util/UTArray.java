@@ -48,6 +48,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import com.google.common.collect.Lists;
+
 /**
  * Array utilities.
  * @author Jinho D. Choi (jdchoi77@gmail.com)
@@ -117,6 +119,11 @@ public class UTArray
 		int temp    = array[idx0];
 		array[idx0] = array[idx1];
 		array[idx1] = temp;
+	}
+	
+	static public void shuffle(Random rand, int[] array)
+	{
+		shuffle(rand, array, array.length);
 	}
 	
 	static public void shuffle(Random rand, int[] array, int lastIndex)
@@ -275,5 +282,17 @@ public class UTArray
 		
 		for (i=0; i<size; i++)
 			target[i] += source[i];
+	}
+	
+	@SuppressWarnings("unchecked")
+	static public <T>List<T> toList(T[]... arrays)
+	{
+		List<T> list = Lists.newArrayList();
+		
+		for (T[] array : arrays)
+			for (T item : array)
+				list.add(item);
+
+		return list;
 	}
 }
