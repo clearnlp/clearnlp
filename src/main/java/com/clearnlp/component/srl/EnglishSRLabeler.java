@@ -192,7 +192,7 @@ public class EnglishSRLabeler extends AbstractSRLabeler
 						roleset = m_frames.getRoleset(getPBType(pred), pred.lemma, pred.getFeat(DEPLibEn.FEAT_PB));
 						n = Integer.toString(Integer.parseInt(n)+1);
 						
-						if (roleset.isValidArgumentNumber(n) && !containsNumberedArugment(args, n, i+1, size))
+						if (roleset != null && roleset.isValidArgumentNumber(n) && !containsNumberedArugment(args, n, i+1, size))
 						{
 							node = arg.getNode();
 							

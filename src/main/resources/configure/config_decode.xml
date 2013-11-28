@@ -1,8 +1,9 @@
 <configuration>
     <language>en</language>
+    <model>general-en</model>
     <model>/Users/jdchoi/Documents/Workspace/models/general-en-2.0.1.jar</model>
 
-    <reader type="column">
+    <reader type="line">
         <column index="2" field="form"/>
     </reader>
 </configuration>

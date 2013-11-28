@@ -46,5 +46,5 @@ package com.clearnlp.dictionary;
  */
 public class DTLib
 {
-	static public final String DICTIONARY_JAR = "/Users/jdchoi/Documents/Workspace/lib/clearnlp-dictionary.jar";
+	static public final String DICTIONARY_JAR = "/Users/jdchoi/Documents/Workspace/models/clearnlp-dictionary.jar";
 }

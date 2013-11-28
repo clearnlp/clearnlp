@@ -41,6 +41,7 @@
 package com.clearnlp.component.morph;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -52,6 +53,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 import org.w3c.dom.Element;
 
@@ -116,29 +118,16 @@ public class EnglishMPAnalyzer extends AbstractMPAnalyzer
 		
 		try
 		{
-			inf_verb      = getInflectionRules(inflection, VERB     , CTLibEn.POS_VB, MPTag.IVX);
-			inf_noun      = getInflectionRules(inflection, NOUN     , CTLibEn.POS_NN, MPTag.INX);
-			inf_adjective = getInflectionRules(inflection, ADJECTIVE, CTLibEn.POS_JJ, MPTag.IJX);
-			inf_adverb    = getInflectionRules(inflection, ADVERB   , CTLibEn.POS_RB, MPTag.IRX);
+			inf_verb      = getInflectionRules(inflection, VERB     , CTLibEn.POS_VB);
+			inf_noun      = getInflectionRules(inflection, NOUN     , CTLibEn.POS_NN);
+			inf_adjective = getInflectionRules(inflection, ADJECTIVE, CTLibEn.POS_JJ);
+			inf_adverb    = getInflectionRules(inflection, ADVERB   , CTLibEn.POS_RB);
 
 			base_cardinal     = UTInput.getStringSet(UTInput.getInputStreamsFromClasspath(CARDINAL_BASE));
 			base_ordinal      = UTInput.getStringSet(UTInput.getInputStreamsFromClasspath(ORDINAL_BASE));
-			rule_abbreviation = getAbbreviationMap(UTInput.getInputStreamsFromClasspath(ABBREVIATOIN_RULE));
+			rule_abbreviation = getAbbreviationMap  (UTInput.getInputStreamsFromClasspath(ABBREVIATOIN_RULE));
 		}
 		catch (IOException e) {e.printStackTrace();}
-	}
-
-	private EnglishInflection getInflectionRules(Element eInflection, String type, String basePOS, String irregularPOS) throws IOException
-	{
-		Element     eAffixes        = UTXml.getFirstElementByTagName(eInflection, type);
-		InputStream baseStream      = UTInput.getInputStreamsFromClasspath(PATH + type + EXT_BASE);
-		InputStream exceptionStream = UTInput.getInputStreamsFromClasspath(PATH + type + EXT_EXCEPTION);
-		
-		Map<String,String> exceptionMap = (exceptionStream != null) ? UTInput.getStringMap(exceptionStream, PTLib.SPACE) : null;
-		List<AbstractAffixMatcher> affixMatchers = new EnglishAffixMatcherFactory().createAffixMatchers(eAffixes);
-		Set<String> baseSet = UTInput.getStringSet(baseStream);
-		
-		return new EnglishInflection(basePOS, baseSet, exceptionMap, affixMatchers);
 	}
 	
 	public EnglishMPAnalyzer(ZipFile file)
@@ -147,24 +136,72 @@ public class EnglishMPAnalyzer extends AbstractMPAnalyzer
 		{
 			Element inflection = UTXml.getDocumentElement(file.getInputStream(new ZipEntry(INFLECTION_SUFFIX)));
 			
-			inf_verb      = getInflectionRules(file, inflection, VERB     , CTLibEn.POS_VB, MPTag.IVX);
-			inf_noun      = getInflectionRules(file, inflection, NOUN     , CTLibEn.POS_NN, MPTag.INX);
-			inf_adjective = getInflectionRules(file, inflection, ADJECTIVE, CTLibEn.POS_JJ, MPTag.IJX);
-			inf_adverb    = getInflectionRules(file, inflection, ADVERB   , CTLibEn.POS_RB, MPTag.IRX);
+			inf_verb      = getInflectionRules(file, inflection, VERB     , CTLibEn.POS_VB);
+			inf_noun      = getInflectionRules(file, inflection, NOUN     , CTLibEn.POS_NN);
+			inf_adjective = getInflectionRules(file, inflection, ADJECTIVE, CTLibEn.POS_JJ);
+			inf_adverb    = getInflectionRules(file, inflection, ADVERB   , CTLibEn.POS_RB);
 
 			base_cardinal     = UTInput.getStringSet(file.getInputStream(new ZipEntry(CARDINAL_BASE)));
 			base_ordinal      = UTInput.getStringSet(file.getInputStream(new ZipEntry(ORDINAL_BASE)));
-			rule_abbreviation = getAbbreviationMap(file.getInputStream(new ZipEntry(ABBREVIATOIN_RULE)));
+			rule_abbreviation = getAbbreviationMap  (file.getInputStream(new ZipEntry(ABBREVIATOIN_RULE)));
 		}
 		catch (IOException e) {e.printStackTrace();}
 	}
 	
-	private EnglishInflection getInflectionRules(ZipFile file, Element eInflection, String type, String basePOS, String irregularPOS) throws IOException
+	/** @param stream this input-stream becomes a parameter of {@link ZipInputStream}. */
+	public EnglishMPAnalyzer(InputStream stream)
+	{
+		try
+		{
+			ZipInputStream zin = new ZipInputStream(stream);
+			Map<String,byte[]> map = UTInput.toByteMap(zin);
+
+			Element inflection = UTXml.getDocumentElement(new ByteArrayInputStream(map.get(INFLECTION_SUFFIX)));
+			
+			inf_verb      = getInflectionRules(map, inflection, VERB     , CTLibEn.POS_VB);
+			inf_noun      = getInflectionRules(map, inflection, NOUN     , CTLibEn.POS_NN);
+			inf_adjective = getInflectionRules(map, inflection, ADJECTIVE, CTLibEn.POS_JJ);
+			inf_adverb    = getInflectionRules(map, inflection, ADVERB   , CTLibEn.POS_RB);
+
+			base_cardinal     = UTInput.getStringSet(new ByteArrayInputStream(map.get(CARDINAL_BASE)));
+			base_ordinal      = UTInput.getStringSet(new ByteArrayInputStream(map.get(ORDINAL_BASE)));
+			rule_abbreviation = getAbbreviationMap  (new ByteArrayInputStream(map.get(ABBREVIATOIN_RULE)));
+		}
+		catch (IOException e) {e.printStackTrace();}
+	}
+	
+	/** Called by {@link #EnglishMPAnalyzer()}. */
+	private EnglishInflection getInflectionRules(Element eInflection, String type, String basePOS) throws IOException
+	{
+		Element     eAffixes        = UTXml.getFirstElementByTagName(eInflection, type);
+		InputStream baseStream      = UTInput.getInputStreamsFromClasspath(PATH + type + EXT_BASE);
+		InputStream exceptionStream = UTInput.getInputStreamsFromClasspath(PATH + type + EXT_EXCEPTION);
+		
+		return getInflection(baseStream, exceptionStream, eAffixes, basePOS);
+	}
+	
+	/** Called by {@link #EnglishMPAnalyzer(ZipFile)}. */
+	private EnglishInflection getInflectionRules(ZipFile file, Element eInflection, String type, String basePOS) throws IOException
 	{
 		Element     eAffixes        = UTXml.getFirstElementByTagName(eInflection, type);
 		InputStream baseStream      = file.getInputStream(new ZipEntry(PATH + type + EXT_BASE));
 		InputStream exceptionStream = file.getInputStream(new ZipEntry(PATH + type + EXT_EXCEPTION));
 		
+		return getInflection(baseStream, exceptionStream, eAffixes, basePOS);
+	}
+	
+	/** Called by {@link #EnglishMPAnalyzer(InputStream)}. */
+	private EnglishInflection getInflectionRules(Map<String,byte[]> map, Element eInflection, String type, String basePOS) throws IOException
+	{
+		Element     eAffixes        = UTXml.getFirstElementByTagName(eInflection, type);
+		InputStream baseStream      = new ByteArrayInputStream(map.get(PATH+type+EXT_BASE));
+		InputStream exceptionStream = new ByteArrayInputStream(map.get(PATH+type+EXT_EXCEPTION));
+		
+		return getInflection(baseStream, exceptionStream, eAffixes, basePOS);
+	}
+	
+	private EnglishInflection getInflection(InputStream baseStream, InputStream exceptionStream, Element eAffixes, String basePOS) throws IOException
+	{
 		Map<String,String> exceptionMap = (exceptionStream != null) ? UTInput.getStringMap(exceptionStream, PTLib.SPACE) : null;
 		List<AbstractAffixMatcher> affixMatchers = new EnglishAffixMatcherFactory().createAffixMatchers(eAffixes);
 		Set<String> baseSet = UTInput.getStringSet(baseStream);

@@ -96,7 +96,9 @@ public class LGAskTest
 				"Which of your accounts is locked?",
 				"What is your username?",
 				"What is your username?",
-				"On a scale of 0 to 10, how much do you like Doritos?"};
+				"On a scale of 0 to 10, how much do you like Doritos?",
+				"What is your company code?",
+				"What is your collateral type?"};
 		
 		String[] asks = {
 				"Ask when the last time that the user were able to log into Remedy was.",
@@ -128,7 +130,9 @@ public class LGAskTest
 				"Ask which of the user's accounts is locked.",
 				"Ask what the user's username is.",
 				"Ask what the user's username is.",
-				"Ask on a scale of 0 to 10, how much the user likes Doritos."};
+				"Ask on a scale of 0 to 10, how much the user likes Doritos.",
+				"Ask what the user's company code is.",
+				"Ask what the user's collateral type is."};
 		
 		for (i=0; (tree = reader.next()) != null; i++)
 		{

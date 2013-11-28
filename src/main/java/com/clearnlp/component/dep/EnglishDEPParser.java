@@ -334,13 +334,13 @@ public class EnglishDEPParser extends AbstractDEPParser
 		
 		if (p2 != null)
 		{
-			if ((MPLibEn.isNoun(head.pos) || head.isPos(CTLibEn.POS_IN)) && ((MPLibEn.isVerb(p2) || p2.equals(CTLibEn.POS_UH))))
+			boolean vb2 = p2.equals(CTLibEn.POS_UH) || p2.equals(CTLibEn.POS_FW);
+			
+			if ((MPLibEn.isNoun(head.pos) || head.isPos(CTLibEn.POS_IN)) && ((MPLibEn.isVerb(p2) || vb2)))
 			{
 				if (dep.isLabel(DEPLibEn.DEP_DOBJ) || DEPLibEn.isAuxiliary(dep.getLabel()) || dep.isLabel(DEPLibEn.DEP_PRT) || dep.isLabel(DEPLibEn.DEP_ACOMP))// || DEPLibEn.isSubject(dep.getLabel()) || dep.equals(DEPLibEn.DEP_EXPL)) || dep.isLabel(DEPLibEn.DEP_AGENT) || dep.isLabel(DEPLibEn.DEP_ATTR) || dep.isLabel(DEPLibEn.DEP_IOBJ)))
 				{
-					if (p2.equals(CTLibEn.POS_UH))
-						head.addFeat(DEPLib.FEAT_POS2, CTLibEn.POS_VB);
-					
+					if (vb2) head.addFeat(DEPLib.FEAT_POS2, CTLibEn.POS_VB);
 					state.add2ndPOSScore(head.id, 1d);
 				}
 			}

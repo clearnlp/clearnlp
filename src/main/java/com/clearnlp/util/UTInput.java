@@ -42,6 +42,7 @@ package com.clearnlp.util;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,6 +53,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import com.carrotsearch.hppc.ObjectIntOpenHashMap;
@@ -65,6 +67,30 @@ import com.google.common.collect.Sets;
  */
 public class UTInput
 {
+	public static Map<String,byte[]> toByteMap(ZipInputStream stream) throws IOException
+	{
+		Map<String,byte[]> map = Maps.newHashMap();
+		ZipEntry zEntry;
+		
+		while ((zEntry = stream.getNextEntry()) != null)
+			map.put(zEntry.getName(), UTInput.toByteArray(stream));
+
+		stream.close();
+		return map;
+	}
+	
+	public static byte[] toByteArray(ZipInputStream stream) throws IOException
+	{
+		ByteArrayOutputStream bout = new ByteArrayOutputStream();
+		byte[] buffer = new byte[1024];
+		int count;
+		
+		while ((count = stream.read(buffer)) != -1)
+			bout.write(buffer, 0, count);
+         
+		return bout.toByteArray();
+	}
+	
 	public static InputStream getInputStreamsFromClasspath(String filename)
 	{
 		return UTInput.class.getResourceAsStream(UNPunct.FORWARD_SLASH+filename);

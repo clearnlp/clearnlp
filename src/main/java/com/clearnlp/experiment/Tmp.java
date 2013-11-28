@@ -57,6 +57,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import jregex.MatchResult;
 import jregex.Substitution;
@@ -115,6 +117,19 @@ import com.google.common.collect.Lists;
 public class Tmp
 {
 	public Tmp(String[] args) throws Exception
+	{
+		ZipInputStream zin = new ZipInputStream(new FileInputStream(args[0]));
+		ZipEntry zEntry;
+		
+		while ((zEntry = zin.getNextEntry()) != null)
+		{
+			System.out.println(zEntry.getName());
+		}
+		
+		zin.close();
+	}
+	
+	public void scwc(String[] args) throws Exception
 	{
 		Set<String> ids = UTInput.getStringSet(new FileInputStream(args[0]));
 		ObjectIntHashMap<String> scm = new ObjectIntHashMap<>();

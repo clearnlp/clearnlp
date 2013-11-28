@@ -41,10 +41,12 @@
 package com.clearnlp.tokenization;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -132,6 +134,12 @@ public class EnglishTokenizer extends AbstractTokenizer
 	{
 		init();
 		initDictionaries(file);
+	}
+	
+	public EnglishTokenizer(InputStream stream)
+	{
+		init();
+		initDictionaries(new ZipInputStream(stream));
 	}
 	
 	private void init()
@@ -314,6 +322,22 @@ public class EnglishTokenizer extends AbstractTokenizer
 			initDictionariesComounds(file.getInputStream(new ZipEntry(COMPOUNDS)));
 			initDictionariesUnits(file.getInputStream(new ZipEntry(UNITS)));
 			initDictionaryNonUTF8(file.getInputStream(new ZipEntry(NON_UTF8)));
+		}
+		catch (Exception e) {e.printStackTrace();}
+	}
+	
+	private void initDictionaries(ZipInputStream zin)
+	{
+		try
+		{
+			Map<String,byte[]> map = UTInput.toByteMap(zin);
+			
+			T_EMOTICONS     = UTInput.getStringSet(new ByteArrayInputStream(map.get(EMOTICONS)));
+			T_ABBREVIATIONS = UTInput.getStringSet(new ByteArrayInputStream(map.get(ABBREVIATIONS)));
+			P_HYPHEN_LIST   = getHyphenPatterns(new ByteArrayInputStream(map.get(HYPHENS)));
+			initDictionariesComounds(new ByteArrayInputStream(map.get(COMPOUNDS)));
+			initDictionariesUnits(new ByteArrayInputStream(map.get(UNITS)));
+			initDictionaryNonUTF8(new ByteArrayInputStream(map.get(NON_UTF8)));
 		}
 		catch (Exception e) {e.printStackTrace();}
 	}

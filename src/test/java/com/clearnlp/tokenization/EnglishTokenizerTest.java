@@ -42,8 +42,7 @@ package com.clearnlp.tokenization;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.File;
-import java.util.zip.ZipFile;
+import java.io.FileInputStream;
 
 import org.junit.Test;
 
@@ -58,7 +57,8 @@ public class EnglishTokenizerTest
 	@Test
 	public void testTokenize() throws Exception
 	{
-		EnglishTokenizer tok = new EnglishTokenizer(new ZipFile(new File(DTLib.DICTIONARY_JAR)));
+		EnglishTokenizer tok = new EnglishTokenizer(new FileInputStream(DTLib.DICTIONARY_JAR));
+//		EnglishTokenizer tok = new EnglishTokenizer(new ZipFile(new File(DTLib.DICTIONARY_JAR)));
 //		EnglishTokenizer tok = new EnglishTokenizer();
 		String src, trg;
 		

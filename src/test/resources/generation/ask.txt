@@ -330,3 +330,25 @@
 13	user	user	NN	_	14	nsubj	14:A0
 14	likes	like	VBZ	pb=like.01	9	ccomp	9:A1=PPT
 15	Doritos	doritos	NNP	p2=NNS	14	dobj	14:A1
+
+1	Ask	ask	VB	pb=ask.01	0	root	_
+2	what	what	WP	_	8	attr	8:R-A2
+3	the	the	DT	_	4	det	_
+4	user	user	NN	_	7	poss	_
+5	's	's	POS	_	4	possessive	_
+6	company	company	NN	_	7	nn	_
+7	code	code	NN	_	8	nsubj	8:A1=PPT
+8	is	be	VBZ	pb=be.01	1	ccomp	1:A1=PPT
+9	.	.	.	_	1	punct	_
+
+1	Ask	ask	VB	pb=ask.01	0	root	_
+2	the	the	DT	_	3	det	_
+3	user	user	NN	_	1	dobj	1:A2=GOL
+4	what	what	WP	_	10	attr	10:R-A2
+5	the	the	DT	_	6	det	_
+6	user	user	NN	_	9	poss	_
+7	's	's	POS	_	6	possessive	_
+8	collateral	collateral	NN	p2=JJ	9	nn	_
+9	type	type	NN	_	10	nsubj	10:A1=PPT
+10	is	be	VBZ	pb=be.01	1	ccomp	1:A1=PPT
+11	.	.	.	_	1	punct	_
