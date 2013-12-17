@@ -38,15 +38,57 @@
  * See the License for the specific language governing permissions and
  * limitations under the License. 
  */
-package com.clearnlp.classification.algorithm.online;
+package com.clearnlp.demo;
 
-import com.clearnlp.classification.model.StringOnlineModel;
+import com.clearnlp.classification.lambda.ILambdaUnit1;
+import com.clearnlp.constituent.CTLibEn;
+import com.clearnlp.constituent.CTNode;
+import com.clearnlp.constituent.CTTree;
+import com.clearnlp.morphology.MPLib;
+import com.clearnlp.util.map.Prob1DMap;
+import com.clearnlp.util.pair.StringIntPair;
 
 /**
  * @since 2.0.1
  * @author Jinho D. Choi ({@code jdchoi77@gmail.com})
  */
-public interface IOnlineAlgorithm
+public class CTExtractPhrases implements ILambdaUnit1<CTTree>
 {
-	void updateWeights(StringOnlineModel model, int[] indices);
+	Prob1DMap g_map;
+	
+	public CTExtractPhrases()
+	{
+		g_map = new Prob1DMap();
+	}
+	
+	@Override
+	public void apply(CTTree tree)
+	{
+		extract(tree.getRoot());
+	}
+	
+	private void extract(CTNode node)
+	{
+		String str;
+		
+		for (CTNode child : node.getChildren())
+		{
+			if (child.isPTag(CTLibEn.PTAG_LST))
+			{
+				str = MPLib.simplifyBasic(child.toForms(false, " "));
+				if (str.contains(" ")) g_map.add(str);
+			}
+			else
+				extract(child);
+		}
+	}
+	
+	public void print(int cutoff)
+	{
+		for (StringIntPair p : g_map.toSortedList())
+		{
+			if (p.i > cutoff)
+				System.out.println(p.s+" "+p.i);
+		}
+	}
 }

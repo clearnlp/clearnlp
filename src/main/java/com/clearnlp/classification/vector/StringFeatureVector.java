@@ -92,6 +92,17 @@ public class StringFeatureVector extends AbstractFeatureVector
 		return copy;
 	}
 	
+	public void populateWeights()
+	{
+		int i, size = s_values.size();
+		b_weight = true;
+		
+		d_weights = new DoubleArrayList();
+
+		for (i=0; i<size; i++)
+			d_weights.add(1d);
+	}
+	
 	/**
 	 * Adds a feature.
 	 * @param type  the feature type.

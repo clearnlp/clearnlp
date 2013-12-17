@@ -23,8 +23,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /**
- * Copyright 2012/09-2013/04, 2013/11-Present, University of Massachusetts Amherst
- * Copyright 2013/05-2013/10, IPSoft Inc.
+ * Copyright 2012/09-2013/04, University of Massachusetts Amherst
+ * Copyright 2013/05-Present, IPSoft Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,71 +38,91 @@
  * See the License for the specific language governing permissions and
  * limitations under the License. 
  */
-package com.clearnlp.classification.algorithm.online;
+package com.clearnlp.collection.list;
 
-import java.util.Arrays;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
-import com.clearnlp.classification.instance.IntInstance;
-import com.clearnlp.classification.model.StringOnlineModel;
+import com.carrotsearch.hppc.cursors.DoubleCursor;
 
 /**
- * Abstract algorithm.
- * @since 1.3.2
+ * @since 2.0.1
  * @author Jinho D. Choi ({@code jdchoi77@gmail.com})
  */
-abstract public class AbstractOnlineAdaGrad extends AbstractOnlineAlgorithm
+public class DoubleArrayList extends com.carrotsearch.hppc.DoubleArrayList implements Serializable
 {
-	protected double[] d_gradients;
-	protected double[] d_average;
-	protected boolean  b_average;
-	protected double   d_alpha;
-	protected double   d_rho;
+	private static final long serialVersionUID = 9046519864011388204L;
 	
-	public AbstractOnlineAdaGrad(double alpha, double rho, boolean average)
+	public DoubleArrayList()
 	{
-		d_alpha   = alpha;
-		d_rho     = rho;
-		b_average = average;
+		super();
 	}
 	
-	@Override
-	public void updateWeights(StringOnlineModel model)
-	{	
-		final int LD = model.getLabelSize() * model.getFeatureSize();
-		final int N  = model.getInstanceSize();
+	public DoubleArrayList(int initialCapacity)
+	{
+		super(initialCapacity);
+	}
+	
+	public DoubleArrayList(double[] array)
+	{
+		super();
+		addAll(array);
+	}
+	
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException
+	{
+		addAll((double[])in.readObject());
+	}
+
+	private void writeObject(ObjectOutputStream o) throws IOException
+	{
+		o.writeObject(toArray());
+	}
+	
+	public void addAll(double[] array)
+	{
+		int i, size = array.length;
+		
+		for (i=0; i<size; i++) add(array[i]);
+		trimToSize();
+	}
+	
+	public double[] toArray(int beginIndex, int endIndex)
+	{
+		double[] array = new double[endIndex - beginIndex];
 		int i;
 		
-		model.shuffleIndices();
+		for (i=0; beginIndex < endIndex; beginIndex++,i++)
+			array[i] = get(beginIndex);
 		
-		if (d_gradients == null || d_gradients.length != LD)
-		{
-			d_gradients = new double[LD];
-			if (b_average) d_average = new double[LD];
-		}
-		else
-		{
-			Arrays.fill(d_gradients, 0d);
-			if (b_average) Arrays.fill(d_average, 0d);
-		}
-		
-		for (i=0; i<N; i++)
-			update(model, model.getInstance(model.getShuffledIndex(i)), i+1);
-		
-		if (b_average) 
-			model.setAverageWeights(d_average, N+1);
+		return array;
 	}
 	
-	abstract protected boolean update(StringOnlineModel model, IntInstance instance, int averageCount);
-	
-	protected void updateWeight(StringOnlineModel model, int y, int x, double v, int averageCount)
+	public double[] toDoubleArray()
 	{
-		double cost = getCost(model, y, x) * v;
-		model.updateWeight(y, x, (float)cost);
-		if (b_average) d_average[model.getWeightIndex(y,x)] += cost * averageCount;
+		return toDoubleArray(0, size());
 	}
 	
-	protected double getCost(StringOnlineModel model, int y, int x)
+	public double[] toDoubleArray(int beginIndex, int endIndex)
 	{
-		return d_alpha / (d_rho + Math.sqrt(d_gradients[model.getWeightIndex(y, x)]));
+		double[] array = new double[endIndex - beginIndex];
+		int i;
+		
+		for (i=0; beginIndex < endIndex; beginIndex++,i++)
+			array[i] = get(beginIndex);
+		
+		return array;
+	}
+	
+	public DoubleArrayList clone()
+	{
+		DoubleArrayList list = new DoubleArrayList(size());
+		
+		for (DoubleCursor d : this)
+			list.add(d.value);
+		
+		return list;
 	}
 }

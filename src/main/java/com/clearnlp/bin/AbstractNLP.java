@@ -38,7 +38,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License. 
  */
-package com.clearnlp.nlp;
+package com.clearnlp.bin;
 
 import java.io.File;
 
@@ -47,7 +47,12 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import com.carrotsearch.hppc.ObjectIntOpenHashMap;
+import com.clearnlp.classification.algorithm.AbstractAlgorithm;
+import com.clearnlp.classification.algorithm.online.AbstractOnlineAlgorithm;
+import com.clearnlp.classification.algorithm.online.OnlineAdaGradHingeLoss;
+import com.clearnlp.classification.algorithm.online.OnlineAdaGradLogisticRegression;
 import com.clearnlp.dependency.DEPTree;
+import com.clearnlp.nlp.NLPLib;
 import com.clearnlp.reader.AbstractColumnReader;
 import com.clearnlp.reader.AbstractReader;
 import com.clearnlp.reader.JointReader;
@@ -57,7 +62,7 @@ import com.clearnlp.util.UTFile;
 import com.clearnlp.util.UTXml;
 
 /**
- * @since 1.3.0
+ * @since 2.0.2
  * @author Jinho D. Choi ({@code jdchoi77@gmail.com})
  */
 abstract public class AbstractNLP
@@ -78,7 +83,7 @@ abstract public class AbstractNLP
 	final public String TAG_BEAMS		= "beams";
 	final public String TAG_MARGIN		= "margin";
 	final public String TAG_DFC			= "documentFrequencyCutoff";
-	final public String TAG_DTC			= "documentTokenCount";
+	final public String TAG_DTC			= "documentMaxTokenCount";
 	
 	final public String TAG_LANGUAGE	= "language";
 	final public String TAG_TWIT		= "twit";
@@ -173,6 +178,33 @@ abstract public class AbstractNLP
 		return map;
 	}
 	
+	// ============================= getter: algorithm =============================
+	
+	protected AbstractOnlineAlgorithm getAlgorithm(Element eMode)
+	{
+		Element eAlgorithm = UTXml.getFirstElementByTagName(eMode, TAG_ALGORITHM);
+		String  name       = UTXml.getTrimmedAttribute(eAlgorithm, TAG_NAME);
+		
+		if (name.equals("adagrad"))
+		{
+			String  type    = UTXml.getTrimmedAttribute(eAlgorithm, "type");
+			byte    solver  = type.equals("hinge") ? AbstractAlgorithm.SOLVER_ADAGRAD_HINGE : AbstractAlgorithm.SOLVER_ADAGRAD_LR;
+			double  alpha   = Double.parseDouble(UTXml.getTrimmedAttribute(eAlgorithm, "alpha"));
+			double  rho     = Double.parseDouble(UTXml.getTrimmedAttribute(eAlgorithm, "rho"));
+			boolean average = UTXml.getTrimmedAttribute(eAlgorithm, "average").equalsIgnoreCase("true");
+			
+			LOG.info(String.format("AdaGrad: solver=%s, alpha=%5.3f, rho=%5.3f, average=%b\n", type, alpha, rho, average));
+			
+			switch (solver)
+			{
+			case AbstractAlgorithm.SOLVER_ADAGRAD_HINGE: return new OnlineAdaGradHingeLoss(alpha, rho, average);
+			case AbstractAlgorithm.SOLVER_ADAGRAD_LR   : return new OnlineAdaGradLogisticRegression(alpha, rho, average);
+			}
+		}
+
+		return null;
+	}
+	
 	// ============================= XML: train =============================
 	
 	protected int getNumerOfThreads(Element eTrain)
@@ -219,12 +251,14 @@ abstract public class AbstractNLP
 	
 	protected int getDocumentFrequencyCutoff(Element eMode)
 	{
-		return Integer.parseInt(getTextContent(eMode, TAG_DFC));
+		String text = getTextContent(eMode, TAG_DFC);
+		return (text != null) ? Integer.parseInt(text) : -1;
 	}
 	
-	protected int getDocumentTokenCount(Element eMode)
+	protected int getDocumentMaxTokenCount(Element eMode)
 	{
-		return Integer.parseInt(getTextContent(eMode, TAG_DTC));
+		String text = getTextContent(eMode, TAG_DTC);
+		return (text != null) ? Integer.parseInt(text) : -1;
 	}
 	
 	private String getTextContent(Element element, String key)

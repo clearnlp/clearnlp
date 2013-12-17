@@ -76,6 +76,8 @@ abstract public class AbstractModel implements Serializable
 	/** The map between labels and their indices. */
 	protected ObjectIntHashMap<String> m_labels;
 	
+	protected double[] t_weights;
+	
 	/** Constructs an abstract model for training. */
 	public AbstractModel()
 	{

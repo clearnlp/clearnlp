@@ -41,6 +41,7 @@
 package com.clearnlp.classification.algorithm;
 
 
+
 /**
  * AdaGrad algorithm using logistic regression.
  * @since 1.3.0
@@ -65,6 +66,20 @@ public class AdaGradLR extends AbstractAdaGrad
 		{
 			updateCounts (L, gs, grad, x, v);
 			updateWeights(L, gs, grad, x, v, weights);
+			return true;
+		}
+		
+		return false;
+	}
+	
+	protected boolean update(int L, int y, int[] x, double[] v, double[] gs, double[] cWeights, double[] aWeights, int count)
+	{
+		double[] grad = getGradients(L, y, x, v, cWeights);
+		
+		if (grad[y] > 0.01)
+		{
+			updateCounts (L, gs, grad, x, v);
+			updateWeights(L, gs, grad, x, v, cWeights, aWeights, count);
 			return true;
 		}
 		
@@ -126,5 +141,22 @@ public class AdaGradLR extends AbstractAdaGrad
 					weights[getWeightIndex(L, label, x[i])] += getCost(L, gs, label, x[i]) * grad[label];
 		}
 	}
-}
 	
+	protected void updateWeights(int L, double[] gs, double[] grad, int[] x, double[] v, double[] cWeights, double[] aWeights, int count)
+	{
+		int i, label, len = x.length;
+		
+		if (v != null)
+		{
+			for (i=0; i<len; i++)
+				for (label=0; label<L; label++)
+					updateWeightForAveraging(getWeightIndex(L, label, x[i]), getCost(L, gs, label, x[i]) * grad[label] * v[i], cWeights, aWeights, count);
+		}
+		else
+		{
+			for (i=0; i<len; i++)
+				for (label=0; label<L; label++)
+					updateWeightForAveraging(getWeightIndex(L, label, x[i]), getCost(L, gs, label, x[i]) * grad[label], cWeights, aWeights, count);
+		}
+	}
+}

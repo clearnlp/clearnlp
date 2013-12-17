@@ -63,7 +63,7 @@ public class InstanceCollectorTest
 		model.addInstance(new StringInstance("L2", getStringFeatureVector2()));
 		model.addInstance(new StringInstance("L2", getStringFeatureVector3()));
 		
-		model.build(1, 1);
+		model.build(1, 1, 11, false);
 		assertEquals("[L2]", model.getLabels().toString());
 		assertEquals("{A=[a2=>1], B=[b1=>2], C=[c2=>3]}", model.getFeatureMap().toString());
 	}

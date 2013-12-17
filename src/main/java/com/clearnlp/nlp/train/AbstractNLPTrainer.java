@@ -55,6 +55,7 @@ import java.util.zip.GZIPOutputStream;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import com.clearnlp.classification.algorithm.AbstractAdaGrad;
 import com.clearnlp.classification.algorithm.AbstractAlgorithm;
 import com.clearnlp.classification.feature.JointFtrXml;
 import com.clearnlp.classification.model.AbstractModel;
@@ -398,19 +399,20 @@ abstract public class AbstractNLPTrainer extends AbstractNLP
 		}
 		else if (name.equals("adagrad"))
 		{
-			String type  = UTXml.getTrimmedAttribute(eAlgorithm, "type");
-			double alpha = Double .parseDouble(UTXml.getTrimmedAttribute(eAlgorithm, "alpha"));
-			double rho   = Double .parseDouble(UTXml.getTrimmedAttribute(eAlgorithm, "rho"));
-			double eps   = Double .parseDouble(UTXml.getTrimmedAttribute(eAlgorithm, "eps"));
-			byte  solver = type.equals("hinge") ? AbstractAlgorithm.SOLVER_ADAGRAD_HINGE : AbstractAlgorithm.SOLVER_ADAGRAD_LR;
+			String  type    = UTXml.getTrimmedAttribute(eAlgorithm, "type");
+			double  alpha   = Double .parseDouble(UTXml.getTrimmedAttribute(eAlgorithm, "alpha"));
+			double  rho     = Double .parseDouble(UTXml.getTrimmedAttribute(eAlgorithm, "rho"));
+			double  eps     = Double .parseDouble(UTXml.getTrimmedAttribute(eAlgorithm, "eps"));
+			byte    solver  = type.equals("hinge") ? AbstractAlgorithm.SOLVER_ADAGRAD_HINGE : AbstractAlgorithm.SOLVER_ADAGRAD_LR;
+			boolean average = UTXml.getTrimmedAttribute(eAlgorithm, "average").equalsIgnoreCase("true");
 			
-			return getAdaGradModel(space, solver, alpha, rho, eps);
+			return getAdaGradModel(space, solver, alpha, rho, eps, average);
 		}
 		
 		return null;
 	}
 	
-	/** Called by {@link AbstractNLP#getModel(Element, AbstractTrainSpace, int, int)}. */
+	/** Called by {@link #getModel(Element, AbstractTrainSpace, int, int)}. */
 	protected AbstractModel getLiblinearModel(AbstractTrainSpace space, int numThreads, byte solver, double cost, double eps, double bias)
 	{
 		space.build();
@@ -418,11 +420,49 @@ abstract public class AbstractNLPTrainer extends AbstractNLP
 		return LiblinearTrain.getModel(space, numThreads, solver, cost, eps, bias);
 	}
 	
-	/** Called by {@link AbstractNLP#getModel(Element, AbstractTrainSpace, int, int)}. */
-	protected AbstractModel getAdaGradModel(AbstractTrainSpace space, byte solver, double alpha, double rho, double eps)
+	/** Called by {@link #getModel(Element, AbstractTrainSpace, int, int)}. */
+	protected AbstractModel getAdaGradModel(AbstractTrainSpace space, byte solver, double alpha, double rho, double eps, boolean average)
 	{
 		space.build();
-		LOG.info(String.format("AdaGrad: solver=%d, alpha=%5.3f, rho=%5.3f, eps=%5.3f\n", solver, alpha, rho, eps));
-		return AdaGradTrain.getModel(space, solver, alpha, rho, eps);
+		LOG.info(String.format("AdaGrad: solver=%d, alpha=%5.3f, rho=%5.3f, eps=%5.3f, average=%b\n", solver, alpha, rho, eps, average));
+		return AdaGradTrain.getModel(space, solver, alpha, rho, eps, average);
+	}
+	
+	protected AbstractModel updateModel(Element eTrain, AbstractTrainSpace space, int index, int boot)
+	{
+		NodeList  list = eTrain.getElementsByTagName(TAG_ALGORITHM);
+		Element eAlgorithm;
+		String  name;
+		
+		if (index >= list.getLength())
+			index = 0;
+		
+		eAlgorithm = (Element)list.item(index);
+		name       = UTXml.getTrimmedAttribute(eAlgorithm, TAG_NAME);
+		
+		if (name.equals("adagrad"))
+		{
+			String  type    = UTXml.getTrimmedAttribute(eAlgorithm, "type");
+			double  alpha   = Double .parseDouble(UTXml.getTrimmedAttribute(eAlgorithm, "alpha"));
+			double  rho     = Double .parseDouble(UTXml.getTrimmedAttribute(eAlgorithm, "rho"));
+			double  eps     = Double .parseDouble(UTXml.getTrimmedAttribute(eAlgorithm, "eps"));
+			byte    solver  = type.equals("hinge") ? AbstractAlgorithm.SOLVER_ADAGRAD_HINGE : AbstractAlgorithm.SOLVER_ADAGRAD_LR;
+			boolean average = UTXml.getTrimmedAttribute(eAlgorithm, "average").equalsIgnoreCase("true");
+			
+			return getAdaGradModel(space, solver, alpha, rho, eps, average);
+		}
+		
+		return null;
+	}
+	
+	protected AbstractModel updateAdaGradModel(AbstractTrainSpace space, byte solver, double alpha, double rho, double eps, boolean average)
+	{
+		space.build();
+		LOG.info(String.format("AdaGrad: solver=%d, alpha=%5.3f, rho=%5.3f, eps=%5.3f, average=%b\n", solver, alpha, rho, eps, average));
+		
+		AbstractAdaGrad algorithm = AdaGradTrain.getAlgorithm(solver, alpha, rho, eps);
+		algorithm.updateWeights(space, average);
+		
+		return AdaGradTrain.getModel(space, solver, alpha, rho, eps, average);
 	}
 }

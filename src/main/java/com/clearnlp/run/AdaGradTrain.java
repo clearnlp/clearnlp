@@ -94,8 +94,11 @@ public class AdaGradTrain extends AbstractRun
 	@Option(name="-r", usage="the ridge (default: 0.1)", required=false, metaVar="<double>")
 	private double d_rho = 0.1;
 	
-	@Option(name="-r", usage="the terminal criterion (default: 0.05)", required=false, metaVar="<double>")
+	@Option(name="-e", usage="the terminal criterion (default: 0.05)", required=false, metaVar="<double>")
 	private double d_eps = 0.05;
+	
+	@Option(name="-average", usage="if true, average wegiths", required=false, metaVar="<boolean>")
+	private boolean b_average = false;
 	
 	public AdaGradTrain() {}
 	
@@ -105,12 +108,12 @@ public class AdaGradTrain extends AbstractRun
 
 		try
 		{
-			train(s_trainFile, s_modelFile, i_vectorType, i_labelCutoff, i_featureCutoff, i_solver, d_alpha, d_rho, d_eps);
+			train(s_trainFile, s_modelFile, i_vectorType, i_labelCutoff, i_featureCutoff, i_solver, d_alpha, d_rho, d_eps, b_average);
 		}
 		catch (Exception e) {e.printStackTrace();}
 	}
 	
-	public void train(String trainFile, String modelFile, byte vectorType, int labelCutoff, int featureCutoff, byte solver, double alpha, double rho, double eps) throws Exception
+	public void train(String trainFile, String modelFile, byte vectorType, int labelCutoff, int featureCutoff, byte solver, double alpha, double rho, double eps, boolean average) throws Exception
 	{
 		AbstractTrainSpace space = null;
 		boolean hasWeight = AbstractTrainSpace.hasWeight(vectorType, trainFile);
@@ -126,26 +129,30 @@ public class AdaGradTrain extends AbstractRun
 		space.readInstances(UTInput.createBufferedFileReader(trainFile));
 		space.build();
 		
-		AbstractModel model = getModel(space, solver, alpha, rho, eps);
+		AbstractModel model = getModel(space, solver, alpha, rho, eps, average);
 		ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(modelFile)));
 		
 		out.writeObject(model);
 		out.close();
 	}
 	
-	static public AbstractModel getModel(AbstractTrainSpace space, byte solver, double alpha, double rho, double eps)
+	static public AbstractAdaGrad getAlgorithm(byte solver, double alpha, double rho, double eps)
 	{
-		AbstractAdaGrad algorithm = null;
-		
 		switch (solver)
 		{
 		case AbstractAlgorithm.SOLVER_ADAGRAD_HINGE:
-			algorithm = new AdaGradHinge(alpha, rho, eps); break;
+			return new AdaGradHinge(alpha, rho, eps);
 		case AbstractAlgorithm.SOLVER_ADAGRAD_LR:
-			algorithm = new AdaGradLR(alpha, rho, eps); break;
+			return new AdaGradLR(alpha, rho, eps);
 		}
 		
-		algorithm.train(space);
+		return null;
+	}
+	
+	static public AbstractModel getModel(AbstractTrainSpace space, byte solver, double alpha, double rho, double eps, boolean average)
+	{
+		AbstractAdaGrad algorithm = getAlgorithm(solver, alpha, rho, eps);
+		algorithm.updateWeights(space, average);
 		return space.getModel();
 	}
 	

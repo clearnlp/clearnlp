@@ -76,8 +76,8 @@ public class DEPState extends DefaultState implements IDEPLabel
 	StringIntPair[]      g_labels;
 	int			      	 i_lambda;
 	int			     	 i_beta;
-	public int           n_trans;
-	public double        d_score;
+	int           n_trans;
+	double        d_score;
 	IntOpenHashSet       s_reduce;
 	
 	public DEPState(DEPTree tree)

@@ -57,8 +57,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import jregex.MatchResult;
 import jregex.Substitution;
@@ -118,15 +116,20 @@ public class Tmp
 {
 	public Tmp(String[] args) throws Exception
 	{
-		ZipInputStream zin = new ZipInputStream(new FileInputStream(args[0]));
-		ZipEntry zEntry;
+		int i, size = 1000, len = 1000000;
+		long st, et;
+		double[] d;
 		
-		while ((zEntry = zin.getNextEntry()) != null)
-		{
-			System.out.println(zEntry.getName());
-		}
+		st = System.currentTimeMillis();
+		for (i=0; i<size; i++) d = new double[len];
+		et = System.currentTimeMillis();
+		System.out.println(et-st);
 		
-		zin.close();
+		st = System.currentTimeMillis();
+		d = new double[len];
+		for (i=0; i<size-1; i++) Arrays.fill(d, 0d);
+		et = System.currentTimeMillis();
+		System.out.println(et-st);
 	}
 	
 	public void scwc(String[] args) throws Exception

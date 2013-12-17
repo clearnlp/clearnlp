@@ -41,7 +41,6 @@
 package com.clearnlp.component.state;
 
 import com.clearnlp.classification.feature.FtrToken;
-import com.clearnlp.classification.feature.JointFtrXml;
 import com.clearnlp.dependency.DEPLib;
 import com.clearnlp.dependency.DEPNode;
 import com.clearnlp.dependency.DEPTree;
@@ -133,15 +132,6 @@ public class POSState extends DefaultState
 	{
 		DEPNode node = getNode(token, i_input, 0, t_size);
 		if (node == null)	return null;
-		
-		if (token.relation != null)
-		{
-			     if (token.isRelation(JointFtrXml.R_H))		node = node.getHead();
-			else if (token.isRelation(JointFtrXml.R_LMD))	node = node.getLeftMostDependent();
-			else if (token.isRelation(JointFtrXml.R_RMD))	node = node.getRightMostDependent();
-			else if (token.isRelation(JointFtrXml.R_LND))	node = node.getLeftNearestDependent();
-			else if (token.isRelation(JointFtrXml.R_RND))	node = node.getRightNearestDependent();
-		}
 		
 		return node;
 	}

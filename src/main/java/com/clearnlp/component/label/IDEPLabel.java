@@ -52,4 +52,6 @@ public interface IDEPLabel
 	String LB_SHIFT  = "S";
 	String LB_REDUCE = "R";
 	String LB_PASS   = "P";
+	String LB_ARC    = "A";
+	String LB_DASH   = "D";
 }

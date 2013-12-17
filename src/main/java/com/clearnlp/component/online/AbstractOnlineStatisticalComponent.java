@@ -38,7 +38,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License. 
  */
-package com.clearnlp.component;
+package com.clearnlp.component.online;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -61,7 +61,7 @@ import com.google.common.collect.Sets;
  * @since 2.0.1
  * @author Jinho D. Choi ({@code jdchoi77@gmail.com})
  */
-abstract public class AbstractOnlineComponent<T extends AbstractState>
+abstract public class AbstractOnlineStatisticalComponent<T extends AbstractState> extends AbstractOnlineComponent
 {
 	protected static final byte FLAG_COLLECT	= 0;
 	protected static final byte FLAG_TRAIN		= 1;
@@ -75,13 +75,13 @@ abstract public class AbstractOnlineComponent<T extends AbstractState>
 //	====================================== CONSTRUCTORS ======================================
 	
 	/** Constructs a component for collecting lexica. */
-	public AbstractOnlineComponent(JointFtrXml[] xmls)
+	public AbstractOnlineStatisticalComponent(JointFtrXml[] xmls)
 	{
 		f_xmls = xmls;
 	}
 	
 	/** Constructs a component in general. */
-	public AbstractOnlineComponent(JointFtrXml[] xmls, Object[] lexica, int modelSize)
+	public AbstractOnlineStatisticalComponent(JointFtrXml[] xmls, Object[] lexica, int modelSize)
 	{
 		f_xmls   = xmls;
 		s_models = getEmptyModels(modelSize);
@@ -89,7 +89,7 @@ abstract public class AbstractOnlineComponent<T extends AbstractState>
 	}
 	
 	/** Constructs a component in general from an existing object. */
-	public AbstractOnlineComponent(ObjectInputStream in)
+	public AbstractOnlineStatisticalComponent(ObjectInputStream in)
 	{
 		try
 		{

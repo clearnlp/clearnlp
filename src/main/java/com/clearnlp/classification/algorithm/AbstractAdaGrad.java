@@ -71,9 +71,10 @@ abstract public class AbstractAdaGrad extends AbstractMulticlass
 	}
 	
 	abstract protected boolean update(int L, int y, int[] x, double[] v, double[] gs, double[] weights);
+	abstract protected boolean update(int L, int y, int[] x, double[] v, double[] gs, double[] cWeights, double[] aWeights, int count);
 	
 	@Override
-	protected void updateWeights(AbstractTrainSpace space)
+	public void updateWeights(AbstractTrainSpace space, boolean average)
 	{	
 		final int D  = space.getFeatureSize();
 		final int L  = space.getLabelSize();
@@ -85,12 +86,13 @@ abstract public class AbstractAdaGrad extends AbstractMulticlass
 		ArrayList<double[]> vs = space.getVs();
 		
 		AbstractModel model = space.getModel();
-		double[] cWeights = UTArray.toDoubleArray(model.getWeights());
-		double[] gs = new double[WS];
+		double[] cWeights = new double[WS];
+		double[] aWeights = average ? new double[WS] : null;
+		double[] gs       = new double[WS];
 		
 		double stdev, prevScore, currScore = 0;
 		int[] indices = UTArray.range(N);
-		int i, j, correct;
+		int i, j, correct, count = 1;
 		
 		int      yi;
 		int[]    xi;
@@ -109,7 +111,14 @@ abstract public class AbstractAdaGrad extends AbstractMulticlass
 				xi = xs.get(indices[j]);
 				if (space.hasWeight())	vi = vs.get(indices[j]);
 				
-				if (!update(L, yi, xi, vi, gs, cWeights))
+				if (average)
+				{
+					if (!update(L, yi, xi, vi, gs, cWeights, aWeights, count))
+						correct++;
+					
+					count++;
+				}
+				else if (!update(L, yi, xi, vi, gs, cWeights))
 					correct++;
 			}
 			
@@ -119,11 +128,30 @@ abstract public class AbstractAdaGrad extends AbstractMulticlass
 			if (stdev < d_eps) break;
 		}
 		
-		model.setWeights(UTArray.toFloatArray(cWeights));
+		if (average)	model.setWeights(getWeights(cWeights, aWeights, count));
+		else			model.setWeights(UTArray.toFloatArray(cWeights));
 	}
 	
 	protected double getCost(int L, double[] gs, int y, int x)
 	{
 		return d_alpha / (d_rho + Math.sqrt(gs[getWeightIndex(L, y, x)]));
+	}
+	
+	protected float[] getWeights(double[] cWeights, double[] aWeights, int count)
+	{
+		int i, size = cWeights.length;
+		float[] fs  = new float[size];
+		double c = 1d / count;
+		
+		for (i=0; i<size; i++)
+			fs[i] = (float)(cWeights[i] - c * aWeights[i]);
+		
+		return fs;
+	}
+	
+	protected void updateWeightForAveraging(int idx, double cost, double[] cWeights, double[] aWeights, int count)
+	{
+		cWeights[idx] += cost;
+		aWeights[idx] += cost * count;
 	}
 }

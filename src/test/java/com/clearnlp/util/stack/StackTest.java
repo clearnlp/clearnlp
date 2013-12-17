@@ -38,71 +38,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License. 
  */
-package com.clearnlp.classification.algorithm.online;
+package com.clearnlp.util.stack;
 
-import java.util.Arrays;
+import static org.junit.Assert.assertEquals;
 
-import com.clearnlp.classification.instance.IntInstance;
-import com.clearnlp.classification.model.StringOnlineModel;
+import org.junit.Test;
 
-/**
- * Abstract algorithm.
- * @since 1.3.2
- * @author Jinho D. Choi ({@code jdchoi77@gmail.com})
- */
-abstract public class AbstractOnlineAdaGrad extends AbstractOnlineAlgorithm
+
+/** @author Jinho D. Choi ({@code jdchoi77@gmail.com}) */
+public class StackTest
 {
-	protected double[] d_gradients;
-	protected double[] d_average;
-	protected boolean  b_average;
-	protected double   d_alpha;
-	protected double   d_rho;
-	
-	public AbstractOnlineAdaGrad(double alpha, double rho, boolean average)
+	@Test
+	public void test()
 	{
-		d_alpha   = alpha;
-		d_rho     = rho;
-		b_average = average;
-	}
-	
-	@Override
-	public void updateWeights(StringOnlineModel model)
-	{	
-		final int LD = model.getLabelSize() * model.getFeatureSize();
-		final int N  = model.getInstanceSize();
-		int i;
+		Stack<String> stack = new Stack<String>("1");
+		stack.push("2");
+		stack.push("3");
 		
-		model.shuffleIndices();
+		assertEquals("3", stack.peek());
+		assertEquals("2", stack.peek(1));
 		
-		if (d_gradients == null || d_gradients.length != LD)
-		{
-			d_gradients = new double[LD];
-			if (b_average) d_average = new double[LD];
-		}
-		else
-		{
-			Arrays.fill(d_gradients, 0d);
-			if (b_average) Arrays.fill(d_average, 0d);
-		}
+		assertEquals("3", stack.pop());
+		Stack<String> clone = new Stack<String>(stack);
 		
-		for (i=0; i<N; i++)
-			update(model, model.getInstance(model.getShuffledIndex(i)), i+1);
+		assertEquals("2", stack.pop());
+		assertEquals("1", stack.pop());
 		
-		if (b_average) 
-			model.setAverageWeights(d_average, N+1);
-	}
-	
-	abstract protected boolean update(StringOnlineModel model, IntInstance instance, int averageCount);
-	
-	protected void updateWeight(StringOnlineModel model, int y, int x, double v, int averageCount)
-	{
-		double cost = getCost(model, y, x) * v;
-		model.updateWeight(y, x, (float)cost);
-		if (b_average) d_average[model.getWeightIndex(y,x)] += cost * averageCount;
-	}
-	
-	protected double getCost(StringOnlineModel model, int y, int x)
-	{
-		return d_alpha / (d_rho + Math.sqrt(d_gradients[model.getWeightIndex(y, x)]));
+		assertEquals("2", clone.pop());
+		assertEquals("1", clone.pop());
 	}
 }

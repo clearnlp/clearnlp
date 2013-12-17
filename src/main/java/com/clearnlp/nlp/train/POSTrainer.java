@@ -40,6 +40,9 @@
  */
 package com.clearnlp.nlp.train;
 
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -53,11 +56,13 @@ import com.clearnlp.component.pos.AbstractPOSTagger;
 import com.clearnlp.component.pos.DefaultPOSTagger;
 import com.clearnlp.component.pos.EnglishPOSTagger;
 import com.clearnlp.dependency.DEPTree;
+import com.clearnlp.morphology.Embedding;
 import com.clearnlp.nlp.NLPLib;
 import com.clearnlp.nlp.NLPProcess;
 import com.clearnlp.reader.AbstractReader;
 import com.clearnlp.reader.JointReader;
 import com.clearnlp.util.UTInput;
+import com.clearnlp.util.UTXml;
 import com.clearnlp.util.map.Prob1DMap;
 
 /**
@@ -69,7 +74,7 @@ public class POSTrainer extends AbstractNLPTrainer
 	@Override
 	protected AbstractStatisticalComponent<?> getComponent(Element eConfig, JointReader reader, JointFtrXml[] xmls, String[] trainFiles, int devId)
 	{
-		AbstractPOSTagger collector = getCollector(reader, getLanguage(eConfig), xmls, trainFiles, devId);
+		AbstractPOSTagger collector = getCollector(eConfig, reader, getLanguage(eConfig), xmls, trainFiles, devId);
 		return getTrainedComponentBoot(eConfig, reader, collector, xmls, trainFiles, devId);
 	}
 	
@@ -105,16 +110,18 @@ public class POSTrainer extends AbstractNLPTrainer
 	
 //	====================================== COLLECT ======================================
 	
-	protected AbstractPOSTagger getCollector(JointReader reader, String language, JointFtrXml[] xmls, String[] trainFiles, int devId)
+	protected AbstractPOSTagger getCollector(Element eConfig, JointReader reader, String language, JointFtrXml[] xmls, String[] trainFiles, int devId)
 	{
+		Set<String> set = getLowerSimplifiedForms(reader, xmls[0], trainFiles, devId);
+		
 		if (language.equals(AbstractReader.LANG_EN))
-			return new EnglishPOSTagger(xmls, getLowerSimplifiedForms(reader, xmls[0], trainFiles, devId));
+			return new EnglishPOSTagger(xmls, set);
 		else
-			return new DefaultPOSTagger(xmls, getLowerSimplifiedForms(reader, xmls[0], trainFiles, devId));
+			return new DefaultPOSTagger(xmls, set);
 	}
 	
 	/** Called by {@link #getCollector(JointReader, String, JointFtrXml[], String[], int)}. */
-	private Set<String> getLowerSimplifiedForms(JointReader reader, JointFtrXml xml, String[] trainFiles, int devId)
+	protected Set<String> getLowerSimplifiedForms(JointReader reader, JointFtrXml xml, String[] trainFiles, int devId)
 	{
 		Set<String> set = new HashSet<String>();
 		int i, j, len, size = trainFiles.length;
@@ -145,5 +152,24 @@ public class POSTrainer extends AbstractNLPTrainer
 		}	LOG.debug("\n");
 		
 		return map.toSet(xml.getDocumentFrequencyCutoff());
+	}
+	
+	protected Embedding getEmbedding(Element eConfig)
+	{
+		Element eEmbed = UTXml.getFirstElementByTagName(eConfig, "embedding");
+		if (eEmbed == null)	return null;
+		
+		String path = UTXml.getTrimmedTextContent(eEmbed);
+		Embedding embed = null;
+		
+		try
+		{
+			ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(new FileInputStream(path)));
+			embed = (Embedding)in.readObject();
+			in.close();
+		}
+		catch (Exception e) {e.printStackTrace();}
+		
+		return embed; 
 	}
 }

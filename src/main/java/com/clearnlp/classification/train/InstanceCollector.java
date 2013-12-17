@@ -57,8 +57,8 @@ import com.google.common.collect.Maps;
  */
 public class InstanceCollector
 {
-	private Deque<StringInstance> s_instances;
-	private ObjectIntHashMap<String> m_labels;
+	private Deque<StringInstance>                s_instances;
+	private ObjectIntHashMap<String>             m_labels;
 	private Map<String,ObjectIntHashMap<String>> m_features;
 	
 	public InstanceCollector()

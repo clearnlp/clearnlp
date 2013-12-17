@@ -337,6 +337,22 @@ abstract public class AbstractPOSTagger extends AbstractStatisticalComponent<POS
 		
 		return fst.label;
 	}
+	
+//	private void addEmbedding(StringFeatureVector vector, POSState state)
+//	{
+//		vector.populateWeights();
+//		if (m_embed == null) return;
+//		
+//		double[] embed = m_embed.getEmbedding(state.getInput().form);
+//		
+//		if (embed != null)
+//		{
+//			int i, size = embed.length;
+//			
+//			for (i=0; i<size; i++)
+//				vector.addFeature("embed", Integer.toString(i), embed[i]);
+//		}
+//	}
 
 //	====================================== FEATURE EXTRACTION ======================================
 

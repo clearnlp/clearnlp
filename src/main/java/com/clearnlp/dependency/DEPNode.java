@@ -316,11 +316,6 @@ public class DEPNode extends NERNode implements Comparable<DEPNode>
 		return d_head.isNode(node) && d_head.isLabel(label);
 	}
 	
-	public boolean isSiblingOf(DEPNode node)
-	{
-		return node.isDependentOf(getHead());
-	}
-	
 	/**
 	 * Returns {@code true} if this node is a descendant of the specific node. 
 	 * @param node the potential ancestor.
@@ -348,6 +343,11 @@ public class DEPNode extends NERNode implements Comparable<DEPNode>
 		}
 		
 		return null;
+	}
+	
+	public boolean isSiblingOf(DEPNode node)
+	{
+		return node.isDependentOf(getHead());
 	}
 	
 	public boolean hasSHead()

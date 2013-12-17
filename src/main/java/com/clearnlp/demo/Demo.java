@@ -23,8 +23,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /**
- * Copyright 2012/09-2013/04, 2013/11-Present, University of Massachusetts Amherst
- * Copyright 2013/05-2013/10, IPSoft Inc.
+ * Copyright 2012/09-2013/04, University of Massachusetts Amherst
+ * Copyright 2013/05-Present, IPSoft Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,71 +38,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License. 
  */
-package com.clearnlp.classification.algorithm.online;
+package com.clearnlp.demo;
 
-import java.util.Arrays;
-
-import com.clearnlp.classification.instance.IntInstance;
-import com.clearnlp.classification.model.StringOnlineModel;
+import com.clearnlp.classification.lambda.ILambdaUnit1;
+import com.clearnlp.constituent.CTReader;
+import com.clearnlp.constituent.CTTree;
+import com.clearnlp.util.UTInput;
 
 /**
- * Abstract algorithm.
- * @since 1.3.2
+ * @since 2.0.1
  * @author Jinho D. Choi ({@code jdchoi77@gmail.com})
  */
-abstract public class AbstractOnlineAdaGrad extends AbstractOnlineAlgorithm
+public class Demo
 {
-	protected double[] d_gradients;
-	protected double[] d_average;
-	protected boolean  b_average;
-	protected double   d_alpha;
-	protected double   d_rho;
-	
-	public AbstractOnlineAdaGrad(double alpha, double rho, boolean average)
+	public Demo(String[] args) throws Exception
 	{
-		d_alpha   = alpha;
-		d_rho     = rho;
-		b_average = average;
+		CTExtractPhrases param = new CTExtractPhrases();
+		traverseCTTrees(args[0], param);
+		param.print(Integer.parseInt(args[1]));
 	}
 	
-	@Override
-	public void updateWeights(StringOnlineModel model)
-	{	
-		final int LD = model.getLabelSize() * model.getFeatureSize();
-		final int N  = model.getInstanceSize();
-		int i;
+	public void traverseCTTrees(String filename, ILambdaUnit1<CTTree> func) throws Exception
+	{
+		CTReader reader = new CTReader(UTInput.createBufferedFileReader(filename));
+		CTTree tree;
 		
-		model.shuffleIndices();
+		while ((tree = reader.nextTree()) != null)
+			func.apply(tree);
 		
-		if (d_gradients == null || d_gradients.length != LD)
+		reader.close();
+	}
+	
+	static public void main(String[] args)
+	{
+		try
 		{
-			d_gradients = new double[LD];
-			if (b_average) d_average = new double[LD];
+			new Demo(args);
 		}
-		else
-		{
-			Arrays.fill(d_gradients, 0d);
-			if (b_average) Arrays.fill(d_average, 0d);
-		}
-		
-		for (i=0; i<N; i++)
-			update(model, model.getInstance(model.getShuffledIndex(i)), i+1);
-		
-		if (b_average) 
-			model.setAverageWeights(d_average, N+1);
-	}
-	
-	abstract protected boolean update(StringOnlineModel model, IntInstance instance, int averageCount);
-	
-	protected void updateWeight(StringOnlineModel model, int y, int x, double v, int averageCount)
-	{
-		double cost = getCost(model, y, x) * v;
-		model.updateWeight(y, x, (float)cost);
-		if (b_average) d_average[model.getWeightIndex(y,x)] += cost * averageCount;
-	}
-	
-	protected double getCost(StringOnlineModel model, int y, int x)
-	{
-		return d_alpha / (d_rho + Math.sqrt(d_gradients[model.getWeightIndex(y, x)]));
+		catch (Exception e) {e.printStackTrace();}
 	}
 }

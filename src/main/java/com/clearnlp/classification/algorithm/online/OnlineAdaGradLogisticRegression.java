@@ -54,33 +54,33 @@ import com.clearnlp.util.UTMath;
  * @since 1.3.0
  * @author Jinho D. Choi ({@code jdchoi77@gmail.com})
  */
-public class OnlineAdaGradHinge extends AbstractOnlineAdaGrad
+public class OnlineAdaGradLogisticRegression extends AbstractOnlineAdaGrad
 {
 	/**
 	 * @param alpha the learning rate.
 	 * @param rho the smoothing denominator.
 	 */
-	public OnlineAdaGradHinge(double alpha, double rho)
+	public OnlineAdaGradLogisticRegression(double alpha, double rho, boolean average)
 	{
-		super(alpha, rho);
+		super(alpha, rho, average);
 	}
 	
 	@Override
-	protected boolean update(StringOnlineModel model, IntInstance instance, double[] gs)
+	protected boolean update(StringOnlineModel model, IntInstance instance, int averageCount)
 	{
-		IntPrediction max = getPrediction(model, instance, gs);
+		IntPrediction max = getPrediction(model, instance);
 		
 		if (max.label != instance.getLabel())
 		{
-			updateCounts (model, instance, gs, instance.getLabel(), max.label);
-			updateWeights(model, instance, gs, instance.getLabel(), max.label);
+			updateCounts (model, instance, instance.getLabel(), max.label);
+			updateWeights(model, instance, instance.getLabel(), max.label, averageCount);
 			return true;
 		}
 		
 		return false;
 	}
 	
-	private IntPrediction getPrediction(StringOnlineModel model, IntInstance instance, double[] gs)
+	private IntPrediction getPrediction(StringOnlineModel model, IntInstance instance)
 	{
 		List<IntPrediction> ps = model.getIntPredictions(instance.getFeatureVector());
 	
@@ -88,7 +88,7 @@ public class OnlineAdaGradHinge extends AbstractOnlineAdaGrad
 		return Collections.max(ps);
 	}
 	
-	private void updateCounts(StringOnlineModel model, IntInstance instance, double[] gs, int yp, int yn)
+	private void updateCounts(StringOnlineModel model, IntInstance instance, int yp, int yn)
 	{
 		SparseFeatureVector x = instance.getFeatureVector();
 		int i, len = x.size();
@@ -98,27 +98,24 @@ public class OnlineAdaGradHinge extends AbstractOnlineAdaGrad
 		{
 			d = UTMath.sq(x.getWeight(i));
 			
-			gs[model.getWeightIndex(yp, x.getIndex(i))] += d;
-			gs[model.getWeightIndex(yn, x.getIndex(i))] += d;
+			d_gradients[model.getWeightIndex(yp, x.getIndex(i))] += d;
+			d_gradients[model.getWeightIndex(yn, x.getIndex(i))] += d;
 		}
 	}
 	
-	private void updateWeights(StringOnlineModel model, IntInstance instance, double[] gs, int yp, int yn)
+	private void updateWeights(StringOnlineModel model, IntInstance instance, int yp, int yn, int averageCount)
 	{
 		SparseFeatureVector x = instance.getFeatureVector();
 		int i, xi, len = x.size();
-		double vi, cost;
+		double vi;
 		
 		for (i=0; i<len; i++)
 		{
 			xi = x.getIndex(i);
 			vi = x.getWeight(i);
-			
-			cost = getCost(model, gs, yp, xi) * vi;
-			model.updateWeight(yp, xi, (float)cost);
-			
-			cost = -getCost(model, gs, yn, xi) * vi;
-			model.updateWeight(yn, xi, (float)cost);
+
+			updateWeight(model, yp, xi,  vi, averageCount);
+			updateWeight(model, yn, xi, -vi, averageCount);
 		}
 	}
 }	

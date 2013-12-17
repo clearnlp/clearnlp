@@ -47,7 +47,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.regex.Pattern;
 
+import com.carrotsearch.hppc.FloatArrayList;
+import com.carrotsearch.hppc.IntArrayList;
 import com.google.common.collect.Lists;
 
 /**
@@ -56,6 +59,38 @@ import com.google.common.collect.Lists;
  */
 public class UTArray
 {
+	static public String[] merge(String[]... arrays)
+	{
+		int size = 0;
+		
+		for (String[] array : arrays)
+			size += array.length;
+		
+		String[] merge = new String[size];
+		int i = 0;
+		
+		for (String[] array : arrays)
+		{
+			for (String s : array)
+				merge[i++] = s;
+		}
+		
+		return merge;
+	}
+	
+	static public double[] toDoubleArray(String line, Pattern p)
+	{
+		String[] t = p.split(line);
+		int i, size = t.length;
+		
+		double[] d = new double[size];
+		
+		for (i=0; i<size; i++)
+			d[i] = Double.parseDouble(t[i]);
+		
+		return d;
+	}
+	
 	static public double[] toDoubleArray(float[] array)
 	{
 		int i, size = array.length;
@@ -63,6 +98,17 @@ public class UTArray
 		
 		for (i=0; i<size; i++)
 			d[i] = (double)array[i];
+		
+		return d;
+	}
+	
+	static public double[] toDoubleArray(FloatArrayList list)
+	{
+		int i, size = list.size();
+		double[] d = new double[size];
+		
+		for (i=0; i<size; i++)
+			d[i] = (double)list.get(i);
 		
 		return d;
 	}
@@ -121,12 +167,35 @@ public class UTArray
 		array[idx1] = temp;
 	}
 	
+	static public void swap(IntArrayList array, int idx0, int idx1)
+	{
+		int temp = array.get(idx0);
+		array.set(idx0, array.get(idx1));
+		array.set(idx1, temp);
+	}
+	
 	static public void shuffle(Random rand, int[] array)
 	{
 		shuffle(rand, array, array.length);
 	}
 	
+	static public void shuffle(Random rand, IntArrayList array)
+	{
+		shuffle(rand, array, array.size());
+	}
+	
 	static public void shuffle(Random rand, int[] array, int lastIndex)
+	{
+		int i, j;
+		
+		for (i=0; i<lastIndex; i++)
+		{
+			j = i + rand.nextInt(lastIndex - i);
+			swap(array, i, j);
+		}
+	}
+	
+	static public void shuffle(Random rand, IntArrayList array, int lastIndex)
 	{
 		int i, j;
 		

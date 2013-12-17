@@ -48,9 +48,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.apache.log4j.Logger;
 
+import com.carrotsearch.hppc.IntArrayList;
 import com.carrotsearch.hppc.cursors.ObjectCursor;
 import com.clearnlp.classification.instance.IntInstance;
 import com.clearnlp.classification.instance.StringInstance;
@@ -61,6 +63,7 @@ import com.clearnlp.classification.vector.SparseFeatureVector;
 import com.clearnlp.classification.vector.StringFeatureVector;
 import com.clearnlp.collection.list.FloatArrayList;
 import com.clearnlp.collection.map.ObjectIntHashMap;
+import com.clearnlp.util.UTArray;
 import com.clearnlp.util.UTCollection;
 import com.clearnlp.util.pair.Pair;
 import com.google.common.collect.Lists;
@@ -93,17 +96,24 @@ public class StringOnlineModel implements Serializable
 	// For training
 	protected InstanceCollector i_collector;
 	protected List<IntInstance> l_instances;
+	protected IntArrayList      l_indices;
+	protected Random            r_shuffle;
 	
 	/** Constructs a string online model for training. */
 	public StringOnlineModel()
+	{
+		i_collector = new InstanceCollector();
+		init();
+	}
+	
+	public void init()
 	{
 		m_labels    = new ObjectIntHashMap<String>();
 		a_labels    = Lists.newArrayList();
 		n_labels    = 0;
 		m_features  = Maps.newHashMap();
 		n_features  = 1;
-		f_weights   = new FloatArrayList();
-		i_collector = new InstanceCollector();
+		f_weights   = new FloatArrayList();		
 	}
 	
 // ================================ SERIALIZE ================================
@@ -278,6 +288,23 @@ public class StringOnlineModel implements Serializable
 		f_weights = weights;
 	}
 	
+	public void setWeights(double[] weights)
+	{
+		int i, size = f_weights.size();
+		
+		for (i=0; i<size; i++)
+			f_weights.set(i, (float)weights[i]);
+	}
+	
+	public void setAverageWeights(double[] weights, int count)
+	{
+		int i, size = weights.length;
+		double c = 1d / count;
+		
+		for (i=0; i<size; i++)
+			f_weights.set(i, (float)(f_weights.get(i) - weights[i]*c));
+	}
+	
 	public void updateWeight(int labelIndex, int featureIndex, float update)
 	{
 		int index = getWeightIndex(labelIndex, featureIndex); 
@@ -307,17 +334,31 @@ public class StringOnlineModel implements Serializable
 		return l_instances.size();
 	}
 	
+	public void shuffleIndices()
+	{
+		UTArray.shuffle(r_shuffle, l_indices);
+	}
+	
+	public int getShuffledIndex(int index)
+	{
+		return l_indices.get(index);
+	}
+	
 // ================================ BUILD ================================
 
-	public void build(int labelCutoff, int featureCutoff)
+	public void build(int labelCutoff, int featureCutoff, int randomSeed, boolean initialize)
 	{
 		SparseFeatureVector vector;
 		StringInstance instance;
 		int label;
 		
-		l_instances = Lists.newArrayList();
-		buildLabels  (labelCutoff);
+		if (initialize) init();
+		buildLabels(labelCutoff);
 		buildFeatures(featureCutoff);
+		
+		l_instances = Lists.newArrayList();
+		r_shuffle = new Random(randomSeed);
+		l_indices = new IntArrayList();
 		
 		while ((instance = i_collector.pollInstance()) != null)
 		{
@@ -325,7 +366,12 @@ public class StringOnlineModel implements Serializable
 				continue;
 			
 			vector = toSparseFeatureVector(instance.getFeatureVector());
-			if (!vector.isEmpty()) l_instances.add(new IntInstance(label, vector));
+			
+			if (!vector.isEmpty())
+			{
+				l_instances.add(new IntInstance(label, vector));
+				l_indices.add(l_indices.size());
+			}
 		}
 	}
 	

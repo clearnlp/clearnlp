@@ -73,7 +73,21 @@ public class AdaGradHinge extends AbstractAdaGrad
 		return false;
 	}
 	
-	protected IntPrediction getPrediction(int L, int y, int[] x, double[] v, double[] weights)
+	protected boolean update(int L, int y, int[] x, double[] v, double[] gs, double[] cWeights, double[] aWeights, int count)
+	{
+		IntPrediction max = getPrediction(L, y, x, v, cWeights);
+		
+		if (max.label != y)
+		{
+			updateCounts (L, gs, y, max.label, x, v);
+			updateWeights(L, gs, y, max.label, x, v, cWeights, aWeights, count);
+			return true;
+		}
+		
+		return false;
+	}
+	
+	private IntPrediction getPrediction(int L, int y, int[] x, double[] v, double[] weights)
 	{
 		double[] scores = getScores(L, x, v, weights);
 		scores[y] -= 1;
@@ -90,7 +104,7 @@ public class AdaGradHinge extends AbstractAdaGrad
 		return max;
 	}
 	
-	protected void updateCounts(int L, double[] gs, int yp, int yn, int[] x, double[] v)
+	private void updateCounts(int L, double[] gs, int yp, int yn, int[] x, double[] v)
 	{
 		int i, len = x.length;
 		
@@ -116,7 +130,7 @@ public class AdaGradHinge extends AbstractAdaGrad
 		}
 	}
 	
-	protected void updateWeights(int L, double[] gs, int yp, int yn, int[] x, double[] v, double[] weights)
+	private void updateWeights(int L, double[] gs, int yp, int yn, int[] x, double[] v, double[] weights)
 	{
 		int i, xi, len = x.length;
 		double vi;
@@ -137,6 +151,31 @@ public class AdaGradHinge extends AbstractAdaGrad
 				xi = x[i];
 				weights[getWeightIndex(L, yp, xi)] += getCost(L, gs, yp, xi);
 				weights[getWeightIndex(L, yn, xi)] -= getCost(L, gs, yn, xi);
+			}
+		}
+	}
+	
+	private void updateWeights(int L, double[] gs, int yp, int yn, int[] x, double[] v, double[] cWeights, double[] aWeights, int count)
+	{
+		int i, xi, len = x.length;
+		double vi;
+		
+		if (v != null)
+		{
+			for (i=0; i<len; i++)
+			{
+				xi = x[i]; vi = v[i];
+				updateWeightForAveraging(getWeightIndex(L, yp, xi),  getCost(L, gs, yp, xi) * vi, cWeights, aWeights, count);
+				updateWeightForAveraging(getWeightIndex(L, yn, xi), -getCost(L, gs, yn, xi) * vi, cWeights, aWeights, count);
+			}
+		}
+		else
+		{
+			for (i=0; i<len; i++)
+			{
+				xi = x[i];
+				updateWeightForAveraging(getWeightIndex(L, yp, xi),  getCost(L, gs, yp, xi), cWeights, aWeights, count);
+				updateWeightForAveraging(getWeightIndex(L, yn, xi), -getCost(L, gs, yn, xi), cWeights, aWeights, count);
 			}
 		}
 	}

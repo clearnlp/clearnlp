@@ -58,7 +58,7 @@ public class POSDeveloper extends POSTrainer implements IDeveloper
 	public void develop(Element eConfig, JointFtrXml[] xmls, String[] trainFiles, String[] devFiles, String mode, boolean generate, int devId) throws Exception
 	{
 		JointReader reader = getJointReader(UTXml.getFirstElementByTagName(eConfig, TAG_READER));
-		AbstractPOSTagger collector = getCollector(reader, getLanguage(eConfig), xmls, trainFiles, devId);
+		AbstractPOSTagger collector = getCollector(eConfig, reader, getLanguage(eConfig), xmls, trainFiles, devId);
 		developComponentBoot(eConfig, reader, xmls, trainFiles, devFiles, collector, generate, devId);
 	}
 }

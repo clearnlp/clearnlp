@@ -40,7 +40,6 @@
  */
 package com.clearnlp.classification.algorithm;
 
-import com.clearnlp.classification.model.AbstractModel;
 import com.clearnlp.classification.train.AbstractTrainSpace;
 
 /**
@@ -50,21 +49,7 @@ import com.clearnlp.classification.train.AbstractTrainSpace;
  */
 abstract public class AbstractMulticlass extends AbstractAlgorithm
 {
-	abstract protected void updateWeights(AbstractTrainSpace space);
-	
-	/**
-	 * Trains all instances in the training space.
-	 * @param space the training space.
-	 */
-	public void train(AbstractTrainSpace space)
-	{
-		AbstractModel model = space.getModel();
-		
-		if (model.getWeights() == null)
-			model.initWeightVector();
-		
-		updateWeights(space);
-	}
+	abstract public void updateWeights(AbstractTrainSpace space, boolean average);
 	
 	protected double[] getScores(int L, int[] x, double[] v, double[] weights)
 	{

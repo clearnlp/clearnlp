@@ -23,8 +23,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /**
- * Copyright 2012/09-2013/04, 2013/11-Present, University of Massachusetts Amherst
- * Copyright 2013/05-2013/10, IPSoft Inc.
+ * Copyright 2012/09-2013/04, University of Massachusetts Amherst
+ * Copyright 2013/05-Present, IPSoft Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,71 +38,87 @@
  * See the License for the specific language governing permissions and
  * limitations under the License. 
  */
-package com.clearnlp.classification.algorithm.online;
+package com.clearnlp.util;
 
-import java.util.Arrays;
+import java.util.Set;
 
-import com.clearnlp.classification.instance.IntInstance;
-import com.clearnlp.classification.model.StringOnlineModel;
+import org.apache.log4j.Logger;
+
+import com.clearnlp.dependency.DEPTree;
+import com.clearnlp.morphology.MPLib;
+import com.clearnlp.reader.JointReader;
+import com.clearnlp.util.map.Prob1DMap;
+import com.google.common.collect.Sets;
 
 /**
- * Abstract algorithm.
- * @since 1.3.2
+ * @since 2.0.2
  * @author Jinho D. Choi ({@code jdchoi77@gmail.com})
  */
-abstract public class AbstractOnlineAdaGrad extends AbstractOnlineAlgorithm
+public class UTCollect
 {
-	protected double[] d_gradients;
-	protected double[] d_average;
-	protected boolean  b_average;
-	protected double   d_alpha;
-	protected double   d_rho;
-	
-	public AbstractOnlineAdaGrad(double alpha, double rho, boolean average)
+	static public Set<String> getLowerSimplifiedFormsByDocumentFrequencies(Logger log, JointReader reader, String[] filenames, int cutoff, int maxCount)
 	{
-		d_alpha   = alpha;
-		d_rho     = rho;
-		b_average = average;
-	}
-	
-	@Override
-	public void updateWeights(StringOnlineModel model)
-	{	
-		final int LD = model.getLabelSize() * model.getFeatureSize();
-		final int N  = model.getInstanceSize();
-		int i;
+		Set<String> set = Sets.newHashSet();
+		Prob1DMap map = new Prob1DMap();
+		int j, len, count = 0;
+		DEPTree tree;
 		
-		model.shuffleIndices();
+		log.info(String.format("Collecting forms: cutoff = %d, max = %d\n", cutoff, maxCount));
 		
-		if (d_gradients == null || d_gradients.length != LD)
+		for (String filename : filenames)
 		{
-			d_gradients = new double[LD];
-			if (b_average) d_average = new double[LD];
-		}
-		else
+			reader.open(UTInput.createBufferedFileReader(filename));
+			
+			while ((tree = reader.next()) != null)
+			{
+				len = tree.size();
+				
+				for (j=1; j<len; j++)
+					set.add(MPLib.getSimplifiedLowercaseWordForm(tree.get(j).form));
+				
+				if ((count += len) >= maxCount)
+				{
+					map.addAll(set);
+					log.info(".");
+					set.clear();
+					count = 0;
+				}
+			}
+			
+			reader.close();
+		}	log.info("\n");
+		
+		if (!set.isEmpty()) map.addAll(set);
+		return map.toSet(cutoff);
+	}
+	
+	static public Set<String> getLowerSimplifiedFormsByDocumentFrequencies(Logger log, JointReader reader, String[] filenames, int cutoff)
+	{
+		Set<String> set = Sets.newHashSet();
+		Prob1DMap map = new Prob1DMap();
+		DEPTree tree;
+		int j, len;
+		
+		log.info(String.format("Collecting forms: cutoff = %d\n", cutoff));
+		
+		for (String filename : filenames)
 		{
-			Arrays.fill(d_gradients, 0d);
-			if (b_average) Arrays.fill(d_average, 0d);
-		}
+			reader.open(UTInput.createBufferedFileReader(filename));
+			set.clear();
+					
+			while ((tree = reader.next()) != null)
+			{
+				len = tree.size();
+				
+				for (j=1; j<len; j++)
+					set.add(MPLib.getSimplifiedLowercaseWordForm(tree.get(j).form));
+			}
+			
+			map.addAll(set);
+			reader.close();
+			log.info(".");
+		}	log.info("\n");
 		
-		for (i=0; i<N; i++)
-			update(model, model.getInstance(model.getShuffledIndex(i)), i+1);
-		
-		if (b_average) 
-			model.setAverageWeights(d_average, N+1);
-	}
-	
-	abstract protected boolean update(StringOnlineModel model, IntInstance instance, int averageCount);
-	
-	protected void updateWeight(StringOnlineModel model, int y, int x, double v, int averageCount)
-	{
-		double cost = getCost(model, y, x) * v;
-		model.updateWeight(y, x, (float)cost);
-		if (b_average) d_average[model.getWeightIndex(y,x)] += cost * averageCount;
-	}
-	
-	protected double getCost(StringOnlineModel model, int y, int x)
-	{
-		return d_alpha / (d_rho + Math.sqrt(d_gradients[model.getWeightIndex(y, x)]));
+		return map.toSet(cutoff);
 	}
 }

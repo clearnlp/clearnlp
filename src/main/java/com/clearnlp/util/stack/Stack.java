@@ -23,8 +23,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /**
- * Copyright 2012/09-2013/04, 2013/11-Present, University of Massachusetts Amherst
- * Copyright 2013/05-2013/10, IPSoft Inc.
+ * Copyright 2012/09-2013/04, University of Massachusetts Amherst
+ * Copyright 2013/05-Present, IPSoft Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,71 +38,61 @@
  * See the License for the specific language governing permissions and
  * limitations under the License. 
  */
-package com.clearnlp.classification.algorithm.online;
+package com.clearnlp.util.stack;
 
-import java.util.Arrays;
-
-import com.clearnlp.classification.instance.IntInstance;
-import com.clearnlp.classification.model.StringOnlineModel;
+import java.util.ArrayList;
 
 /**
- * Abstract algorithm.
- * @since 1.3.2
+ * @since 2.0.2
  * @author Jinho D. Choi ({@code jdchoi77@gmail.com})
  */
-abstract public class AbstractOnlineAdaGrad extends AbstractOnlineAlgorithm
+public class Stack<T> extends ArrayList<T>
 {
-	protected double[] d_gradients;
-	protected double[] d_average;
-	protected boolean  b_average;
-	protected double   d_alpha;
-	protected double   d_rho;
+	private static final long serialVersionUID = -5876131767087713849L;
+	private int i_lastIndex;
 	
-	public AbstractOnlineAdaGrad(double alpha, double rho, boolean average)
+	public Stack()
 	{
-		d_alpha   = alpha;
-		d_rho     = rho;
-		b_average = average;
+		i_lastIndex = -1;
 	}
 	
-	@Override
-	public void updateWeights(StringOnlineModel model)
-	{	
-		final int LD = model.getLabelSize() * model.getFeatureSize();
-		final int N  = model.getInstanceSize();
-		int i;
+	public Stack(@SuppressWarnings("unchecked") T... elements)
+	{
+		for (T element : elements)
+			add(element);
 		
-		model.shuffleIndices();
-		
-		if (d_gradients == null || d_gradients.length != LD)
-		{
-			d_gradients = new double[LD];
-			if (b_average) d_average = new double[LD];
-		}
-		else
-		{
-			Arrays.fill(d_gradients, 0d);
-			if (b_average) Arrays.fill(d_average, 0d);
-		}
-		
-		for (i=0; i<N; i++)
-			update(model, model.getInstance(model.getShuffledIndex(i)), i+1);
-		
-		if (b_average) 
-			model.setAverageWeights(d_average, N+1);
+		i_lastIndex = elements.length - 1;
 	}
 	
-	abstract protected boolean update(StringOnlineModel model, IntInstance instance, int averageCount);
-	
-	protected void updateWeight(StringOnlineModel model, int y, int x, double v, int averageCount)
+	public Stack(ArrayList<T> list)
 	{
-		double cost = getCost(model, y, x) * v;
-		model.updateWeight(y, x, (float)cost);
-		if (b_average) d_average[model.getWeightIndex(y,x)] += cost * averageCount;
+		addAll(list);
+		i_lastIndex = list.size() - 1;
 	}
 	
-	protected double getCost(StringOnlineModel model, int y, int x)
+	public void push(T element)
 	{
-		return d_alpha / (d_rho + Math.sqrt(d_gradients[model.getWeightIndex(y, x)]));
+		add(element);
+		i_lastIndex++;
+	}
+	
+	public T pop()
+	{
+		return remove(i_lastIndex--);
+	}
+	
+	public T peek()
+	{
+		return get(i_lastIndex);
+	}
+	
+	public T peek(int n)
+	{
+		return get(i_lastIndex-n);
+	}
+	
+	public Stack<T> clone()
+	{
+		return new Stack<T>(this);
 	}
 }
