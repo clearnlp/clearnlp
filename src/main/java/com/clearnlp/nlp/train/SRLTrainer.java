@@ -49,7 +49,7 @@ import com.clearnlp.component.AbstractStatisticalComponent;
 import com.clearnlp.component.srl.AbstractSRLabeler;
 import com.clearnlp.component.srl.DefaultSRLabeler;
 import com.clearnlp.component.srl.EnglishSRLabeler;
-import com.clearnlp.nlp.NLPLib;
+import com.clearnlp.nlp.NLPMode;
 import com.clearnlp.propbank.frameset.AbstractFrames;
 import com.clearnlp.propbank.frameset.MultiFrames;
 import com.clearnlp.reader.AbstractReader;
@@ -95,7 +95,7 @@ public class SRLTrainer extends AbstractNLPTrainer
 	@Override
 	public String getMode()
 	{
-		return NLPLib.MODE_SRL;
+		return NLPMode.MODE_SRL;
 	}
 	
 //	====================================== COLLECT ======================================

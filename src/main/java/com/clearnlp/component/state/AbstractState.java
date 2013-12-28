@@ -41,6 +41,7 @@
 package com.clearnlp.component.state;
 
 import com.clearnlp.classification.feature.FtrToken;
+import com.clearnlp.classification.feature.JointFtrXml;
 import com.clearnlp.dependency.DEPNode;
 import com.clearnlp.dependency.DEPTree;
 
@@ -58,6 +59,7 @@ abstract public class AbstractState
 		setTree(tree);
 	}
 	
+	abstract public Object   getGoldLabel();
 	abstract public Object[] getGoldLabels();
 	
 //	====================================== TREE ======================================
@@ -96,5 +98,24 @@ abstract public class AbstractState
 			return getNode(cIdx);
 		
 		return null;
+	}
+	
+	protected DEPNode getNodeWithRelation(FtrToken token, DEPNode node)
+	{
+		if (node == null)	return null;
+		
+		if (token.relation != null)
+		{
+			     if (token.isRelation(JointFtrXml.R_H))		node = node.getHead();
+			else if (token.isRelation(JointFtrXml.R_H2))	node = node.getGrandHead();
+			else if (token.isRelation(JointFtrXml.R_LMD))	node = d_tree.getLeftMostDependent  (node.id);
+			else if (token.isRelation(JointFtrXml.R_RMD))	node = d_tree.getRightMostDependent (node.id);
+			else if (token.isRelation(JointFtrXml.R_LMD2))	node = d_tree.getLeftMostDependent  (node.id, 1);
+			else if (token.isRelation(JointFtrXml.R_RMD2))	node = d_tree.getRightMostDependent (node.id, 1);
+			else if (token.isRelation(JointFtrXml.R_LNS))	node = d_tree.getLeftNearestSibling (node.id);
+			else if (token.isRelation(JointFtrXml.R_RNS))	node = d_tree.getRightNearestSibling(node.id);
+		}
+		
+		return node;
 	}
 }

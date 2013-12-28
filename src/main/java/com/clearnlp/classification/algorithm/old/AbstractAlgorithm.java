@@ -38,84 +38,80 @@
  * See the License for the specific language governing permissions and
  * limitations under the License. 
  */
-package com.clearnlp.classification.algorithm.online;
+package com.clearnlp.classification.algorithm.old;
 
-import java.util.Collections;
 import java.util.List;
 
-import com.clearnlp.classification.instance.IntInstance;
-import com.clearnlp.classification.model.StringOnlineModel;
-import com.clearnlp.classification.prediction.IntPrediction;
-import com.clearnlp.classification.vector.SparseFeatureVector;
+import org.apache.log4j.Logger;
+
+import com.clearnlp.classification.prediction.StringPrediction;
 import com.clearnlp.util.UTMath;
 
 /**
- * AdaGrad algorithm using hinge loss.
- * @since 1.3.0
+ * Abstract algorithm.
+ * @since 1.0.0
  * @author Jinho D. Choi ({@code jdchoi77@gmail.com})
  */
-public class OnlineAdaGradHingeLoss extends AbstractOnlineAdaGrad
+abstract public class AbstractAlgorithm
 {
-	/**
-	 * @param alpha the learning rate.
-	 * @param rho the smoothing denominator.
-	 */
-	public OnlineAdaGradHingeLoss(double alpha, double rho, boolean average)
-	{
-		super(alpha, rho, average);
-	}
+	protected final Logger LOG = Logger.getLogger(this.getClass());
 	
-	@Override
-	protected boolean update(StringOnlineModel model, IntInstance instance, int averageCount)
-	{
-		IntPrediction max = getPrediction(model, instance);
-		
-		if (max.label != instance.getLabel())
-		{
-			updateCounts (model, instance, instance.getLabel(), max.label);
-			updateWeights(model, instance, instance.getLabel(), max.label, averageCount);
-			return true;
-		}
-		
-		return false;
-	}
-	
-	private IntPrediction getPrediction(StringOnlineModel model, IntInstance instance)
-	{
-		List<IntPrediction> ps = model.getIntPredictions(instance.getFeatureVector());
-	
-		ps.get(instance.getLabel()).score -= 1d;
-		return Collections.max(ps);
-	}
-	
-	private void updateCounts(StringOnlineModel model, IntInstance instance, int yp, int yn)
-	{
-		SparseFeatureVector x = instance.getFeatureVector();
-		int i, len = x.size();
-		double d;
-		
-		for (i=0; i<len; i++)
-		{
-			d = UTMath.sq(x.getWeight(i));
-			
-			d_gradients[model.getWeightIndex(yp, x.getIndex(i))] += d;
-			d_gradients[model.getWeightIndex(yn, x.getIndex(i))] += d;
-		}
-	}
-	
-	private void updateWeights(StringOnlineModel model, IntInstance instance, int yp, int yn, int averageCount)
-	{
-		SparseFeatureVector x = instance.getFeatureVector();
-		int i, xi, len = x.size();
-		double vi;
-		
-		for (i=0; i<len; i++)
-		{
-			xi = x.getIndex(i);
-			vi = x.getWeight(i);
+	/** The flag to indicate L2-regularized L1-loss support vector classification (dual). */
+	static public final byte SOLVER_LIBLINEAR_LR2_L1_SVC = 0;
+	/** The flag to indicate L2-regularized L2-loss support vector classification (dual). */
+	static public final byte SOLVER_LIBLINEAR_LR2_L2_SVC = 1;
+	/** The flag to indicate L2-regularized logistic regression (dual). */
+	static public final byte SOLVER_LIBLINEAR_LR2_LR = 2;
+	/** The flag to indicate adaptive gradient method using hinge loss. */
+	static public final byte SOLVER_ADAGRAD_HINGE = 3;
+	/** The flag to indicate adaptive gradient method using logistic regression. */
+	static public final byte SOLVER_ADAGRAD_LR = 4;
 
-			updateWeight(model, yp, xi,  vi, averageCount);
-			updateWeight(model, yn, xi, -vi, averageCount);
+	protected double[] getQD(List<int[]> xs, List<double[]> vs, double init, double bias)
+	{
+		int i, size = xs.size();
+		double[] qd = new double[size];
+		
+		for (i=0; i<size; i++)
+		{
+			qd[i]  = init + UTMath.sq(bias);
+			qd[i] += (vs != null) ? UTMath.squareSum(vs.get(i)) : xs.get(i).length;
 		}
+		
+		return qd;
 	}
-}	
+	
+	protected void normalize(double[] scores)
+	{
+		int i, size = scores.length;
+		double d, sum = 0;
+		
+		for (i=0; i<size; i++)
+		{
+			d = Math.exp(scores[i]);
+			scores[i] = d;
+			sum += d;
+		}
+		
+		for (i=0; i<size; i++)
+			scores[i] /= sum;
+	}
+	
+	static public void normalize(List<StringPrediction> ps)
+	{
+		int i, size = ps.size();
+		StringPrediction p;
+		double d, sum = 0;
+		
+		for (i=0; i<size; i++)
+		{
+			p = ps.get(i);
+			d = Math.exp(p.score);
+			p.score = d;
+			sum += d;
+		}
+		
+		for (i=0; i<size; i++)
+			ps.get(i).score /= sum; 
+	}
+}

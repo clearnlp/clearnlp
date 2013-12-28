@@ -42,7 +42,7 @@ package com.clearnlp.nlp.decode;
 
 import java.util.List;
 
-import com.clearnlp.nlp.NLPLib;
+import com.clearnlp.nlp.NLPMode;
 import com.clearnlp.reader.AbstractReader;
 import com.google.common.collect.Lists;
 
@@ -59,19 +59,19 @@ public class DEPDecoder extends NLPDecoder
 		
 		if (isRawLineTok(readerType))
 		{
-			modes.add(NLPLib.MODE_POS);
-			modes.add(NLPLib.MODE_MORPH);
+			modes.add(NLPMode.MODE_POS);
+			modes.add(NLPMode.MODE_MORPH);
 		}
 		else if (readerType.equals(AbstractReader.TYPE_POS))
-			modes.add(NLPLib.MODE_MORPH);
+			modes.add(NLPMode.MODE_MORPH);
 		
-		modes.add(NLPLib.MODE_DEP);
+		modes.add(NLPMode.MODE_DEP);
 		return modes;
 	}
 	
 	@Override
 	public String getMode()
 	{
-		return NLPLib.MODE_DEP;
+		return NLPMode.MODE_DEP;
 	}
 }

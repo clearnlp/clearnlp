@@ -38,63 +38,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License. 
  */
-package com.clearnlp.classification.algorithm;
+package com.clearnlp.classification.algorithm.old;
 
-import com.carrotsearch.hppc.IntArrayList;
-import com.clearnlp.classification.train.AbstractTrainSpace;
 
 /**
- * @since 1.0.0
+ * @since 1.3.2
  * @author Jinho D. Choi ({@code jdchoi77@gmail.com})
  */
-abstract public class AbstractOneVsAll extends AbstractAlgorithm
+abstract public class AbstractLiblinear extends AbstractOneVsAll
 {
-	/**
-	 * @param space the training space.
-	 * @param currLabel the label to get the weight vector for.
-	 * @return the weight vector for the specific label given the training space.
-	 */
-	abstract public float[] getWeight(AbstractTrainSpace space, int currLabel);
+	protected final int MAX_ITER = 1000;
 	
-	/** @return an array of 1 or -1. */
-	protected byte[] getBinaryLabels(IntArrayList ys, int currLabel)
+	protected double d_cost;
+	protected double d_eps;
+	protected double d_bias;
+	
+	public AbstractLiblinear(double cost, double eps, double bias)
 	{
-		int i, size = ys.size();
-		byte[] aY = new byte[size];
-		
-		for (i=0; i<size; i++)
-			aY[i] = (ys.get(i) == currLabel) ? (byte)1 : (byte)-1;
-			
-		return aY;
+		d_cost = cost;
+		d_eps  = eps;
+		d_bias = (bias > 0) ? bias : 0;
 	}
 	
-	protected double getScore(double[] weight, int[] x, double[] v, double bias)
+	/** @return y-value for diagonal matrix. */
+	protected int GETI(byte[] y, int i)
 	{
-		double score = weight[0] * bias;
-		int i, size = x.length;
-		
-		for (i=0; i<size; i++)
-		{
-			if (v != null)
-				score += weight[x[i]] * v[i];
-			else
-				score += weight[x[i]];
-		}
-		
-		return score;
-	}
-	
-	protected void updateWeight(double[] weight, double cost, int[] x, double[] v, double bias)
-	{
-		int i, size = x.length;
-		weight[0] += cost * bias;
-		
-		for (i=0; i<size; i++)
-		{
-			if (v != null)
-				weight[x[i]] += cost * v[i];
-			else
-				weight[x[i]] += cost;
-		}
+		return y[i] + 1;
 	}
 }

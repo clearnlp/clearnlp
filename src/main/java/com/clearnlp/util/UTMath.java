@@ -42,6 +42,24 @@ package com.clearnlp.util;
 
 public class UTMath
 {
+	static public double cosineSimilarity(double[] vector1, double[] vector2)
+	{
+		double d1, d2, prod = 0, d1s = 0, d2s = 0;
+		int i, size = vector1.length;
+		
+		for (i=0; i<size; i++)
+		{
+			d1 = vector1[i];
+			d2 = vector2[i];
+			
+			prod += d1 * d2;
+			d1s  += d1 * d1;
+			d2s  += d2 * d2;
+		}
+		
+		return prod / (Math.sqrt(d1s) * Math.sqrt(d2s));
+	}
+	
 	static public int[][] getCombinations(int n)
 	{
 		int i, j, k, v = 1, t = (int)Math.pow(2, n);

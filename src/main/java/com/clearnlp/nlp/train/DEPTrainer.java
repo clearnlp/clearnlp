@@ -48,7 +48,7 @@ import com.clearnlp.classification.train.StringTrainSpace;
 import com.clearnlp.component.AbstractStatisticalComponent;
 import com.clearnlp.component.dep.DefaultDEPParser;
 import com.clearnlp.component.dep.EnglishDEPParser;
-import com.clearnlp.nlp.NLPLib;
+import com.clearnlp.nlp.NLPMode;
 import com.clearnlp.reader.AbstractReader;
 import com.clearnlp.reader.JointReader;
 
@@ -97,6 +97,6 @@ public class DEPTrainer extends AbstractNLPTrainer
 	@Override
 	public String getMode()
 	{
-		return NLPLib.MODE_DEP;
+		return NLPMode.MODE_DEP;
 	}
 }

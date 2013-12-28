@@ -54,8 +54,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import jregex.MatchResult;
@@ -85,6 +89,7 @@ import com.clearnlp.dependency.srl.SRLTree;
 import com.clearnlp.generation.LGVerbEn;
 import com.clearnlp.headrule.HeadRuleMap;
 import com.clearnlp.io.FileExtFilter;
+import com.clearnlp.morphology.MPLib;
 import com.clearnlp.morphology.MPLibEn;
 import com.clearnlp.pattern.PTPunct;
 import com.clearnlp.propbank.PBArg;
@@ -110,26 +115,216 @@ import com.clearnlp.util.pair.StringIntPair;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 
 public class Tmp
 {
 	public Tmp(String[] args) throws Exception
 	{
-		int i, size = 1000, len = 1000000;
+		DEPReader reader = new DEPReader(0, 1, 2, 3, 4, 6, 7);
+		reader.open(UTInput.createBufferedFileReader(args[0]));
+		Prob1DMap map = new Prob1DMap();
+		int[] count = {0, 0};
+		DEPTree tree;
+		
+		while ((tree = reader.next()) != null)
+			countDEP(tree, count, map);
+		
+		reader.close();
+		System.out.printf("%5.2f (%d/%d)\n", 100d*count[0]/count[1], count[0], count[1]);
+		for (StringIntPair p : map.toSortedList())
+			System.out.println(p.s+" "+p.i);
+	}
+	
+ 	public void countDEP(DEPTree tree, int[] count, Prob1DMap map)
+	{
+		int i, size = tree.size();
+		
+		for (i=1; i<size; i++)
+		{
+			if (isConstDEP(tree, i))
+			{
+				count[0]++;
+				map.add(tree.get(i).getLabel());
+			}
+		}
+		
+		count[1] += size - 1;
+	}
+	
+	private boolean isConstDEP(DEPTree tree, int currId)
+	{
+		DEPNode curr = tree.get(currId);
+		DEPNode head = curr.getHead();
+		DEPNode node;
+		
+		if (curr.id > head.id)	return false;
+		int i;
+		
+		for (i=curr.id+1; i<head.id; i++)
+		{
+			node = tree.get(i);
+			
+			if (!node.isDependentOf(head))
+				return false;
+		}
+		
+		return true;
+	}
+	
+	public void threads(String[] args) throws Exception
+	{
+		FloatArrayList fs = new FloatArrayList();
+		Random rand = new Random(0);
+		int i, n = Integer.parseInt(args[0]), size = 100000000, gap = size / n;
+		int[] is = new int[size];
 		long st, et;
-		double[] d;
+		
+		for (i=0; i<size; i++)
+			fs.add(i);
+		
+		for (i=0; i<size; i++)
+			is[i] = rand.nextInt(size);
 		
 		st = System.currentTimeMillis();
-		for (i=0; i<size; i++) d = new double[len];
-		et = System.currentTimeMillis();
-		System.out.println(et-st);
 		
-		st = System.currentTimeMillis();
-		d = new double[len];
-		for (i=0; i<size-1; i++) Arrays.fill(d, 0d);
+		ExecutorService executor = Executors.newFixedThreadPool(n);
+		List<TrainTask> tasks = Lists.newArrayList();
+		TrainTask task;
+		
+		for (i=0; i<size; i+=gap)
+		{
+			task = new TrainTask(fs, is, i, i+gap);
+			tasks.add(task);
+			executor.execute(task);
+		}
+		executor.shutdown();
+		
+		try
+		{
+			executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+		}
+		catch (InterruptedException e) {e.printStackTrace();}
+		
 		et = System.currentTimeMillis();
 		System.out.println(et-st);
+	}
+	
+	class TrainTask implements Runnable
+	{
+		volatile FloatArrayList fs;
+		int bIdx, eIdx;
+		int[] is;
+		
+		public TrainTask(FloatArrayList fs, int[] is, int bIdx, int eIdx)
+		{
+			this.fs = fs;
+			this.is = is;
+			this.bIdx = bIdx;
+			this.eIdx = eIdx;
+		}
+		
+		public void run()
+		{
+			int i;
+			for (i=bIdx; i<eIdx; i++) fs.set(is[i], 1);
+		}
+    }
+	
+	public void collectPhrases(String[] args) throws Exception
+	{
+		Prob1DMap map = new Prob1DMap();
+		CTReader reader = new CTReader();
+		reader.open(UTInput.createBufferedFileReader(args[0]));
+		CTTree tree;
+		
+		while ((tree = reader.nextTree()) != null)
+			traverse(tree.getRoot(), map, args[2]);
+
+		PrintStream ugram = UTOutput.createPrintBufferedFileStream(args[1]+".1gram");
+		PrintStream ngram = UTOutput.createPrintBufferedFileStream(args[1]+".ngram");
+		String s;
+		
+		for (StringIntPair p : map.toSortedList())
+		{
+			s = p.s+" "+p.i;
+			if (p.s.contains("_"))	ngram.println(s);
+			else					ugram.println(s);
+		}
+		
+		ugram.close();
+		ngram.close();
+	}
+	
+	public void traverse(CTNode node, Prob1DMap map, String ptag)
+	{
+		if (node.isPTag(ptag))
+		{
+			String s = node.toForms(false, "_");
+			if (!s.isEmpty()) map.add(s);
+		}
+		else
+		{
+			for (CTNode child : node.getChildren())
+				traverse(child, map, ptag);
+		}
+	}
+	
+	public void unknownWords(String[] args) throws Exception
+	{
+		DEPReader reader = new DEPReader(0, 1, 2, 3, 5, 6, 7);
+		Set<String> set = Sets.newHashSet();
+		String trainPath = args[0];
+		String testPath  = args[1];
+		PrintStream fout = UTOutput.createPrintBufferedFileStream(args[2]);
+		DEPTree tree;
+		int i, size;
+		String str;
+		
+		for (String filename : UTFile.getInputFileList(trainPath, ".*.std"))
+		{
+			reader.open(UTInput.createBufferedFileReader(filename));
+			
+			while ((tree = reader.next()) != null)
+			{
+				size = tree.size();
+				
+				for (i=1; i<size; i++)
+				{
+					str = MPLib.simplifyBasic(tree.get(i).form);
+					set.add(str);
+				}
+			}
+			
+			reader.close();
+		}
+		
+		for (String filename : UTFile.getInputFileList(testPath, ".*.std"))
+		{
+			reader.open(UTInput.createBufferedFileReader(filename));
+			
+			while ((tree = reader.next()) != null)
+			{
+				size = tree.size();
+				
+				for (i=1; i<size; i++)
+				{
+					str = MPLib.simplifyBasic(tree.get(i).form);
+					
+					if (!set.contains(str))
+					{
+						fout.println(i);
+						fout.println(tree.toStringDEP()+"\n");
+						break;
+					}
+				}
+			}
+			
+			reader.close();
+		}
+		
+		fout.close();
 	}
 	
 	public void scwc(String[] args) throws Exception

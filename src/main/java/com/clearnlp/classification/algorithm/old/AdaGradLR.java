@@ -38,35 +38,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License. 
  */
-package com.clearnlp.classification.algorithm;
+package com.clearnlp.classification.algorithm.old;
 
-import com.clearnlp.classification.prediction.IntPrediction;
-import com.clearnlp.util.UTMath;
+
 
 /**
- * AdaGrad algorithm using hinge loss.
+ * AdaGrad algorithm using logistic regression.
  * @since 1.3.0
  * @author Jinho D. Choi ({@code jdchoi77@gmail.com})
  */
-public class AdaGradHinge extends AbstractAdaGrad
+public class AdaGradLR extends AbstractAdaGrad
 {
 	/**
 	 * @param alpha the learning rate.
 	 * @param rho the smoothing denominator.
 	 */
-	public AdaGradHinge(double alpha, double rho, double eps)
+	public AdaGradLR(double alpha, double rho, double eps)
 	{
 		super(alpha, rho, eps);
 	}
 	
 	protected boolean update(int L, int y, int[] x, double[] v, double[] gs, double[] weights)
 	{
-		IntPrediction max = getPrediction(L, y, x, v, weights);
+		double[] grad = getGradients(L, y, x, v, weights);
 		
-		if (max.label != y)
+		if (grad[y] > 0.01)
 		{
-			updateCounts (L, gs, y, max.label, x, v);
-			updateWeights(L, gs, y, max.label, x, v, weights);
+			updateCounts (L, gs, grad, x, v);
+			updateWeights(L, gs, grad, x, v, weights);
 			return true;
 		}
 		
@@ -75,108 +74,89 @@ public class AdaGradHinge extends AbstractAdaGrad
 	
 	protected boolean update(int L, int y, int[] x, double[] v, double[] gs, double[] cWeights, double[] aWeights, int count)
 	{
-		IntPrediction max = getPrediction(L, y, x, v, cWeights);
+		double[] grad = getGradients(L, y, x, v, cWeights);
 		
-		if (max.label != y)
+		if (grad[y] > 0.01)
 		{
-			updateCounts (L, gs, y, max.label, x, v);
-			updateWeights(L, gs, y, max.label, x, v, cWeights, aWeights, count);
+			updateCounts (L, gs, grad, x, v);
+			updateWeights(L, gs, grad, x, v, cWeights, aWeights, count);
 			return true;
 		}
 		
 		return false;
 	}
 	
-	private IntPrediction getPrediction(int L, int y, int[] x, double[] v, double[] weights)
+	protected double[] getGradients(int L, int y, int[] x, double[] v, double[] weights)
 	{
 		double[] scores = getScores(L, x, v, weights);
-		scores[y] -= 1;
+		normalize(scores);
+
+		int i; for (i=0; i<L; i++) scores[i] *= -1;
+		scores[y] += 1;
 		
-		IntPrediction max = new IntPrediction(0, scores[0]);
-		int label;
-		
-		for (label=1; label<L; label++)
-		{
-			if (max.score < scores[label])
-				max.set(label, scores[label]);
-		}
-	
-		return max;
+		return scores;
 	}
 	
-	private void updateCounts(int L, double[] gs, int yp, int yn, int[] x, double[] v)
+	protected void updateCounts(int L, double[] gs, double[] grad, int[] x, double[] v)
 	{
-		int i, len = x.length;
+		int i, label, len = x.length;
+		double[] g = new double[L];
+		double d;
+
+		for (label=0; label<L; label++)
+			g[label] = grad[label] * grad[label];
 		
 		if (v != null)
 		{
-			double d;
-			
 			for (i=0; i<len; i++)
 			{
-				d = UTMath.sq(v[i]);
+				d = v[i] * v[i];
 				
-				gs[getWeightIndex(L, yp, x[i])] += d;
-				gs[getWeightIndex(L, yn, x[i])] += d;
+				for (label=0; label<L; label++)
+					gs[getWeightIndex(L, label, x[i])] += d * g[label];
 			}
 		}
 		else
 		{
 			for (i=0; i<len; i++)
-			{
-				gs[getWeightIndex(L, yp, x[i])]++;
-				gs[getWeightIndex(L, yn, x[i])]++;
-			}
+				for (label=0; label<L; label++)
+					gs[getWeightIndex(L, label, x[i])] += g[label];
 		}
 	}
 	
-	private void updateWeights(int L, double[] gs, int yp, int yn, int[] x, double[] v, double[] weights)
+	protected void updateWeights(int L, double[] gs, double[] grad, int[] x, double[] v, double[] weights)
 	{
-		int i, xi, len = x.length;
-		double vi;
+		int i, label, len = x.length;
 		
 		if (v != null)
 		{
 			for (i=0; i<len; i++)
-			{
-				xi = x[i]; vi = v[i];
-				weights[getWeightIndex(L, yp, xi)] += getCost(L, gs, yp, xi) * vi;
-				weights[getWeightIndex(L, yn, xi)] -= getCost(L, gs, yn, xi) * vi;
-			}
+				for (label=0; label<L; label++)
+					weights[getWeightIndex(L, label, x[i])] += getCost(L, gs, label, x[i]) * grad[label] * v[i];
 		}
 		else
 		{
 			for (i=0; i<len; i++)
-			{
-				xi = x[i];
-				weights[getWeightIndex(L, yp, xi)] += getCost(L, gs, yp, xi);
-				weights[getWeightIndex(L, yn, xi)] -= getCost(L, gs, yn, xi);
-			}
+				for (label=0; label<L; label++)
+					weights[getWeightIndex(L, label, x[i])] += getCost(L, gs, label, x[i]) * grad[label];
 		}
 	}
 	
-	private void updateWeights(int L, double[] gs, int yp, int yn, int[] x, double[] v, double[] cWeights, double[] aWeights, int count)
+	protected void updateWeights(int L, double[] gs, double[] grad, int[] x, double[] v, double[] cWeights, double[] aWeights, int count)
 	{
-		int i, xi, len = x.length;
-		double vi;
+		int i, label, len = x.length;
 		
 		if (v != null)
 		{
 			for (i=0; i<len; i++)
-			{
-				xi = x[i]; vi = v[i];
-				updateWeightForAveraging(getWeightIndex(L, yp, xi),  getCost(L, gs, yp, xi) * vi, cWeights, aWeights, count);
-				updateWeightForAveraging(getWeightIndex(L, yn, xi), -getCost(L, gs, yn, xi) * vi, cWeights, aWeights, count);
-			}
+				for (label=0; label<L; label++)
+					updateWeightForAveraging(getWeightIndex(L, label, x[i]), getCost(L, gs, label, x[i]) * grad[label] * v[i], cWeights, aWeights, count);
 		}
 		else
 		{
 			for (i=0; i<len; i++)
-			{
-				xi = x[i];
-				updateWeightForAveraging(getWeightIndex(L, yp, xi),  getCost(L, gs, yp, xi), cWeights, aWeights, count);
-				updateWeightForAveraging(getWeightIndex(L, yn, xi), -getCost(L, gs, yn, xi), cWeights, aWeights, count);
-			}
+				for (label=0; label<L; label++)
+					updateWeightForAveraging(getWeightIndex(L, label, x[i]), getCost(L, gs, label, x[i]) * grad[label], cWeights, aWeights, count);
 		}
 	}
-}	
+}

@@ -104,12 +104,12 @@ abstract public class AbstractNLP
 	{
 		switch (mode)
 		{
-		case NLPLib.MODE_POS  : return tree.toStringMorph();
-		case NLPLib.MODE_MORPH: return tree.toStringMorph();
-		case NLPLib.MODE_DEP  : return tree.toStringDEP();
-		case NLPLib.MODE_PRED : return tree.toStringDEP();
-		case NLPLib.MODE_ROLE : return tree.toStringDEP();
-		case NLPLib.MODE_SRL  : return tree.toStringSRL();
+		case NLPMode.MODE_POS  : return tree.toStringMorph();
+		case NLPMode.MODE_MORPH: return tree.toStringMorph();
+		case NLPMode.MODE_DEP  : return tree.toStringDEP();
+		case NLPMode.MODE_PRED : return tree.toStringDEP();
+		case NLPMode.MODE_ROLE : return tree.toStringDEP();
+		case NLPMode.MODE_SRL  : return tree.toStringSRL();
 		}
 		
 		throw new IllegalArgumentException("The requested mode '"+mode+"' is not supported.");

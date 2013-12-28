@@ -156,12 +156,12 @@ public class NLPGetter
 	{
 		switch (mode)
 		{
-		case NLPLib.MODE_POS  : return getPOSTagger(in, language);
-		case NLPLib.MODE_MORPH: return getMPAnalyzer(language);
-		case NLPLib.MODE_DEP  : return getDEPParser(in, language);
-		case NLPLib.MODE_PRED : return getPredicateIdentifier(in, language);
-		case NLPLib.MODE_ROLE : return getRolesetClassifier(in, language);
-		case NLPLib.MODE_SRL  : return getSRLabeler(in, language);
+		case NLPMode.MODE_POS  : return getPOSTagger(in, language);
+		case NLPMode.MODE_MORPH: return getMPAnalyzer(language);
+		case NLPMode.MODE_DEP  : return getDEPParser(in, language);
+		case NLPMode.MODE_PRED : return getPredicateIdentifier(in, language);
+		case NLPMode.MODE_ROLE : return getRolesetClassifier(in, language);
+		case NLPMode.MODE_SRL  : return getSRLabeler(in, language);
 		}
 		
 		throw new IllegalArgumentException("The requested mode '"+mode+"' is not supported.");
@@ -169,7 +169,7 @@ public class NLPGetter
 	
 	static private ObjectInputStream getObjectInputStream(String path, String mode) throws IOException
 	{
-		if (mode.equals(NLPLib.MODE_MORPH))
+		if (mode.equals(NLPMode.MODE_MORPH))
 			return null;
 		
 		InputStream stream = UTInput.getInputStreamsFromClasspath(path+"/"+mode);
@@ -178,7 +178,7 @@ public class NLPGetter
 	
 	static private ObjectInputStream getObjectInputStream(ZipFile file, String mode) throws IOException
 	{
-		if (mode.equals(NLPLib.MODE_MORPH))
+		if (mode.equals(NLPMode.MODE_MORPH))
 			return null;
 			
 		InputStream stream = file.getInputStream(new ZipEntry(mode));

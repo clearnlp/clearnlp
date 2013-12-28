@@ -23,8 +23,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /**
- * Copyright 2012/09-2013/04, University of Massachusetts Amherst
- * Copyright 2013/05-Present, IPSoft Inc.
+ * Copyright 2012/09-2013/04, 2013/11-Present, University of Massachusetts Amherst
+ * Copyright 2013/05-2013/10, IPSoft Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,87 +38,63 @@
  * See the License for the specific language governing permissions and
  * limitations under the License. 
  */
-package com.clearnlp.util;
+package com.clearnlp.classification.algorithm.old;
 
-import java.util.Set;
-
-import org.apache.log4j.Logger;
-
-import com.clearnlp.dependency.DEPTree;
-import com.clearnlp.morphology.MPLib;
-import com.clearnlp.reader.JointReader;
-import com.clearnlp.util.map.Prob1DMap;
-import com.google.common.collect.Sets;
+import com.carrotsearch.hppc.IntArrayList;
+import com.clearnlp.classification.train.AbstractTrainSpace;
 
 /**
- * @since 2.0.2
+ * @since 1.0.0
  * @author Jinho D. Choi ({@code jdchoi77@gmail.com})
  */
-public class UTCollect
+abstract public class AbstractOneVsAll extends AbstractAlgorithm
 {
-	static public Set<String> getLowerSimplifiedFormsByDocumentFrequencies(Logger log, JointReader reader, String[] filenames, int cutoff, int maxCount)
+	/**
+	 * @param space the training space.
+	 * @param currLabel the label to get the weight vector for.
+	 * @return the weight vector for the specific label given the training space.
+	 */
+	abstract public float[] getWeight(AbstractTrainSpace space, int currLabel);
+	
+	/** @return an array of 1 or -1. */
+	protected byte[] getBinaryLabels(IntArrayList ys, int currLabel)
 	{
-		Set<String> set = Sets.newHashSet();
-		Prob1DMap map = new Prob1DMap();
-		int j, len, count = 0;
-		DEPTree tree;
+		int i, size = ys.size();
+		byte[] aY = new byte[size];
 		
-		log.info(String.format("Collecting forms: cutoff = %d, max = %d\n", cutoff, maxCount));
-		
-		for (String filename : filenames)
-		{
-			reader.open(UTInput.createBufferedFileReader(filename));
+		for (i=0; i<size; i++)
+			aY[i] = (ys.get(i) == currLabel) ? (byte)1 : (byte)-1;
 			
-			while ((tree = reader.next()) != null)
-			{
-				len = tree.size();
-				
-				for (j=1; j<len; j++)
-					set.add(MPLib.getSimplifiedLowercaseWordForm(tree.get(j).form));
-				
-				if ((count += len) >= maxCount)
-				{
-					map.addAll(set);
-					log.info(".");
-					set.clear();
-					count = 0;
-				}
-			}
-			
-			reader.close();
-		}	log.info("\n");
-		
-		if (!set.isEmpty()) map.addAll(set);
-		return map.toSet(cutoff);
+		return aY;
 	}
 	
-	static public Set<String> getLowerSimplifiedFormsByDocumentFrequencies(Logger log, JointReader reader, String[] filenames, int cutoff)
+	protected double getScore(double[] weight, int[] x, double[] v, double bias)
 	{
-		Set<String> set = Sets.newHashSet();
-		Prob1DMap map = new Prob1DMap();
-		DEPTree tree;
-		int j, len;
+		double score = weight[0] * bias;
+		int i, size = x.length;
 		
-		log.info(String.format("Collecting forms: cutoff = %d\n", cutoff));
-		
-		for (String filename : filenames)
+		for (i=0; i<size; i++)
 		{
-			reader.open(UTInput.createBufferedFileReader(filename));
-			set.clear();
-					
-			while ((tree = reader.next()) != null)
-			{
-				len = tree.size();
-				
-				for (j=1; j<len; j++)
-					set.add(MPLib.getSimplifiedLowercaseWordForm(tree.get(j).form));
-			}
-			
-			map.addAll(set);
-			reader.close();
-			log.info(".");
-		}	log.info("\n");
+			if (v != null)
+				score += weight[x[i]] * v[i];
+			else
+				score += weight[x[i]];
+		}
 		
-		return map.toSet(cutoff);
+		return score;
+	}
+	
+	protected void updateWeight(double[] weight, double cost, int[] x, double[] v, double bias)
+	{
+		int i, size = x.length;
+		weight[0] += cost * bias;
+		
+		for (i=0; i<size; i++)
+		{
+			if (v != null)
+				weight[x[i]] += cost * v[i];
+			else
+				weight[x[i]] += cost;
+		}
 	}
 }

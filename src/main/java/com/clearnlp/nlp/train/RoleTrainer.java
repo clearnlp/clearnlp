@@ -49,7 +49,7 @@ import com.clearnlp.classification.train.StringTrainSpace;
 import com.clearnlp.component.AbstractStatisticalComponent;
 import com.clearnlp.component.role.AbstractRolesetClassifier;
 import com.clearnlp.component.role.EnglishRolesetClassifier;
-import com.clearnlp.nlp.NLPLib;
+import com.clearnlp.nlp.NLPMode;
 import com.clearnlp.reader.JointReader;
 
 /**
@@ -87,7 +87,7 @@ public class RoleTrainer extends AbstractNLPTrainer
 	@Override
 	public String getMode()
 	{
-		return NLPLib.MODE_ROLE;
+		return NLPMode.MODE_ROLE;
 	}
 	
 //	====================================== COLLECT ======================================

@@ -42,7 +42,7 @@ package com.clearnlp.nlp.decode;
 
 import java.util.List;
 
-import com.clearnlp.nlp.NLPLib;
+import com.clearnlp.nlp.NLPMode;
 import com.clearnlp.reader.AbstractReader;
 import com.google.common.collect.Lists;
 
@@ -59,23 +59,23 @@ public class SRLDecoder extends NLPDecoder
 		
 		if (isRawLineTok(readerType))
 		{
-			modes.add(NLPLib.MODE_POS);
-			modes.add(NLPLib.MODE_MORPH);
-			modes.add(NLPLib.MODE_DEP);
+			modes.add(NLPMode.MODE_POS);
+			modes.add(NLPMode.MODE_MORPH);
+			modes.add(NLPMode.MODE_DEP);
 		}
 		else if (readerType.equals(AbstractReader.TYPE_POS))
 		{
-			modes.add(NLPLib.MODE_MORPH);
-			modes.add(NLPLib.MODE_DEP);
+			modes.add(NLPMode.MODE_MORPH);
+			modes.add(NLPMode.MODE_DEP);
 		}
 		else if (readerType.equals(AbstractReader.TYPE_MORPH))
 		{
-			modes.add(NLPLib.MODE_DEP);
+			modes.add(NLPMode.MODE_DEP);
 		}
 		
-		modes.add(NLPLib.MODE_PRED);
-		modes.add(NLPLib.MODE_ROLE);
-		modes.add(NLPLib.MODE_SRL);
+		modes.add(NLPMode.MODE_PRED);
+		modes.add(NLPMode.MODE_ROLE);
+		modes.add(NLPMode.MODE_SRL);
 		
 		return modes;
 	}
@@ -83,6 +83,6 @@ public class SRLDecoder extends NLPDecoder
 	@Override
 	public String getMode()
 	{
-		return NLPLib.MODE_SRL;
+		return NLPMode.MODE_SRL;
 	}
 }

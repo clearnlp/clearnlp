@@ -46,7 +46,7 @@ import org.kohsuke.args4j.Option;
 import org.w3c.dom.Element;
 
 import com.clearnlp.classification.feature.JointFtrXml;
-import com.clearnlp.nlp.NLPLib;
+import com.clearnlp.nlp.NLPMode;
 import com.clearnlp.nlp.train.AbstractNLPTrainer;
 import com.clearnlp.nlp.train.DEPTrainer;
 import com.clearnlp.nlp.train.POSTrainer;
@@ -94,11 +94,11 @@ public class NLPTrain extends AbstractNLPTrain
 	{
 		switch (mode)
 		{
-		case NLPLib.MODE_POS : return new POSTrainer();
-		case NLPLib.MODE_DEP : return new DEPTrainer();
-		case NLPLib.MODE_PRED: return new PredTrainer();
-		case NLPLib.MODE_ROLE: return new RoleTrainer();
-		case NLPLib.MODE_SRL : return new SRLTrainer();
+		case NLPMode.MODE_POS : return new POSTrainer();
+		case NLPMode.MODE_DEP : return new DEPTrainer();
+		case NLPMode.MODE_PRED: return new PredTrainer();
+		case NLPMode.MODE_ROLE: return new RoleTrainer();
+		case NLPMode.MODE_SRL : return new SRLTrainer();
 		}
 
 		throw new IllegalArgumentException("The requested mode '"+mode+"' is not supported.");

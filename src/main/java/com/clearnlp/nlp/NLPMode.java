@@ -44,14 +44,14 @@ package com.clearnlp.nlp;
  * @since 1.3.0
  * @author Jinho D. Choi ({@code jdchoi77@gmail.com})
  */
-public class NLPLib
+public interface NLPMode
 {
-	static public final String MODE_TOK		= "tok";
-	static public final String MODE_SEG		= "seg";
-	static public final String MODE_POS		= "pos";
-	static public final String MODE_MORPH	= "morph";
-	static public final String MODE_DEP		= "dep";
-	static public final String MODE_PRED	= "pred";
-	static public final String MODE_ROLE	= "role";
-	static public final String MODE_SRL		= "srl";
+	final String MODE_TOK	= "tok";
+	final String MODE_SEG	= "seg";
+	final String MODE_POS	= "pos";
+	final String MODE_MORPH	= "morph";
+	final String MODE_DEP	= "dep";
+	final String MODE_PRED	= "pred";
+	final String MODE_ROLE	= "role";
+	final String MODE_SRL	= "srl";
 }

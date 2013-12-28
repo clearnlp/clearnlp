@@ -47,10 +47,15 @@ import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import com.clearnlp.pattern.PTLib;
 import com.clearnlp.util.UTArray;
+import com.clearnlp.util.UTMath;
+import com.clearnlp.util.pair.StringDoublePair;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
@@ -60,7 +65,10 @@ import com.google.common.collect.Maps;
 public class Embedding implements Serializable
 {
 	private static final long serialVersionUID = 8939407738519904380L;
-	private Map<String,double[]> m_embed;
+	private final String DELIM = " ";
+	
+	private Map<String,double[]> m_1gram;
+	private Map<String,double[]> m_ngram;
 	
 	public Embedding() {}
 	
@@ -72,12 +80,14 @@ public class Embedding implements Serializable
 	@SuppressWarnings("unchecked")
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException
 	{
-		m_embed = (Map<String,double[]>)in.readObject();
+		m_1gram = (Map<String,double[]>)in.readObject();
+		m_ngram = (Map<String,double[]>)in.readObject();
 	}
 
 	private void writeObject(ObjectOutputStream out) throws IOException
 	{
-		out.writeObject(m_embed);
+		out.writeObject(m_1gram);
+		out.writeObject(m_ngram);
 	}
 	
 	public void init(InputStream in)
@@ -85,18 +95,18 @@ public class Embedding implements Serializable
 		try
 		{
 			BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-			m_embed = Maps.newHashMap();
-			String line, word;
+			m_1gram = Maps.newHashMap();
+			m_ngram = Maps.newHashMap();
+			String line, phrase;
 			double[] vector;
 			String[] t;
 			
 			while ((line = reader.readLine()) != null)
 			{
 				t      = PTLib.splitTabs(line);
-				word   = t[0];
+				phrase = t[0];
 				vector = UTArray.toDoubleArray(t[1], PTLib.SPACE);
-				
-				m_embed.put(word, vector);
+				getMap(phrase).put(phrase, vector);
 			}
 			
 			in.close();
@@ -106,6 +116,50 @@ public class Embedding implements Serializable
 	
 	public double[] getEmbedding(String phrase)
 	{
-		return m_embed.get(phrase);
+		return getMap(phrase).get(phrase);
+	}
+	
+	private Map<String,double[]> getMap(String phrase)
+	{
+		return phrase.contains(DELIM) ? m_ngram : m_1gram;
+	}
+	
+	public List<StringDoublePair> getSimilarPhrases(String phrase, int top)
+	{
+		return getSimilarPhrases(phrase, top, true);
+	}
+	
+	public List<StringDoublePair> getSimilarPhrases(String phrase, int top, boolean only1gram)
+	{
+		List<StringDoublePair> ps = Lists.newArrayList();
+		double[] curr = getEmbedding(phrase);
+		if (curr == null)	return ps;
+		
+		getSimilarPhrasesAux(phrase, top, curr, ps, m_1gram);
+		if (!only1gram)	getSimilarPhrasesAux(phrase, top, curr, ps, m_ngram);
+			
+		return ps;
+	}
+	
+	private void getSimilarPhrasesAux(String phrase, int top, double[] curr, List<StringDoublePair> ps, Map<String,double[]> map)
+	{
+		StringDoublePair p;
+		double sim;
+		
+		for (String key : map.keySet())
+		{
+			if (phrase.equals(key))	continue;
+			sim = UTMath.cosineSimilarity(curr, map.get(key));
+		
+			if (ps.size() < top)
+				ps.add(new StringDoublePair(key, sim));
+			else
+			{
+				p = ps.get(top-1);
+				if (p.d < sim) p.set(key, sim);
+			}
+			
+			Collections.sort(ps, Collections.reverseOrder());
+		}		
 	}
 }

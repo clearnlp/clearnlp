@@ -38,71 +38,87 @@
  * See the License for the specific language governing permissions and
  * limitations under the License. 
  */
-package com.clearnlp.classification.algorithm.online;
-
-import java.util.Arrays;
+package com.clearnlp.classification.algorithm;
 
 import com.clearnlp.classification.instance.IntInstance;
-import com.clearnlp.classification.model.StringOnlineModel;
+import com.clearnlp.classification.model.StringModelAD;
+import com.clearnlp.classification.vector.SparseFeatureVector;
+import com.clearnlp.util.UTMath;
 
 /**
- * Abstract algorithm.
- * @since 1.3.2
+ * AdaGrad algorithm using hinge loss.
+ * @since 1.3.0
  * @author Jinho D. Choi ({@code jdchoi77@gmail.com})
  */
-abstract public class AbstractOnlineAdaGrad extends AbstractOnlineAlgorithm
+public class AdaGradOnlineLogisticRegression extends AbstractAdaGrad
 {
-	protected double[] d_gradients;
-	protected double[] d_average;
-	protected boolean  b_average;
-	protected double   d_alpha;
-	protected double   d_rho;
-	
-	public AbstractOnlineAdaGrad(double alpha, double rho, boolean average)
+	/**
+	 * @param alpha the learning rate.
+	 * @param rho the smoothing denominator.
+	 */
+	public AdaGradOnlineLogisticRegression(double alpha, double rho, boolean average)
 	{
-		d_alpha   = alpha;
-		d_rho     = rho;
-		b_average = average;
+		super(alpha, rho, average);
 	}
 	
 	@Override
-	public void updateWeights(StringOnlineModel model)
-	{	
-		final int LD = model.getLabelSize() * model.getFeatureSize();
-		final int N  = model.getInstanceSize();
-		int i;
+	protected boolean update(StringModelAD model, IntInstance instance, int averageCount)
+	{
+		double[] gradients = getGradients(model, instance);
 		
-		model.shuffleIndices();
-		
-		if (d_gradients == null || d_gradients.length != LD)
+		if (gradients[instance.getLabel()] > 0.01)
 		{
-			d_gradients = new double[LD];
-			if (b_average) d_average = new double[LD];
-		}
-		else
-		{
-			Arrays.fill(d_gradients, 0d);
-			if (b_average) Arrays.fill(d_average, 0d);
+			updateCounts (model, instance, gradients);
+			updateWeights(model, instance, gradients, averageCount);
+			return true;
 		}
 		
-		for (i=0; i<N; i++)
-			update(model, model.getInstance(model.getShuffledIndex(i)), i+1);
+		return false;
+	}
+	
+	private double[] getGradients(StringModelAD model, IntInstance instance)
+	{
+		double[] scores = model.getScores(instance.getFeatureVector(), true);
+		int i, size = scores.length;
 		
-		if (b_average) 
-			model.setAverageWeights(d_average, N+1);
+		for (i=0; i<size; i++) scores[i] *= -1;
+		scores[instance.getLabel()] += 1;
+		
+		return scores;
 	}
 	
-	abstract protected boolean update(StringOnlineModel model, IntInstance instance, int averageCount);
-	
-	protected void updateWeight(StringOnlineModel model, int y, int x, double v, int averageCount)
+	protected void updateCounts(StringModelAD model, IntInstance instance, double[] gradidents)
 	{
-		double cost = getCost(model, y, x) * v;
-		model.updateWeight(y, x, (float)cost);
-		if (b_average) d_average[model.getWeightIndex(y,x)] += cost * averageCount;
+		SparseFeatureVector x = instance.getFeatureVector();
+		int i, j, len = x.size(), L = model.getLabelSize();
+		double[] g = new double[L];
+		double d;
+		
+		for (j=0; j<L; j++)
+			g[j] = gradidents[j] * gradidents[j];
+		
+		for (i=0; i<len; i++)
+		{
+			d = UTMath.sq(x.getWeight(i));
+			
+			for (j=0; j<L; j++)
+				d_gradients[model.getWeightIndex(j, x.getIndex(i))] += d * g[j];
+		}
 	}
 	
-	protected double getCost(StringOnlineModel model, int y, int x)
+	private void updateWeights(StringModelAD model, IntInstance instance, double[] gradients, int averageCount)
 	{
-		return d_alpha / (d_rho + Math.sqrt(d_gradients[model.getWeightIndex(y, x)]));
+		SparseFeatureVector x = instance.getFeatureVector();
+		int i, j, len = x.size(), L = model.getLabelSize();
+		int xi; double vi;
+		
+		for (i=0; i<len; i++)
+		{
+			xi = x.getIndex(i);
+			vi = x.getWeight(i);
+			
+			for (j=0; j<L; j++)
+				updateWeight(model, j, xi, gradients[j]*vi, averageCount);
+		}
 	}
-}
+}	

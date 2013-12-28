@@ -53,6 +53,7 @@ import java.util.Random;
 import org.apache.log4j.Logger;
 
 import com.carrotsearch.hppc.IntArrayList;
+import com.carrotsearch.hppc.IntIntOpenHashMap;
 import com.carrotsearch.hppc.cursors.ObjectCursor;
 import com.clearnlp.classification.instance.IntInstance;
 import com.clearnlp.classification.instance.StringInstance;
@@ -65,6 +66,7 @@ import com.clearnlp.collection.list.FloatArrayList;
 import com.clearnlp.collection.map.ObjectIntHashMap;
 import com.clearnlp.util.UTArray;
 import com.clearnlp.util.UTCollection;
+import com.clearnlp.util.pair.ObjectIntPair;
 import com.clearnlp.util.pair.Pair;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -74,7 +76,7 @@ import com.google.common.collect.Maps;
  * @since 2.0.1
  * @author Jinho D. Choi ({@code jdchoi77@gmail.com})
  */
-public class StringOnlineModel implements Serializable
+public class StringModelAD implements Serializable
 {
 	private static final long serialVersionUID = -8388835844936751367L;
 	
@@ -100,7 +102,7 @@ public class StringOnlineModel implements Serializable
 	protected Random            r_shuffle;
 	
 	/** Constructs a string online model for training. */
-	public StringOnlineModel()
+	public StringModelAD()
 	{
 		i_collector = new InstanceCollector();
 		init();
@@ -114,6 +116,69 @@ public class StringOnlineModel implements Serializable
 		m_features  = Maps.newHashMap();
 		n_features  = 1;
 		f_weights   = new FloatArrayList();		
+	}
+	
+	public void trimFeatures(Logger log, float threshold)
+	{
+		FloatArrayList tWeights = new FloatArrayList(f_weights.size());
+		IntIntOpenHashMap map = new IntIntOpenHashMap();
+		ObjectIntHashMap<String> m;
+		int i, j, tFeatures = 1;
+		boolean trim;
+		String s;
+		
+		log.info("Trimming: ");
+		
+		// bias
+		for (j=0; j<n_labels; j++)
+			tWeights.add(f_weights.get(j));
+		
+		// rest
+		for (i=1; i<n_features; i++)
+		{
+			trim = true;
+			
+			for (j=0; j<n_labels; j++)
+			{
+				if (Math.abs(f_weights.get(i*n_labels+j)) > threshold)
+				{
+					trim = false;
+					break;
+				}
+			}
+			
+			if (!trim)
+			{
+				map.put(i, tFeatures++);
+				
+				for (j=0; j<n_labels; j++)
+					tWeights.add(f_weights.get(i*n_labels+j));				
+			}
+		}
+		
+		log.info(String.format("%d -> %d\n", n_features, tFeatures));
+		tWeights.trimToSize();
+		
+		// map
+		for (String type : Lists.newArrayList(m_features.keySet()))
+		{
+			m = m_features.get(type);
+			
+			for (ObjectIntPair<String> p : m.toList())
+			{
+				i = map.get(p.i);
+				s = (String)p.o;
+				
+				if (i > 0)	m.put(s, i);
+				else		m.remove(s);
+			}
+			
+			if (m.isEmpty())
+				m_features.remove(type);
+		}
+		
+		f_weights  = tWeights;
+		n_features = tFeatures;
 	}
 	
 // ================================ SERIALIZE ================================
@@ -528,6 +593,14 @@ public class StringOnlineModel implements Serializable
 	{
 		return isBinaryLabel() ? getScoresBinary(x) : getScoresMulti(x);
 	}
+	
+	public double[] getScores(SparseFeatureVector x, boolean normalize)
+	{
+		double[] scores = getScores(x);
+		
+		if (normalize) normalize(scores);
+		return scores;
+	}
 
 	/**
 	 * @param x the feature vector.
@@ -581,9 +654,24 @@ public class StringOnlineModel implements Serializable
 		return scores;
 	}
 	
+	private void normalize(double[] scores)
+	{
+		int i, size = scores.length;
+		double d, sum = 0;
+		
+		for (i=0; i<size; i++)
+		{
+			d = Math.exp(scores[i]);
+			scores[i] = d;
+			sum += d;
+		}
+		
+		for (i=0; i<size; i++)
+			scores[i] /= sum;
+	}
+	
 	public void printInfo(Logger log)
 	{
-		log.info("Training space\n");
 		log.info("- # of labels   : "+getLabelSize()+"\n");
 		log.info("- # of features : "+getFeatureSize()+"\n");
 		log.info("- # of instances: "+getInstanceSize()+"\n");

@@ -42,6 +42,7 @@ package com.clearnlp.classification.vector;
 
 import com.carrotsearch.hppc.IntArrayList;
 import com.clearnlp.classification.train.AbstractTrainSpace;
+import com.clearnlp.util.UTMath;
 
 
 /**
@@ -162,6 +163,23 @@ public class SparseFeatureVector extends AbstractFeatureVector
 	public boolean isEmpty()
 	{
 		return i_indices.isEmpty();
+	}
+	
+	public double getSumOfSquaredWeights()
+	{
+		int size = i_indices.size();
+		
+		if (b_weight)
+		{
+			double sum = 0; int i;
+			
+			for (i=0; i<size; i++)
+				sum += UTMath.sq(d_weights.get(i));
+			
+			return sum;
+		}
+		else
+			return size;
 	}
 	
 	/* (non-Javadoc)

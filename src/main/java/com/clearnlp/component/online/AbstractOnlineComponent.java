@@ -40,11 +40,13 @@
  */
 package com.clearnlp.component.online;
 
+import com.clearnlp.dependency.DEPTree;
+
 /**
  * @since 2.0.2
  * @author Jinho D. Choi ({@code jdchoi77@gmail.com})
  */
 abstract public class AbstractOnlineComponent
 {
-	
+	abstract public void process(DEPTree tree, byte flag);
 }

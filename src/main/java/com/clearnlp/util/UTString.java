@@ -48,6 +48,17 @@ public class UTString
 	static final private Pattern PUNCT_FRONT = Pattern.compile("^\\p{Punct}+");
 	static final private Pattern PUNCT_BACK  = Pattern.compile("\\p{Punct}+$");
 	
+	static public int[] toIntegers(String... array)
+	{
+		int i, size = array.length;
+		int[] is = new int[size];
+		
+		for (i=0; i<size; i++)
+			is[i] = Integer.parseInt(array[i]);
+		
+		return is;
+	}
+	
 	static public String stripPunctuation(String str)
 	{
 		str = PUNCT_FRONT.matcher(str).replaceAll("");

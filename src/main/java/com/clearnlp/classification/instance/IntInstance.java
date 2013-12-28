@@ -49,18 +49,18 @@ import com.clearnlp.classification.vector.SparseFeatureVector;
  */
 public class IntInstance
 {
-	private int i_label;
+	private int s_label;
 	private SparseFeatureVector f_vector;
 	
 	public IntInstance(int label, SparseFeatureVector vector)
 	{	
-		i_label  = label;
+		s_label  = label;
 		f_vector = vector;
 	}
 	
 	public int getLabel()
 	{
-		return i_label;
+		return s_label;
 	}
 	
 	public SparseFeatureVector getFeatureVector()

@@ -48,52 +48,47 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 
-import org.apache.log4j.Logger;
-
-import com.clearnlp.classification.algorithm.online.AbstractOnlineAlgorithm;
 import com.clearnlp.classification.feature.FtrToken;
 import com.clearnlp.classification.feature.JointFtrXml;
 import com.clearnlp.classification.instance.StringInstance;
-import com.clearnlp.classification.model.StringOnlineModel;
+import com.clearnlp.classification.model.StringModelAD;
 import com.clearnlp.classification.prediction.StringPrediction;
 import com.clearnlp.classification.vector.StringFeatureVector;
-import com.clearnlp.collection.list.FloatArrayList;
-import com.clearnlp.component.evaluation.AbstractEval;
 import com.clearnlp.component.evaluation.POSEval;
-import com.clearnlp.component.state.AbstractState;
 import com.clearnlp.component.state.TagState;
+import com.clearnlp.dependency.DEPLib;
 import com.clearnlp.dependency.DEPNode;
 import com.clearnlp.dependency.DEPTree;
 import com.clearnlp.nlp.NLPProcess;
 import com.clearnlp.reader.AbstractColumnReader;
-import com.clearnlp.reader.JointReader;
 import com.clearnlp.util.UTArray;
-import com.clearnlp.util.UTInput;
 import com.clearnlp.util.UTString;
 import com.clearnlp.util.map.Prob2DMap;
 import com.clearnlp.util.pair.Pair;
 import com.clearnlp.util.pair.StringDoublePair;
+import com.google.common.collect.Sets;
 
 /**
  * @since 2.0.1
  * @author Jinho D. Choi ({@code jdchoi77@gmail.com})
  */
-public class EnglishOnlinePOSTagger extends AbstractOnlineStatisticalComponent<TagState>
+public class OnlinePOSTagger extends AbstractOnlineStatisticalComponent<TagState>
 {
 	protected final int LEXICA_LOWER_SIMPLIFIED_FORMS = 0;
-	protected final int LEXICA_AMBIGUITY_CLASSES      = 1;
+	protected final int LEXICA_AMBIGUITY_CLASSE_PROB  = 1;
+	protected final int LEXICA_AMBIGUITY_CLASSE_MAP   = 2;
 	
 	protected Set<String>        s_lsfs;	// lower simplified forms
 	protected Prob2DMap          p_ambi;	// ambiguity classes (for collection)
 	protected Map<String,String> m_ambi;	// ambiguity classes
 	
-	private StringOnlineModel    s_model;
-	private JointFtrXml          f_xml;
+	private StringModelAD s_model;
+	private JointFtrXml   f_xml;
 	
 //	====================================== CONSTRUCTORS ======================================
 
 	/** Constructs a part-of-speech tagger for collecting lexica. */
-	public EnglishOnlinePOSTagger(JointFtrXml[] xmls, Set<String> sLsfs)
+	public OnlinePOSTagger(JointFtrXml[] xmls, Set<String> sLsfs)
 	{
 		super(xmls);
 		f_xml  = f_xmls[0];
@@ -102,14 +97,14 @@ public class EnglishOnlinePOSTagger extends AbstractOnlineStatisticalComponent<T
 	}
 	
 	/** Constructs a part-of-speech tagger for training, bootstrapping, and decoding. */
-	public EnglishOnlinePOSTagger(JointFtrXml[] xmls, Object[] lexica)
+	public OnlinePOSTagger(JointFtrXml[] xmls, Object[] lexica)
 	{
 		super(xmls, lexica, 1);
 		init();
 	}
 	
 	/** Constructs a part-of-speech tagger from an existing object. */
-	public EnglishOnlinePOSTagger(ObjectInputStream in)
+	public OnlinePOSTagger(ObjectInputStream in)
 	{
 		super(in);
 		init();
@@ -126,10 +121,11 @@ public class EnglishOnlinePOSTagger extends AbstractOnlineStatisticalComponent<T
 	@Override
 	public Object[] getLexica()
 	{
-		Object[] lexica = new Object[2];
+		Object[] lexica = new Object[3];
 		
 		lexica[LEXICA_LOWER_SIMPLIFIED_FORMS] = s_lsfs;
-		lexica[LEXICA_AMBIGUITY_CLASSES] = (m_ambi == null) ? getAmbiguityClasses() : m_ambi;
+		lexica[LEXICA_AMBIGUITY_CLASSE_PROB] = p_ambi;
+		lexica[LEXICA_AMBIGUITY_CLASSE_MAP] = (m_ambi == null) ? getAmbiguityClasses() : m_ambi;
 		
 		return lexica;
 	}
@@ -138,7 +134,8 @@ public class EnglishOnlinePOSTagger extends AbstractOnlineStatisticalComponent<T
 	public void setLexia(Object[] lexica)
 	{
 		s_lsfs = (Set<String>)lexica[LEXICA_LOWER_SIMPLIFIED_FORMS];
-		m_ambi = (Map<String,String>)lexica[LEXICA_AMBIGUITY_CLASSES];
+		p_ambi = (Prob2DMap)lexica[LEXICA_AMBIGUITY_CLASSE_PROB];
+		m_ambi = (Map<String,String>)lexica[LEXICA_AMBIGUITY_CLASSE_MAP];
 	}
 	
 	/** Called by {@link #getLexica()}. */
@@ -170,11 +167,6 @@ public class EnglishOnlinePOSTagger extends AbstractOnlineStatisticalComponent<T
 		return mAmbi;
 	}
 	
-	public boolean containsLowerSimplifiedForm(DEPNode node)
-	{
-		return s_lsfs.contains(node.lowerSimplifiedForm);
-	}
-	
 //	====================================== LOAD/SAVE MODELS ======================================
 	
 	@Override
@@ -193,69 +185,38 @@ public class EnglishOnlinePOSTagger extends AbstractOnlineStatisticalComponent<T
 		out.close();
 	}
 	
+	@SuppressWarnings("unchecked")
 	protected void loadLexica(ObjectInputStream in) throws Exception
 	{
-		Object[] lexica = {in.readObject(), in.readObject()};
-		setLexia(lexica);
+		m_ambi = (Map<String,String>)in.readObject();
 	}
 	
 	protected void saveLexica(ObjectOutputStream out) throws Exception
 	{
-		out.writeObject(s_lsfs);
 		out.writeObject(m_ambi);
 	}
 	
-//	====================================== PROCESS ======================================
+//	====================================== GETTERS ======================================
 
-	public void develop(Logger log, JointReader reader, String[] devFiles, AbstractOnlineAlgorithm algorithm, int randomSeed)
+	@Override
+	public Set<String> getLabels()
 	{
-		s_model.build(f_xml.getLabelCutoff(0), f_xml.getFeatureCutoff(0), randomSeed, true);
-		s_model.printInfo(log);
-		
-		AbstractEval eval = new POSEval();
-		double prevScore, currScore = 0;
-		FloatArrayList prevWeights;
-		String[] goldLabels;
-		DEPTree tree;
-		int iter = 1;
-		
-		do
-		{
-			prevScore   = currScore;
-			prevWeights = s_model.cloneWeights();
-			
-			algorithm.updateWeights(s_model);
-			
-			for (String devFile : devFiles)
-			{
-				reader.open(UTInput.createBufferedFileReader(devFile));
-				
-				while ((tree = reader.next()) != null)
-				{
-					AbstractState state = process(tree, FLAG_DEVELOP, null);
-					goldLabels = (String[])state.getGoldLabels();
-					eval.countAccuracy(tree, goldLabels);
-					tree.setPOSTags((String[])goldLabels);
-				}
-				
-				reader.close();
-			}
-			
-			log.info(String.format("%2d: %s\n", iter++, eval.toString()));
-			currScore = eval.getAccuracies()[0];
-			eval.clear();
-		}
-		while (prevScore <= currScore);
-		
-		s_model.setWeights(prevWeights);
+		return Sets.newHashSet(s_model.getLabels());
 	}
 	
 //	====================================== PROCESS ======================================
 	
-	protected AbstractState process(DEPTree tree, byte flag, List<StringInstance> insts)
+	public void process(DEPTree tree, byte flag)
 	{
-		TagState state = init(tree, flag);
-		
+		TagState state = initialize(tree, flag);
+		List<StringInstance> insts = processAux(state, flag);
+		finalize(state, insts, flag);
+	}
+	
+	private List<StringInstance> processAux(TagState state, byte flag)
+	{
+		List<StringInstance> insts = getEmptyInstanceList(flag);
+	
 		while (!state.isTerminate())
 		{
 			switch (flag)
@@ -265,15 +226,15 @@ public class EnglishOnlinePOSTagger extends AbstractOnlineStatisticalComponent<T
 			case FLAG_BOOTSTRAP: processBootstrap(state, insts);	break;
 			default            : processDecode(state);
 			}
-				
+			
 			state.moveForward();
 		}
 		
-		return state;
+		return insts;
 	}
 	
 	/** Called by {@link #process(DEPTree)}. */
-	private TagState init(DEPTree tree, byte flag)
+	private TagState initialize(DEPTree tree, byte flag)
 	{
 		TagState state = new TagState(tree);
 		NLPProcess.simplifyForms(tree);
@@ -281,10 +242,29 @@ public class EnglishOnlinePOSTagger extends AbstractOnlineStatisticalComponent<T
 		if (flag != FLAG_DECODE)
 		{
 			state.setGoldLabels(tree.getPOSTags());
-			if (flag != FLAG_COLLECT) tree.clearPOSTags();
+			
+			if (flag != FLAG_COLLECT)
+				tree.clearPOSTags();
 		}
 		
 		return state;
+	}
+	
+	private void finalize(TagState state, List<StringInstance> insts, byte flag)
+	{
+		if (isTrainOrBootstrap(flag))
+		{
+			s_model.addInstances(insts);
+		}
+		else if (isEvaluate(flag))
+		{
+			if (e_eval == null) e_eval = new POSEval();
+			Object[] labels = state.getGoldLabels();
+			DEPTree tree = state.getTree();
+			
+			e_eval.countAccuracy(tree, labels);
+			tree.setPOSTags((String[])labels);
+		}
 	}
 	
 	/** Called by {@link #process(DEPTree)}. */
@@ -300,43 +280,58 @@ public class EnglishOnlinePOSTagger extends AbstractOnlineStatisticalComponent<T
 	private void processTrain(TagState state, List<StringInstance> insts)
 	{
 		StringFeatureVector vector = getFeatureVector(f_xml, state);
-		String goldLabel = state.getGoldLabel();
+		String label = state.getGoldLabel();
 		
-		if (!vector.isEmpty()) insts.add(new StringInstance(goldLabel, vector));
-		state.getInput().setPOSTag(goldLabel);
+		setLabel(state.getInput(), label);
+		addInstance(state, insts, label, vector);
 	}
 	
 	/** Called by {@link #process(DEPTree)}. */
 	private void processBootstrap(TagState state, List<StringInstance> insts)
 	{
 		StringFeatureVector vector = getFeatureVector(f_xml, state);
+		String label = state.getGoldLabel();
 		
-		if (!vector.isEmpty()) insts.add(new StringInstance(state.getGoldLabel(), vector));
-		setAutoLabels(vector, state);
+		setAutoLabel(vector, state);
+		addInstance(state, insts, label, vector);
 	}
 	
 	/** Called by {@link #process(DEPTree)}. */
 	private void processDecode(TagState state)
 	{
 		StringFeatureVector vector = getFeatureVector(f_xml, state);
-		setAutoLabels(vector, state);
+		setAutoLabel(vector, state);
+	}
+	
+	private void addInstance(TagState state, List<StringInstance> insts, String goldLabel, StringFeatureVector vector)
+	{
+		if (!vector.isEmpty())
+		{
+			StringInstance instance = new StringInstance(goldLabel, vector);
+			insts.add(instance);
+		}
 	}
 	
 	/** Called by {@link #processBootstrap(TagState, List)} and {@link #processDecode(TagState)}. */
-	private void setAutoLabels(StringFeatureVector vector, TagState state)
+	private Pair<StringPrediction,StringPrediction> setAutoLabel(StringFeatureVector vector, TagState state)
 	{
 		Pair<StringPrediction,StringPrediction> ps = s_model.predictTop2(vector);
-		StringPrediction fst = ps.o1;
-		StringPrediction snd = ps.o2;
+		if (ps.o1.score - ps.o2.score >= 1) ps.o2 = null;
 		
-		if (fst.score - snd.score >= 1)
-			snd = null;
-
 		DEPNode input = state.getInput();
-		input.setAutoPOSTags(fst, snd);
-		input.setPOSTag(fst.label);
+		setLabel(input, ps.o1.label);
+		
+		if (ps.o2 != null)
+			input.addFeat(DEPLib.FEAT_POS2, ps.o2.label);
+		
+		return ps;
 	}
-
+	
+	private void setLabel(DEPNode input, String label)
+	{
+		input.setPOSTag(label);
+	}
+	
 //	====================================== FEATURE EXTRACTION ======================================
 
 	@Override
@@ -380,6 +375,16 @@ public class EnglishOnlinePOSTagger extends AbstractOnlineStatisticalComponent<T
 		}
 		else if ((m = JointFtrXml.P_FEAT.matcher(token.field)).find())
 			return node.getFeat(m.group(1));
+		else if ((m = JointFtrXml.P_PREFIX.matcher(token.field)).find())
+		{
+			int n = Integer.parseInt(m.group(1)), len = node.lowerSimplifiedForm.length();
+			return (n <= len) ? node.lowerSimplifiedForm.substring(0, n) : null;
+		}
+		else if ((m = JointFtrXml.P_SUFFIX.matcher(token.field)).find())
+		{
+			int n = Integer.parseInt(m.group(1)), len = node.lowerSimplifiedForm.length();
+			return (n <= len) ? node.lowerSimplifiedForm.substring(len-n, len) : null;
+		}
 		else
 			throw new IllegalArgumentException("Unsupported feature: "+token.field);
 	}
@@ -402,6 +407,11 @@ public class EnglishOnlinePOSTagger extends AbstractOnlineStatisticalComponent<T
 		}
 		
 		return (fields == null) || (fields.length == 0) ? null : fields;
+	}
+	
+	private boolean containsLowerSimplifiedForm(DEPNode node)
+	{
+		return s_lsfs == null || s_lsfs.contains(node.lowerSimplifiedForm);
 	}
 		
 //	private boolean isMeta(String lowerSimplifiedForm)

@@ -41,6 +41,8 @@
 package com.clearnlp.bin;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
@@ -48,52 +50,66 @@ import org.w3c.dom.NodeList;
 
 import com.carrotsearch.hppc.ObjectIntOpenHashMap;
 import com.clearnlp.classification.algorithm.AbstractAlgorithm;
-import com.clearnlp.classification.algorithm.online.AbstractOnlineAlgorithm;
-import com.clearnlp.classification.algorithm.online.OnlineAdaGradHingeLoss;
-import com.clearnlp.classification.algorithm.online.OnlineAdaGradLogisticRegression;
+import com.clearnlp.classification.algorithm.AdaGradOnlineHingeLoss;
+import com.clearnlp.classification.algorithm.AdaGradOnlineLogisticRegression;
+import com.clearnlp.classification.algorithm.LiblinearHingeLoss;
+import com.clearnlp.classification.feature.JointFtrXml;
+import com.clearnlp.component.online.IFlag;
 import com.clearnlp.dependency.DEPTree;
-import com.clearnlp.nlp.NLPLib;
+import com.clearnlp.nlp.NLPMode;
+import com.clearnlp.pattern.PTLib;
+import com.clearnlp.pattern.PTNumber;
 import com.clearnlp.reader.AbstractColumnReader;
 import com.clearnlp.reader.AbstractReader;
 import com.clearnlp.reader.JointReader;
 import com.clearnlp.reader.LineReader;
 import com.clearnlp.reader.RawReader;
 import com.clearnlp.util.UTFile;
+import com.clearnlp.util.UTInput;
 import com.clearnlp.util.UTXml;
+import com.google.common.collect.Lists;
 
 /**
  * @since 2.0.2
  * @author Jinho D. Choi ({@code jdchoi77@gmail.com})
  */
-abstract public class AbstractNLP
+abstract public class AbstractNLP implements IFlag
 {
 	protected final Logger LOG = Logger.getLogger(this.getClass());
 	
+	// reader
 	final public String TAG_READER	= "reader";
-	final public String TAG_TYPE	= "type";
 	final public String TAG_COLUMN	= "column";
+	final public String TAG_TYPE	= "type";
 	final public String TAG_INDEX	= "index";
 	final public String TAG_FIELD	= "field";
 	
-	final public String TAG_TRAIN		= "train";
+	// train
+	final public String TAG_FEATURE_CUTOFF	= "featureCutoff";
+	final public String TAG_LABEL_CUTOFF 	= "labelCutoff";
+	final public String TAG_RANDOM_SEED		= "randomSeed";
+	final public String TAG_BOOTSTRAPS		= "bootstraps";
+	final public String TAG_ITERATIONS		= "iterations";
+	final public String TAG_BOOTSTRAP_SCORE	= "bootstrapScore";
+	final public String TAG_MARGIN			= "margin";
+	final public String TAG_BEAMS			= "beams";
+	final public String TAG_TRAIN			= "train";
+	
+	final public String TAG_DOCUMENT_FREQUENCY_CUTOFF = "documentFrequencyCutoff";
+	final public String TAG_DOCUMENT_TOKEN_COUNT = "documentTokenCount";
+	
+	// algorithm
 	final public String TAG_ALGORITHM	= "algorithm";
 	final public String TAG_NAME		= "name";
-	final public String TAG_THREADS		= "threads";
-	final public String TAG_BOOTSTRAPS	= "bootstraps";
-	final public String TAG_BEAMS		= "beams";
-	final public String TAG_MARGIN		= "margin";
-	final public String TAG_DFC			= "documentFrequencyCutoff";
-	final public String TAG_DTC			= "documentMaxTokenCount";
 	
 	final public String TAG_LANGUAGE	= "language";
 	final public String TAG_TWIT		= "twit";
 	final public String TAG_DICTIONARY 	= "dictionary";
 	final public String TAG_MODEL		= "model";
 	final public String TAG_FRAMES		= "frames";
-	final public String TAG_MODE		= "mode";
 	final public String TAG_PATH		= "path";
 	
-	// ============================= getter: mode =============================
+// ================================== INPUT ==================================
 	
 	protected String[] getFilenames(String filePath)
 	{
@@ -103,24 +119,53 @@ abstract public class AbstractNLP
 		return new String[]{filePath};
 	}
 	
-	// ============================= getter: mode =============================
+	protected JointFtrXml[] getFeatureTemplates(String[] featureFiles) throws Exception
+	{
+		int i, size = featureFiles.length;
+		JointFtrXml[] xmls = new JointFtrXml[size];
+		
+		for (i=0; i<size; i++)
+			xmls[i] = new JointFtrXml(new FileInputStream(featureFiles[i]));
+		
+		return xmls;
+	}
+
+	protected List<DEPTree> getTrees(JointReader reader, String[] filenames)
+	{
+		List<DEPTree> trees = Lists.newArrayList();
+		DEPTree tree;
+		
+		for (String filename : filenames)
+		{
+			reader.open(UTInput.createBufferedFileReader(filename));
+			
+			while ((tree = reader.next()) != null)
+				trees.add(tree);
+			
+			reader.close();
+		}
+		
+		return trees;
+	}
+	
+// ================================== MODE ==================================
 	
 	protected String toString(DEPTree tree, String mode)
 	{
 		switch (mode)
 		{
-		case NLPLib.MODE_POS  : return tree.toStringMorph();
-		case NLPLib.MODE_MORPH: return tree.toStringMorph();
-		case NLPLib.MODE_DEP  : return tree.toStringDEP();
-		case NLPLib.MODE_PRED : return tree.toStringDEP();
-		case NLPLib.MODE_ROLE : return tree.toStringDEP();
-		case NLPLib.MODE_SRL  : return tree.toStringSRL();
+		case NLPMode.MODE_POS  : return tree.toStringMorph();
+		case NLPMode.MODE_MORPH: return tree.toStringMorph();
+		case NLPMode.MODE_DEP  : return tree.toStringDEP();
+		case NLPMode.MODE_PRED : return tree.toStringDEP();
+		case NLPMode.MODE_ROLE : return tree.toStringDEP();
+		case NLPMode.MODE_SRL  : return tree.toStringSRL();
 		}
 		
 		throw new IllegalArgumentException("The requested mode '"+mode+"' is not supported.");
 	}
 	
-	// ============================= getter: readers =============================
+// ================================== READER ==================================
 	
 	protected AbstractReader<?> getReader(Element eReader)
 	{
@@ -178,43 +223,87 @@ abstract public class AbstractNLP
 		return map;
 	}
 	
-	// ============================= getter: algorithm =============================
+// ================================== ALGORITHM ==================================
 	
-	protected AbstractOnlineAlgorithm getAlgorithm(Element eMode)
+	protected AbstractAlgorithm getAlgorithm(Element eTrain)
 	{
-		Element eAlgorithm = UTXml.getFirstElementByTagName(eMode, TAG_ALGORITHM);
+		Element eAlgorithm = UTXml.getFirstElementByTagName(eTrain, TAG_ALGORITHM);
 		String  name       = UTXml.getTrimmedAttribute(eAlgorithm, TAG_NAME);
 		
 		if (name.equals("adagrad"))
 		{
 			String  type    = UTXml.getTrimmedAttribute(eAlgorithm, "type");
-			byte    solver  = type.equals("hinge") ? AbstractAlgorithm.SOLVER_ADAGRAD_HINGE : AbstractAlgorithm.SOLVER_ADAGRAD_LR;
 			double  alpha   = Double.parseDouble(UTXml.getTrimmedAttribute(eAlgorithm, "alpha"));
 			double  rho     = Double.parseDouble(UTXml.getTrimmedAttribute(eAlgorithm, "rho"));
 			boolean average = UTXml.getTrimmedAttribute(eAlgorithm, "average").equalsIgnoreCase("true");
 			
-			LOG.info(String.format("AdaGrad: solver=%s, alpha=%5.3f, rho=%5.3f, average=%b\n", type, alpha, rho, average));
+			LOG.info(String.format("AdaGrad: type=%s, alpha=%5.2f, rho=%5.2f, average=%b\n", type, alpha, rho, average));
 			
-			switch (solver)
+			switch (type)
 			{
-			case AbstractAlgorithm.SOLVER_ADAGRAD_HINGE: return new OnlineAdaGradHingeLoss(alpha, rho, average);
-			case AbstractAlgorithm.SOLVER_ADAGRAD_LR   : return new OnlineAdaGradLogisticRegression(alpha, rho, average);
+			case "hinge"     : return new AdaGradOnlineHingeLoss(alpha, rho, average);
+			case "regression": return new AdaGradOnlineLogisticRegression(alpha, rho, average);
+			default          : throw new IllegalArgumentException("Unknown solver type: "+type);
+			}
+		}
+		else if (name.equals("liblinear"))
+		{
+			String  type = UTXml.getTrimmedAttribute(eAlgorithm, "type");
+			double  cost = Double.parseDouble(UTXml.getTrimmedAttribute(eAlgorithm, "cost"));
+			double  eps  = Double.parseDouble(UTXml.getTrimmedAttribute(eAlgorithm, "eps"));
+			
+			switch (type)
+			{
+			case "hinge"   : return new LiblinearHingeLoss(cost, eps);
+//			case "logistic": return ;
+			default        : throw new IllegalArgumentException("Unknown solver type: "+type);
 			}
 		}
 
 		return null;
 	}
 	
-	// ============================= XML: train =============================
-	
-	protected int getNumerOfThreads(Element eTrain)
+// ================================== XML ==================================
+
+	protected int getLabelCutoff(Element eTrain)
 	{
-		return Integer.parseInt(getTextContent(eTrain, TAG_THREADS));
+		return getIntegerContent(eTrain, TAG_LABEL_CUTOFF);
 	}
 	
-	protected int getNumerOfBootstraps(Element eTrain)
+	protected int getFeatureCutoff(Element eTrain)
 	{
-		return Integer.parseInt(getTextContent(eTrain, TAG_BOOTSTRAPS));
+		return Integer.parseInt(getTextContent(eTrain, TAG_FEATURE_CUTOFF));
+	}
+	
+	protected int getRandomSeed(Element eTrain)
+	{
+		return getIntegerContent(eTrain, TAG_RANDOM_SEED);
+	}
+	
+	protected int getDocumentFrequencyCutoff(Element eTrain)
+	{
+		return getIntegerContent(eTrain, TAG_DOCUMENT_FREQUENCY_CUTOFF);
+	}
+	
+	protected int getDocumentMaxTokenCount(Element eTrain)
+	{
+		return getIntegerContent(eTrain, TAG_DOCUMENT_TOKEN_COUNT);
+	}
+	
+	protected int getNumberOfIterations(Element eTrain, int boot)
+	{
+		String[] tmp = PTLib.splitCommas(getTextContent(eTrain, TAG_ITERATIONS));
+		return Integer.parseInt(tmp[boot]);
+	}
+	
+	protected double getBootstrapScore(Element eMode)
+	{
+		return Double.parseDouble(getTextContent(eMode, TAG_BOOTSTRAP_SCORE)); 
+	}
+	
+	protected int getNumberOfBootstraps(Element eMode)
+	{
+		return getIntegerContent(eMode, TAG_BOOTSTRAPS);
 	}
 	
 	protected double getMargin(Element eTrain)
@@ -222,12 +311,10 @@ abstract public class AbstractNLP
 		return Double.parseDouble(getTextContent(eTrain, TAG_MARGIN));
 	}
 	
-	protected int getBeamSize(Element eTrain)
+	protected int getBeamSize(Element eMode)
 	{
-		return Integer.parseInt(getTextContent(eTrain, TAG_BEAMS));
+		return getIntegerContent(eMode, TAG_BEAMS);
 	}
-	
-	// ============================= XML: config =============================
 	
 	protected String getLanguage(Element eConfig)
 	{
@@ -249,21 +336,15 @@ abstract public class AbstractNLP
 		return Boolean.parseBoolean(getTextContent(eConfig, TAG_TWIT));
 	}
 	
-	protected int getDocumentFrequencyCutoff(Element eMode)
-	{
-		String text = getTextContent(eMode, TAG_DFC);
-		return (text != null) ? Integer.parseInt(text) : -1;
-	}
-	
-	protected int getDocumentMaxTokenCount(Element eMode)
-	{
-		String text = getTextContent(eMode, TAG_DTC);
-		return (text != null) ? Integer.parseInt(text) : -1;
-	}
-	
 	private String getTextContent(Element element, String key)
 	{
 		Element e = UTXml.getFirstElementByTagName(element, key);
 		return (e != null) ? UTXml.getTrimmedTextContent(e) : null;
+	}
+	
+	private int getIntegerContent(Element element, String key)
+	{
+		String text = getTextContent(element, key);
+		return (text != null && PTNumber.containsOnlyDigits(text)) ? Integer.parseInt(text) : 0;
 	}
 }

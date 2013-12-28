@@ -46,10 +46,10 @@ import java.io.ObjectOutputStream;
 
 import org.kohsuke.args4j.Option;
 
-import com.clearnlp.classification.algorithm.AbstractAdaGrad;
-import com.clearnlp.classification.algorithm.AbstractAlgorithm;
-import com.clearnlp.classification.algorithm.AdaGradHinge;
-import com.clearnlp.classification.algorithm.AdaGradLR;
+import com.clearnlp.classification.algorithm.old.AbstractAdaGrad;
+import com.clearnlp.classification.algorithm.old.AbstractAlgorithm;
+import com.clearnlp.classification.algorithm.old.AdaGradHinge;
+import com.clearnlp.classification.algorithm.old.AdaGradLR;
 import com.clearnlp.classification.model.AbstractModel;
 import com.clearnlp.classification.train.AbstractTrainSpace;
 import com.clearnlp.classification.train.SparseTrainSpace;

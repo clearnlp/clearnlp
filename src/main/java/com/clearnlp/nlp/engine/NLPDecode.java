@@ -50,7 +50,7 @@ import org.kohsuke.args4j.Option;
 import org.w3c.dom.Element;
 
 import com.clearnlp.io.FileExtFilter;
-import com.clearnlp.nlp.NLPLib;
+import com.clearnlp.nlp.NLPMode;
 import com.clearnlp.nlp.decode.DEPDecoder;
 import com.clearnlp.nlp.decode.MorphDecoder;
 import com.clearnlp.nlp.decode.NLPDecoder;
@@ -106,10 +106,10 @@ public class NLPDecode
 	{
 		switch (mode)
 		{
-		case NLPLib.MODE_POS  : return new POSDecoder();
-		case NLPLib.MODE_MORPH: return new MorphDecoder();
-		case NLPLib.MODE_DEP  : return new DEPDecoder();
-		case NLPLib.MODE_SRL  : return new SRLDecoder();
+		case NLPMode.MODE_POS  : return new POSDecoder();
+		case NLPMode.MODE_MORPH: return new MorphDecoder();
+		case NLPMode.MODE_DEP  : return new DEPDecoder();
+		case NLPMode.MODE_SRL  : return new SRLDecoder();
 		}
 		
 		throw new IllegalArgumentException("The requested mode '"+mode+"' is not supported.");

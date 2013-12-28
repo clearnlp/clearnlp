@@ -40,74 +40,66 @@
  */
 package com.clearnlp.classification.algorithm;
 
-import java.util.Arrays;
+import static org.junit.Assert.assertEquals;
 
-import com.clearnlp.classification.instance.IntInstance;
+import org.junit.Test;
+
+import com.clearnlp.classification.instance.StringInstance;
 import com.clearnlp.classification.model.StringModelAD;
+import com.clearnlp.classification.prediction.StringPrediction;
+import com.clearnlp.classification.vector.StringFeatureVector;
 
-/**
- * Abstract algorithm.
- * @since 1.3.2
- * @author Jinho D. Choi ({@code jdchoi77@gmail.com})
- */
-abstract public class AbstractAdaGrad extends AbstractAlgorithm
+/** @author Jinho D. Choi ({@code jdchoi77@gmail.com}) */
+public class LiblinearHingeLossTest
 {
-	protected double[] d_gradients;
-	protected double[] d_average;
-	protected boolean  b_average;
-	protected double   d_alpha;
-	protected double   d_rho;
-	
-	abstract protected boolean update(StringModelAD model, IntInstance instance, int averageCount);
-	
-	public AbstractAdaGrad(double alpha, double rho, boolean average)
+	@Test
+	public void testJointFtrXml() throws Exception
 	{
-		super(LEARN_ONLINE);
-		init(alpha, rho, average);
+		AdaGradOnlineHingeLoss algorithm = new AdaGradOnlineHingeLoss(0.2, 0.1, false);
+		StringModelAD model = new StringModelAD();
+		StringPrediction p;
+		
+		StringFeatureVector tt = getFeatureVector("T", "T");
+		StringFeatureVector tf = getFeatureVector("T", "F");
+		StringFeatureVector ft = getFeatureVector("F", "T");
+		StringFeatureVector ff = getFeatureVector("F", "F");
+		
+		model.addInstance(new StringInstance("T", tt));
+		model.addInstance(new StringInstance("T", tf));
+		model.addInstance(new StringInstance("T", ft));
+		model.addInstance(new StringInstance("F", ff));
+		
+		model.build(0, 0, 0, true);
+		algorithm.train(model);
+
+		p = model.predictBest(tt);	assertEquals("T", p.label);
+		p = model.predictBest(tf);	assertEquals("T", p.label);
+		p = model.predictBest(ft);	assertEquals("T", p.label);
+		p = model.predictBest(ff);	assertEquals("F", p.label);
+		
+		model.addInstance(new StringInstance("T", tt));
+		model.addInstance(new StringInstance("F", tf));
+		model.addInstance(new StringInstance("F", ft));
+		model.addInstance(new StringInstance("F", ff));
+		
+		algorithm.init(0.7, 0.1, false);
+		model.build(0, 0, 0, true);
+		algorithm.train(model);
+		
+		p = model.predictBest(tt);	assertEquals("T", p.label);
+		p = model.predictBest(tf);	assertEquals("F", p.label);
+		p = model.predictBest(ft);	assertEquals("F", p.label);
+		p = model.predictBest(ff);	assertEquals("F", p.label);
 	}
 	
-	public void init(double alpha, double rho, boolean average)
+	private StringFeatureVector getFeatureVector(String... features)
 	{
-		d_alpha   = alpha;
-		d_rho     = rho;
-		b_average = average;
-	}
-	
-	@Override
-	public void train(StringModelAD model)
-	{	
-		final int LD = model.getLabelSize() * model.getFeatureSize();
-		final int N  = model.getInstanceSize();
+		StringFeatureVector vector = new StringFeatureVector();
+		int i, size = features.length;
 		
-		model.shuffleIndices();
+		for (i=0; i<size; i++)
+			vector.addFeature("f", features[i]);
 		
-		if (d_gradients == null || d_gradients.length != LD)
-		{
-			d_gradients = new double[LD];
-			if (b_average) d_average = new double[LD];
-		}
-		else
-		{
-			Arrays.fill(d_gradients, 0d);
-			if (b_average) Arrays.fill(d_average, 0d);
-		}
-		
-		int i; for (i=0; i<N; i++)
-			update(model, model.getInstance(model.getShuffledIndex(i)), i+1);
-		
-		if (b_average) 
-			model.setAverageWeights(d_average, N+1);
-	}
-	
-	protected void updateWeight(StringModelAD model, int y, int x, double v, int averageCount)
-	{
-		double cost = getCost(model, y, x) * v;
-		model.updateWeight(y, x, (float)cost);
-		if (b_average) d_average[model.getWeightIndex(y,x)] += cost * averageCount;
-	}
-	
-	protected double getCost(StringModelAD model, int y, int x)
-	{
-		return d_alpha / (d_rho + Math.sqrt(d_gradients[model.getWeightIndex(y, x)]));
+		return vector;		
 	}
 }

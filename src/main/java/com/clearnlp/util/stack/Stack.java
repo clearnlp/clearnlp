@@ -88,7 +88,8 @@ public class Stack<T> extends ArrayList<T>
 	
 	public T peek(int n)
 	{
-		return get(i_lastIndex-n);
+		n = i_lastIndex - n;
+		return (0 <= n && n < size()) ? get(n) : null;
 	}
 	
 	public Stack<T> clone()

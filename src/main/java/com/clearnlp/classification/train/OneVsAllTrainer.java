@@ -44,7 +44,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import com.clearnlp.classification.algorithm.AbstractOneVsAll;
+import com.clearnlp.classification.algorithm.old.AbstractOneVsAll;
 import com.clearnlp.classification.model.AbstractModel;
 
 

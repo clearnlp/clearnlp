@@ -23,8 +23,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /**
- * Copyright 2012/09-2013/04, 2013/11-Present, University of Massachusetts Amherst
- * Copyright 2013/05-2013/10, IPSoft Inc.
+ * Copyright 2012/09-2013/04, University of Massachusetts Amherst
+ * Copyright 2013/05-Present, IPSoft Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,78 +40,33 @@
  */
 package com.clearnlp.classification.algorithm;
 
-import java.util.List;
+import com.clearnlp.classification.model.StringModelAD;
 
-import org.apache.log4j.Logger;
-
-import com.clearnlp.classification.prediction.StringPrediction;
-import com.clearnlp.util.UTMath;
 
 /**
- * Abstract algorithm.
- * @since 1.0.0
+ * @since 2.0.1
  * @author Jinho D. Choi ({@code jdchoi77@gmail.com})
  */
 abstract public class AbstractAlgorithm
 {
-	protected final Logger LOG = Logger.getLogger(this.getClass());
+	static final protected byte LEARN_ONLINE = 0;
+	static final protected byte LEARN_BATCH  = 1;
+	private byte i_learn;
 	
-	/** The flag to indicate L2-regularized L1-loss support vector classification (dual). */
-	static public final byte SOLVER_LIBLINEAR_LR2_L1_SVC = 0;
-	/** The flag to indicate L2-regularized L2-loss support vector classification (dual). */
-	static public final byte SOLVER_LIBLINEAR_LR2_L2_SVC = 1;
-	/** The flag to indicate L2-regularized logistic regression (dual). */
-	static public final byte SOLVER_LIBLINEAR_LR2_LR = 2;
-	/** The flag to indicate adaptive gradient method using hinge loss. */
-	static public final byte SOLVER_ADAGRAD_HINGE = 3;
-	/** The flag to indicate adaptive gradient method using logistic regression. */
-	static public final byte SOLVER_ADAGRAD_LR = 4;
-
-	protected double[] getQD(List<int[]> xs, List<double[]> vs, double init, double bias)
+	abstract public void train(StringModelAD model);
+	
+	public AbstractAlgorithm(byte learn)
 	{
-		int i, size = xs.size();
-		double[] qd = new double[size];
-		
-		for (i=0; i<size; i++)
-		{
-			qd[i]  = init + UTMath.sq(bias);
-			qd[i] += (vs != null) ? UTMath.squareSum(vs.get(i)) : xs.get(i).length;
-		}
-		
-		return qd;
+		i_learn = learn;
 	}
 	
-	protected void normalize(double[] scores)
+	public boolean isOnline()
 	{
-		int i, size = scores.length;
-		double d, sum = 0;
-		
-		for (i=0; i<size; i++)
-		{
-			d = Math.exp(scores[i]);
-			scores[i] = d;
-			sum += d;
-		}
-		
-		for (i=0; i<size; i++)
-			scores[i] /= sum;
+		return i_learn == LEARN_ONLINE;
 	}
 	
-	static public void normalize(List<StringPrediction> ps)
+	public boolean isBatch()
 	{
-		int i, size = ps.size();
-		StringPrediction p;
-		double d, sum = 0;
-		
-		for (i=0; i<size; i++)
-		{
-			p = ps.get(i);
-			d = Math.exp(p.score);
-			p.score = d;
-			sum += d;
-		}
-		
-		for (i=0; i<size; i++)
-			ps.get(i).score /= sum; 
+		return i_learn == LEARN_BATCH; 
 	}
 }

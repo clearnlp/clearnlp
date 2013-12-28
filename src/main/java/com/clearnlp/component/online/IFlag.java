@@ -23,8 +23,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /**
- * Copyright 2012/09-2013/04, 2013/11-Present, University of Massachusetts Amherst
- * Copyright 2013/05-2013/10, IPSoft Inc.
+ * Copyright 2012/09-2013/04, University of Massachusetts Amherst
+ * Copyright 2013/05-Present, IPSoft Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,31 +38,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License. 
  */
-package com.clearnlp.classification.algorithm;
-
+package com.clearnlp.component.online;
 
 /**
- * @since 1.3.2
+ * @since 2.0.2
  * @author Jinho D. Choi ({@code jdchoi77@gmail.com})
  */
-abstract public class AbstractLiblinear extends AbstractOneVsAll
+public interface IFlag
 {
-	protected final int MAX_ITER = 1000;
-	
-	protected double d_cost;
-	protected double d_eps;
-	protected double d_bias;
-	
-	public AbstractLiblinear(double cost, double eps, double bias)
-	{
-		d_cost = cost;
-		d_eps  = eps;
-		d_bias = (bias > 0) ? bias : 0;
-	}
-	
-	/** @return y-value for diagonal matrix. */
-	protected int GETI(byte[] y, int i)
-	{
-		return y[i] + 1;
-	}
+	byte FLAG_COLLECT	= 0;
+	byte FLAG_TRAIN		= 1;
+	byte FLAG_DECODE	= 2;
+	byte FLAG_BOOTSTRAP	= 3;
+	byte FLAG_EVALUATE	= 4;
+	byte FLAG_GENERATE	= 5;
 }

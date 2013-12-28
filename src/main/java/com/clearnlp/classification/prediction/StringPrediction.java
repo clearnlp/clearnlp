@@ -62,6 +62,11 @@ public class StringPrediction implements Comparable<StringPrediction>
 		this.label = label;
 		this.score = score;
 	}
+	
+	public boolean isLabel(String label)
+	{
+		return this.label.equals(label);
+	}
 
 	@Override
 	public int compareTo(StringPrediction p)

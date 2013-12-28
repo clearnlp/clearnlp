@@ -52,6 +52,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.clearnlp.classification.model.StringModelAD;
 import com.clearnlp.classification.prediction.StringPrediction;
 import com.clearnlp.classification.vector.SparseFeatureVector;
 import com.clearnlp.classification.vector.StringFeatureVector;
@@ -60,12 +61,12 @@ import com.clearnlp.classification.vector.StringFeatureVector;
  * @since 2.0.1
  * @author Jinho D. Choi ({@code jdchoi77@gmail.com})
  */
-public class StringOnlineModelTest
+public class StringModelADTest
 {
 	@Test
 	public void testStringOnlineModelMultiClassification() throws Exception
 	{
-		StringOnlineModel model = new StringOnlineModel();
+		StringModelAD model = new StringModelAD();
 
 		model.addLabel("A");
 		model.addFeature("0", "F00");
@@ -100,7 +101,7 @@ public class StringOnlineModelTest
 		testStringModelMultiClassificationAux(model);
 	}
 	
-	private StringOnlineModel saveAndGetModel(StringOnlineModel model) throws Exception
+	private StringModelAD saveAndGetModel(StringModelAD model) throws Exception
 	{
 		ByteArrayOutputStream bout = new ByteArrayOutputStream();
 		ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(bout));
@@ -108,13 +109,13 @@ public class StringOnlineModelTest
 		out.close();
 		
 		ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(new ByteArrayInputStream(bout.toByteArray())));
-		model = (StringOnlineModel)in.readObject();
+		model = (StringModelAD)in.readObject();
 		in.close();
 		
 		return model;
 	}
 	
-	private void testStringModelMultiClassificationAux(StringOnlineModel model)
+	private void testStringModelMultiClassificationAux(StringModelAD model)
 	{
 		StringFeatureVector vector = new StringFeatureVector();
 		
@@ -157,7 +158,7 @@ public class StringOnlineModelTest
 	@Test
 	public void testStringModelBinaryClassification() throws Exception
 	{
-		StringOnlineModel model = new StringOnlineModel();
+		StringModelAD model = new StringModelAD();
 
 		model.addLabel("A");
 		model.addFeature("0", "F00");

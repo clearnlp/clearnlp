@@ -42,6 +42,7 @@ package com.clearnlp.component.online;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -49,28 +50,21 @@ import com.clearnlp.classification.feature.FtrTemplate;
 import com.clearnlp.classification.feature.FtrToken;
 import com.clearnlp.classification.feature.JointFtrXml;
 import com.clearnlp.classification.instance.StringInstance;
-import com.clearnlp.classification.model.StringOnlineModel;
+import com.clearnlp.classification.model.StringModelAD;
 import com.clearnlp.classification.vector.StringFeatureVector;
+import com.clearnlp.component.evaluation.AbstractEval;
 import com.clearnlp.component.state.AbstractState;
-import com.clearnlp.dependency.DEPTree;
 import com.clearnlp.reader.AbstractColumnReader;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 /**
  * @since 2.0.1
  * @author Jinho D. Choi ({@code jdchoi77@gmail.com})
  */
-abstract public class AbstractOnlineStatisticalComponent<T extends AbstractState> extends AbstractOnlineComponent
+abstract public class AbstractOnlineStatisticalComponent<T extends AbstractState> extends AbstractOnlineComponent implements IFlag
 {
-	protected static final byte FLAG_COLLECT	= 0;
-	protected static final byte FLAG_TRAIN		= 1;
-	protected static final byte FLAG_DECODE		= 2;
-	protected static final byte FLAG_BOOTSTRAP	= 3;
-	protected static final byte FLAG_DEVELOP	= 4;
-	
-	protected StringOnlineModel[] s_models;
+	protected StringModelAD[] s_models;
 	protected JointFtrXml[]       f_xmls;
+	protected AbstractEval        e_eval;
 	
 //	====================================== CONSTRUCTORS ======================================
 	
@@ -98,12 +92,12 @@ abstract public class AbstractOnlineStatisticalComponent<T extends AbstractState
 		catch (Exception e) {e.printStackTrace();}
 	}
 	
-	private StringOnlineModel[] getEmptyModels(int modelSize)
+	private StringModelAD[] getEmptyModels(int modelSize)
 	{
-		StringOnlineModel[] models = new StringOnlineModel[modelSize];
+		StringModelAD[] models = new StringModelAD[modelSize];
 		
 		int i; for (i=0; i<modelSize; i++)
-			models[i] = new StringOnlineModel();
+			models[i] = new StringModelAD();
 		
 		return models;
 	}
@@ -116,7 +110,7 @@ abstract public class AbstractOnlineStatisticalComponent<T extends AbstractState
 	/** Sets lexica used for this component. */
 	abstract public void setLexia(Object[] lexica);
 	
-//	====================================== LOAD/SAVE ======================================
+//	====================================== LOAD/SAVE MODELS ======================================
 
 	/**
 	 * Loads all models and objects of this component. 
@@ -133,7 +127,7 @@ abstract public class AbstractOnlineStatisticalComponent<T extends AbstractState
 	protected void loadDefault(ObjectInputStream in) throws Exception
 	{
 		f_xmls   = (JointFtrXml[])in.readObject();
-		s_models = (StringOnlineModel[])in.readObject();
+		s_models = (StringModelAD[])in.readObject();
 	}
 	
 	protected void saveDefault(ObjectOutputStream out) throws Exception
@@ -145,53 +139,54 @@ abstract public class AbstractOnlineStatisticalComponent<T extends AbstractState
 //	====================================== GETTERS ======================================
 
 	/** @return the set of labels used for all statistical models. */
-	public Set<String> getLabels()
-	{
-		Set<String> set = Sets.newHashSet();
-		
-		for (StringOnlineModel model : s_models)
-		{
-			for (String label : model.getLabels())
-				set.add(label);
-		}
-		
-		return set;
-	}
+	abstract public Set<String> getLabels();
 	
 	/** @return all models of this component. */
-	public StringOnlineModel[] getModels()
+	public StringModelAD[] getModels()
 	{
 		return s_models;
 	}
 	
-//	====================================== PROCESS ======================================
-	
-	abstract protected AbstractState process(DEPTree tree, byte flag, List<StringInstance> insts);
-	
-	public void collect(DEPTree tree)
+	public AbstractEval getEval()
 	{
-		process(tree, FLAG_COLLECT, null);
-	}
-
-	public void train(DEPTree tree)
-	{
-		List<StringInstance> insts = Lists.newArrayList();
-		
-		process(tree, FLAG_TRAIN, insts);
-		s_models[0].addInstances(insts);
+		return e_eval;
 	}
 	
-	public void bootstrap(DEPTree tree)
+	protected List<StringInstance> getEmptyInstanceList(byte flag)
 	{
-		List<StringInstance> insts = Lists.newArrayList();
-		
-		process(tree, FLAG_BOOTSTRAP, insts);
-		s_models[0].addInstances(insts);
+		return isTrainOrBootstrap(flag) ? new ArrayList<StringInstance>() : null;
 	}
 	
-	public void decode(DEPTree tree)
+//	====================================== FLAG ======================================
+	
+	protected boolean isCollect(byte flag)
 	{
-		process(tree, FLAG_DECODE, null);
+		return flag == FLAG_COLLECT;
+	}
+	
+	protected boolean isTrain(byte flag)
+	{
+		return flag == FLAG_TRAIN;
+	}
+	
+	protected boolean isBootstrap(byte flag)
+	{
+		return flag == FLAG_BOOTSTRAP;
+	}
+	
+	protected boolean isEvaluate(byte flag)
+	{
+		return flag == FLAG_EVALUATE;
+	}
+	
+	protected boolean isDecode(byte flag)
+	{
+		return flag == FLAG_DECODE;
+	}
+	
+	public boolean isTrainOrBootstrap(byte flag)
+	{
+		return flag == FLAG_TRAIN || flag == FLAG_BOOTSTRAP;
 	}
 	
 //	====================================== FEATURE EXTRACTION ======================================

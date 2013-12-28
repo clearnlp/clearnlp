@@ -42,7 +42,7 @@ package com.clearnlp.nlp.decode;
 
 import java.util.List;
 
-import com.clearnlp.nlp.NLPLib;
+import com.clearnlp.nlp.NLPMode;
 import com.google.common.collect.Lists;
 
 /**
@@ -54,12 +54,12 @@ public class POSDecoder extends NLPDecoder
 	@Override
 	protected List<String> getModes(String readerType)
 	{
-		return Lists.newArrayList(NLPLib.MODE_POS);
+		return Lists.newArrayList(NLPMode.MODE_POS);
 	}
 
 	@Override
 	public String getMode()
 	{
-		return NLPLib.MODE_POS;
+		return NLPMode.MODE_POS;
 	}
 }

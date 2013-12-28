@@ -46,10 +46,10 @@ import java.io.ObjectOutputStream;
 
 import org.kohsuke.args4j.Option;
 
-import com.clearnlp.classification.algorithm.AbstractAlgorithm;
-import com.clearnlp.classification.algorithm.AbstractLiblinear;
-import com.clearnlp.classification.algorithm.LiblinearL2LR;
-import com.clearnlp.classification.algorithm.LiblinearL2SVC;
+import com.clearnlp.classification.algorithm.old.AbstractAlgorithm;
+import com.clearnlp.classification.algorithm.old.AbstractLiblinear;
+import com.clearnlp.classification.algorithm.old.LiblinearL2LR;
+import com.clearnlp.classification.algorithm.old.LiblinearL2SVC;
 import com.clearnlp.classification.model.AbstractModel;
 import com.clearnlp.classification.train.AbstractTrainSpace;
 import com.clearnlp.classification.train.OneVsAllTrainer;

@@ -46,7 +46,7 @@ import org.kohsuke.args4j.Option;
 import org.w3c.dom.Element;
 
 import com.clearnlp.classification.feature.JointFtrXml;
-import com.clearnlp.nlp.NLPLib;
+import com.clearnlp.nlp.NLPMode;
 import com.clearnlp.nlp.develop.DEPDeveloper;
 import com.clearnlp.nlp.develop.IDeveloper;
 import com.clearnlp.nlp.develop.POSDeveloper;
@@ -95,11 +95,11 @@ public class NLPDevelop extends AbstractNLPTrain
 	{
 		switch (mode)
 		{
-		case NLPLib.MODE_POS : return new POSDeveloper();
-		case NLPLib.MODE_DEP : return new DEPDeveloper();
-		case NLPLib.MODE_PRED: return new PredDeveloper();
-		case NLPLib.MODE_ROLE: return new RoleDeveloper();
-		case NLPLib.MODE_SRL : return new SRLDeveloper();
+		case NLPMode.MODE_POS : return new POSDeveloper();
+		case NLPMode.MODE_DEP : return new DEPDeveloper();
+		case NLPMode.MODE_PRED: return new PredDeveloper();
+		case NLPMode.MODE_ROLE: return new RoleDeveloper();
+		case NLPMode.MODE_SRL : return new SRLDeveloper();
 		}
 		
 		throw new IllegalArgumentException("The requested mode '"+mode+"' is not supported.");

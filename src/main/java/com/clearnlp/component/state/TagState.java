@@ -52,8 +52,8 @@ public class TagState extends AbstractState
 {
 	private String[] g_labels;
 	private int      i_input;
- 	
- 	public TagState(DEPTree tree)
+
+	public TagState(DEPTree tree)
 	{
 		super(tree);
 		init (tree);
@@ -80,6 +80,7 @@ public class TagState extends AbstractState
 	
 //	====================================== LABELS ======================================
 
+	@Override
 	public String getGoldLabel()
 	{
 		return g_labels[i_input];
@@ -110,18 +111,18 @@ public class TagState extends AbstractState
 		return i_input + 1 == t_size;
 	}
 	
-	/** @return {@code true} if the tagging should be terminated. */
-	public boolean isTerminate()
-	{
-		return i_input >= t_size;
-	}
-	
-//	====================================== MOVES ======================================
+//	====================================== TRANSITION ======================================
 
 	/** Moves the current point to the next node to process. */
 	public void moveForward()
 	{
 		i_input++;
+	}
+	
+	/** @return {@code true} if the tagging should be terminated. */
+	public boolean isTerminate()
+	{
+		return i_input >= t_size;
 	}
 	
 //	====================================== NODES ======================================
@@ -131,4 +132,3 @@ public class TagState extends AbstractState
 		return getNode(token, i_input, 0, t_size);
 	}
 }
-

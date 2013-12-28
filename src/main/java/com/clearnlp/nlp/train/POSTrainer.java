@@ -57,7 +57,7 @@ import com.clearnlp.component.pos.DefaultPOSTagger;
 import com.clearnlp.component.pos.EnglishPOSTagger;
 import com.clearnlp.dependency.DEPTree;
 import com.clearnlp.morphology.Embedding;
-import com.clearnlp.nlp.NLPLib;
+import com.clearnlp.nlp.NLPMode;
 import com.clearnlp.nlp.NLPProcess;
 import com.clearnlp.reader.AbstractReader;
 import com.clearnlp.reader.JointReader;
@@ -105,7 +105,7 @@ public class POSTrainer extends AbstractNLPTrainer
 	@Override
 	public String getMode()
 	{
-		return NLPLib.MODE_POS;
+		return NLPMode.MODE_POS;
 	}
 	
 //	====================================== COLLECT ======================================

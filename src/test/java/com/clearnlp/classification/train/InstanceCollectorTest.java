@@ -45,7 +45,8 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import com.clearnlp.classification.instance.StringInstance;
-import com.clearnlp.classification.model.StringOnlineModel;
+import com.clearnlp.classification.model.StringModelAD;
+import com.clearnlp.classification.train.InstanceCollector;
 import com.clearnlp.classification.vector.StringFeatureVector;
 
 /**
@@ -57,7 +58,7 @@ public class InstanceCollectorTest
 	@Test
 	public void testStringOnlineModel()
 	{
-		StringOnlineModel model = new StringOnlineModel();
+		StringModelAD model = new StringModelAD();
 	
 		model.addInstance(new StringInstance("L1", getStringFeatureVector1()));
 		model.addInstance(new StringInstance("L2", getStringFeatureVector2()));

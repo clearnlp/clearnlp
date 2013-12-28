@@ -48,7 +48,7 @@ import com.clearnlp.classification.train.StringTrainSpace;
 import com.clearnlp.component.AbstractStatisticalComponent;
 import com.clearnlp.component.pred.DefaultPredicateIdentifier;
 import com.clearnlp.component.pred.EnglishPredicateIdentifier;
-import com.clearnlp.nlp.NLPLib;
+import com.clearnlp.nlp.NLPMode;
 import com.clearnlp.reader.AbstractReader;
 import com.clearnlp.reader.JointReader;
 
@@ -91,6 +91,6 @@ public class PredTrainer extends AbstractNLPTrainer
 	@Override
 	public String getMode()
 	{
-		return NLPLib.MODE_PRED;
+		return NLPMode.MODE_PRED;
 	}
 }

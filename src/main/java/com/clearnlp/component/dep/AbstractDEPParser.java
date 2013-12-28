@@ -47,7 +47,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 
-import com.clearnlp.classification.algorithm.AbstractAlgorithm;
+import com.clearnlp.classification.algorithm.old.AbstractAlgorithm;
 import com.clearnlp.classification.feature.FtrToken;
 import com.clearnlp.classification.feature.JointFtrXml;
 import com.clearnlp.classification.instance.StringInstance;

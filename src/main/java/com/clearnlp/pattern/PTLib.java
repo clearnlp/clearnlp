@@ -52,6 +52,7 @@ import com.clearnlp.constant.universal.UNPunct;
 public class PTLib
 {
 	static final public Pattern COMMA        = Pattern.compile(UNPunct.COMMA);
+	static final public Pattern HYPHEN       = Pattern.compile(UNPunct.HYPHEN);
 	static final public Pattern SPACE        = Pattern.compile(UNConstant.SPACE);
 	static final public Pattern TAB          = Pattern.compile(UNConstant.TAB);
 	static final public Pattern UNDERSCORE   = Pattern.compile(UNPunct.UNDERSCORE);
@@ -80,6 +81,11 @@ public class PTLib
 	static public String[] splitTabs(String s)
 	{
 		return split(s, TAB);
+	}
+	
+	static public String[] splitHyphens(String s)
+	{
+		return split(s, HYPHEN);
 	}
 	
 	static public String[] splitCommas(String s)

@@ -55,8 +55,8 @@ import java.util.zip.GZIPOutputStream;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import com.clearnlp.classification.algorithm.AbstractAdaGrad;
-import com.clearnlp.classification.algorithm.AbstractAlgorithm;
+import com.clearnlp.classification.algorithm.old.AbstractAdaGrad;
+import com.clearnlp.classification.algorithm.old.AbstractAlgorithm;
 import com.clearnlp.classification.feature.JointFtrXml;
 import com.clearnlp.classification.model.AbstractModel;
 import com.clearnlp.classification.model.StringModel;
