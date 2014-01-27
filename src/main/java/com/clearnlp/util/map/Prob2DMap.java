@@ -45,6 +45,7 @@ import java.util.HashMap;
 import com.carrotsearch.hppc.ObjectIntOpenHashMap;
 import com.carrotsearch.hppc.cursors.ObjectCursor;
 import com.clearnlp.collection.map.ObjectIntHashMap;
+import com.clearnlp.util.pair.ObjectIntPair;
 import com.clearnlp.util.pair.Pair;
 import com.clearnlp.util.pair.StringDoublePair;
 import com.clearnlp.util.pair.StringIntPair;
@@ -132,6 +133,27 @@ public class Prob2DMap extends HashMap<String,ObjectIntHashMap<String>>
 			{
 				if (ps[i].d > max.d)
 					max = ps[i];
+			}
+			
+			return max;
+		}
+		
+		return null;
+	}
+	
+	public ObjectIntPair<String> getBestCount(String key)
+	{
+		ObjectIntHashMap<String> map = get(key);
+		
+		if (map != null)
+		{
+			ObjectIntPair<String> max = new ObjectIntPair<String>(null, -1);
+			int count;
+			
+			for (ObjectCursor<String> cur : map.keys())
+			{
+				count = map.get(cur.value);
+				if (count > max.i) max.set(cur.value, count);
 			}
 			
 			return max;

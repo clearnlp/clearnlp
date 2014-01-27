@@ -199,8 +199,12 @@ public class EnglishDEPParser extends AbstractDEPParser
 			return -1;
 		
 		DEPNode beVerb = lambda.getHead();
-		String  subj   = lambda.getLabel();
-		int     vType  = 0;
+		
+		if (!isAuxiliaryBe(state, beVerb, lambda, beta))
+			return -1;
+		
+		String subj  = lambda.getLabel();
+		int    vType = 0;
 		
 		if (beta.isPos(CTLibEn.POS_VBN))
 			vType = 1;
@@ -212,46 +216,42 @@ public class EnglishDEPParser extends AbstractDEPParser
 			if (p2 != null && p2.equals(CTLibEn.POS_VBN))	vType = 1;
 		}
 		
-		if (vType > 0 && subj != null && (DEPLibEn.isSubject(subj) || (subj.equals(DEPLibEn.DEP_ATTR) && hasNoDependent(beVerb, 1, lambda.id, state) && hasNoDependent(beVerb, lambda.id+1, beta.id, state))))
-		{//System.out.println(beVerb.form+" "+lambda.id+" "+beta.id+"\n"+state.getTree().toStringDEP());
-			DEPNode gHead = beVerb.getHead();
+		// be - subj(lambda) -  vb[ng](beta)
+		if (vType > 0 && (DEPLibEn.isSubject(subj) || (subj.equals(DEPLibEn.DEP_ATTR) && hasNoDependent(beVerb, 1, lambda.id, state) && hasNoDependent(beVerb, lambda.id+1, beta.id, state))))
+		{
+		//	System.out.println(beVerb.form+" "+lambda.id+" "+beta.id+"\n"+state.getTree().toStringDEP()+"\n");
+			int i, size = beta.id;
+			DEPNode node;
 			
-			// be - subj(lambda) -  vb[ng](beta)
-			if (beVerb.isLemma(ENAux.BE) && beVerb.id < lambda.id && (gHead == null || gHead.id < beVerb.id))
+			for (i=beVerb.id+1; i<size; i++)
 			{
-				int i, size = beta.id;
-				DEPNode node;
+				node = state.getNode(i);
 				
-				for (i=beVerb.id+1; i<size; i++)
-				{
-					node = state.getNode(i);
-					
-					if (node.isDependentOf(beVerb))
-						node.setHead(beta);
-				}
-				
-				clearPreviousDependents(beVerb, state);
-				beVerb.setHead(beta);
-				
-				if (vType == 1)
-				{
-					beVerb.setLabel(DEPLibEn.DEP_AUXPASS);
-					
-					if (subj.equals(DEPLibEn.DEP_NSUBJ) || subj.equals(DEPLibEn.DEP_ATTR))
-						lambda.setLabel(DEPLibEn.DEP_NSUBJPASS);
-					else if (subj.equals(DEPLibEn.DEP_CSUBJ))
-						lambda.setLabel(DEPLibEn.DEP_CSUBJPASS);
-				}
-				else
-				{
-					beVerb.setLabel(DEPLibEn.DEP_AUX);
-				}
-				
-				if (beta.isPos(CTLibEn.POS_VBD))
-					beta.pos = CTLibEn.POS_VBN;
-				
-				return beVerb.id;
+				if (node.isDependentOf(beVerb))
+					node.setHead(beta);
 			}
+			
+			clearPreviousDependents(beVerb, state);
+			beVerb.setHead(beta);
+			
+			if (vType == 1)
+			{
+				beVerb.setLabel(DEPLibEn.DEP_AUXPASS);
+				
+				if (subj.equals(DEPLibEn.DEP_NSUBJ) || subj.equals(DEPLibEn.DEP_ATTR))
+					lambda.setLabel(DEPLibEn.DEP_NSUBJPASS);
+				else if (subj.equals(DEPLibEn.DEP_CSUBJ))
+					lambda.setLabel(DEPLibEn.DEP_CSUBJPASS);
+			}
+			else
+			{
+				beVerb.setLabel(DEPLibEn.DEP_AUX);
+			}
+			
+			if (beta.isPos(CTLibEn.POS_VBD))
+				beta.pos = CTLibEn.POS_VBN;
+			
+			return beVerb.id;
 		}
 		
 		return -1;
@@ -268,6 +268,20 @@ public class EnglishDEPParser extends AbstractDEPParser
 			
 			if (node.isDependentOf(beta) && (DEPLibEn.isSubject(node.getLabel()) || DEPLibEn.isAuxiliary(node.getLabel())))
 				return true;
+		}
+		
+		return false;
+	}
+	
+	private boolean isAuxiliaryBe(DEPState state, DEPNode beVerb, DEPNode lambda, DEPNode beta)
+	{
+		if (beVerb != null && beVerb.isLemma(ENAux.BE) && beVerb.id < lambda.id && !beta.isDescendentOf(beVerb))
+		{
+			DEPNode prev = state.getNode(beVerb.id-1);
+			if (prev != null && (prev.isLemma("here") || prev.isLemma("there"))) return false;
+			
+			DEPNode gHead = beVerb.getHead();
+			return gHead == null || gHead.id < beVerb.id;
 		}
 		
 		return false;

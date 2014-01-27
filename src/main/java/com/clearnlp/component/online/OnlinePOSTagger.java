@@ -60,6 +60,7 @@ import com.clearnlp.dependency.DEPLib;
 import com.clearnlp.dependency.DEPNode;
 import com.clearnlp.dependency.DEPTree;
 import com.clearnlp.nlp.NLPProcess;
+import com.clearnlp.pattern.PTPunct;
 import com.clearnlp.reader.AbstractColumnReader;
 import com.clearnlp.util.UTArray;
 import com.clearnlp.util.UTString;
@@ -216,17 +217,19 @@ public class OnlinePOSTagger extends AbstractOnlineStatisticalComponent<TagState
 	private List<StringInstance> processAux(TagState state, byte flag)
 	{
 		List<StringInstance> insts = getEmptyInstanceList(flag);
-	
+		String label = null;
+		
 		while (!state.isTerminate())
 		{
 			switch (flag)
 			{
-			case FLAG_COLLECT  : processCollect(state);				break;
-			case FLAG_TRAIN    : processTrain(state, insts);		break;
-			case FLAG_BOOTSTRAP: processBootstrap(state, insts);	break;
-			default            : processDecode(state);
+			case FLAG_COLLECT  : processCollect(state);						break;
+			case FLAG_TRAIN    : label = processTrain(state, insts);		break;
+			case FLAG_BOOTSTRAP: label = processBootstrap(state, insts);	break;
+			default            : label = processDecode(state);
 			}
 			
+			setLabel(state.getInput(), label);
 			state.moveForward();
 		}
 		
@@ -237,7 +240,7 @@ public class OnlinePOSTagger extends AbstractOnlineStatisticalComponent<TagState
 	private TagState initialize(DEPTree tree, byte flag)
 	{
 		TagState state = new TagState(tree);
-		NLPProcess.simplifyForms(tree);
+		simplifyForms(tree, flag);
 		
 		if (flag != FLAG_DECODE)
 		{
@@ -248,6 +251,11 @@ public class OnlinePOSTagger extends AbstractOnlineStatisticalComponent<TagState
 		}
 		
 		return state;
+	}
+	
+	private void simplifyForms(DEPTree tree, byte flag)
+	{
+		NLPProcess.simplifyForms(tree);
 	}
 	
 	private void finalize(TagState state, List<StringInstance> insts, byte flag)
@@ -277,30 +285,47 @@ public class OnlinePOSTagger extends AbstractOnlineStatisticalComponent<TagState
 	}
 	
 	/** Called by {@link #process(DEPTree)}. */
-	private void processTrain(TagState state, List<StringInstance> insts)
+	private String processTrain(TagState state, List<StringInstance> insts)
 	{
 		StringFeatureVector vector = getFeatureVector(f_xml, state);
-		String label = state.getGoldLabel();
-		
-		setLabel(state.getInput(), label);
+		String label = getGoldLabel(state);
 		addInstance(state, insts, label, vector);
+		return label;
 	}
 	
 	/** Called by {@link #process(DEPTree)}. */
-	private void processBootstrap(TagState state, List<StringInstance> insts)
+	private String processBootstrap(TagState state, List<StringInstance> insts)
 	{
 		StringFeatureVector vector = getFeatureVector(f_xml, state);
-		String label = state.getGoldLabel();
-		
-		setAutoLabel(vector, state);
-		addInstance(state, insts, label, vector);
+		String label = getAutoLabel(state, vector);
+		addInstance(state, insts, getGoldLabel(state), vector);
+		return label;
 	}
 	
 	/** Called by {@link #process(DEPTree)}. */
-	private void processDecode(TagState state)
+	private String processDecode(TagState state)
 	{
 		StringFeatureVector vector = getFeatureVector(f_xml, state);
-		setAutoLabel(vector, state);
+		String label = getAutoLabel(state, vector);
+		return label;
+	}
+	
+	private String getGoldLabel(TagState state)
+	{
+		return state.getGoldLabel();
+	}
+	
+	/** Called by {@link #processBootstrap(TagState, List)} and {@link #processDecode(TagState)}. */
+	private String getAutoLabel(TagState state, StringFeatureVector vector)
+	{
+		Pair<StringPrediction,StringPrediction> ps = s_model.predictTop2(vector);
+		StringPrediction fst = ps.o1;
+		StringPrediction snd = ps.o2;
+		
+		if (fst.score - snd.score < 1)
+			state.getInput().addFeat(DEPLib.FEAT_POS2, snd.label);
+		
+		return fst.label;
 	}
 	
 	private void addInstance(TagState state, List<StringInstance> insts, String goldLabel, StringFeatureVector vector)
@@ -312,20 +337,66 @@ public class OnlinePOSTagger extends AbstractOnlineStatisticalComponent<TagState
 		}
 	}
 	
-	/** Called by {@link #processBootstrap(TagState, List)} and {@link #processDecode(TagState)}. */
-	private Pair<StringPrediction,StringPrediction> setAutoLabel(StringFeatureVector vector, TagState state)
-	{
-		Pair<StringPrediction,StringPrediction> ps = s_model.predictTop2(vector);
-		if (ps.o1.score - ps.o2.score >= 1) ps.o2 = null;
+//	/** Called by {@link #processBootstrap(TagState, List)} and {@link #processDecode(TagState)}. */
+//	private StringPrediction setAutoLabel(StringFeatureVector vector, TagState state)
+//	{
+//		Pair<StringPrediction,StringPrediction> ps = s_model.predictTop2(vector);
+//		DEPNode input = state.getInput();
+//		StringPrediction fst = ps.o1;
+//		StringPrediction snd = ps.o2;
+//		
+//		if (fst.isLabel(LABEL_DECAP) && input.simplifiedForm.equals(input.lowerSimplifiedForm))
+//			return snd;
+//		
+//		return fst;
+//		
+//		
+//		if (ps.o1.score - ps.o2.score >= 1) ps.o2 = null;
+//		
+//		DEPNode input = state.getInput();
+//		setLabel(input, ps.o1.label);
+//		
+//		if (ps.o2 != null)
+//			input.addFeat(DEPLib.FEAT_POS2, ps.o2.label);
 		
-		DEPNode input = state.getInput();
-		setLabel(input, ps.o1.label);
-		
-		if (ps.o2 != null)
-			input.addFeat(DEPLib.FEAT_POS2, ps.o2.label);
-		
-		return ps;
-	}
+//		DEPNode prev1 = state.getNode(input.id-1);
+//		DEPNode prev2 = state.getNode(input.id-2);
+//		boolean b = false;
+//		String s;
+//		
+//		if (prev1 != null)
+//		{
+//			if ((input.isForm("Corp.") || input.isForm("Corp") || input.isForm("Inc.") || input.isForm("Inc")) && prev1.isPos("NNPS"))
+//			{
+//				prev1.pos = "NNP";
+//				b = true;
+//			}
+//			else if (input.isPos("NNP") && prev1.isPos("NNPS"))
+//			{
+//				prev1.pos = "NNP";
+//				b = true;
+//			}
+//			else if (input.isPos("NNPS") && prev1.isPos("NNP"))
+//			{
+//				ps.o1.label = input.pos = "NNP";
+//				b = true;
+//			}
+//		}
+//		
+//		if (!b && prev2 != null)
+//		{
+//			if (input.isPos("NNPS") && prev1.isPos("CC") && prev2.isPos("NNP"))
+//			{
+//				ps.o1.label = input.pos = "NNP";
+//				b = true;
+//			}
+//			else if (input.isPos("NNP") && prev1.isPos("CC") && prev2.isPos("NNPS"))
+//			{
+//				prev2.pos = "NNP";
+//				b = true;
+//			}
+//		}
+//	}
 	
 	private void setLabel(DEPNode input, String label)
 	{
@@ -348,6 +419,8 @@ public class OnlinePOSTagger extends AbstractOnlineStatisticalComponent<TagState
 			return containsLowerSimplifiedForm(node) ? node.lowerSimplifiedForm : null;
 		case JointFtrXml.F_POS:
 			return node.pos;
+		case JointFtrXml.F_POS2:
+			return node.getFeat(DEPLib.FEAT_POS2);
 		case JointFtrXml.F_AMBIGUITY_CLASS:
 			return m_ambi.get(node.simplifiedForm);
 		}
@@ -357,19 +430,21 @@ public class OnlinePOSTagger extends AbstractOnlineStatisticalComponent<TagState
 		if ((m = JointFtrXml.P_BOOLEAN.matcher(token.field)).find())
 		{
 			int field = Integer.parseInt(m.group(1));
+			String value = token.field+token.offset;
 			
 			switch (field)
 			{
-			case  0: return UTString.isAllUpperCase(node.simplifiedForm) ? token.field : null;
-			case  1: return UTString.isAllLowerCase(node.simplifiedForm) ? token.field : null;
-			case  2: return UTString.beginsWithUpperCase(node.simplifiedForm) & !state.isInputFirstNode() ? token.field : null;
-			case  3: return UTString.getNumOfCapitalsNotAtBeginning(node.simplifiedForm) == 1 ? token.field : null;
-			case  4: return UTString.getNumOfCapitalsNotAtBeginning(node.simplifiedForm)  > 1 ? token.field : null;
-			case  5: return node.simplifiedForm.contains(".") ? token.field : null;
-			case  6: return UTString.containsDigit(node.simplifiedForm) ? token.field : null;
-			case  7: return node.simplifiedForm.contains("-") ? token.field : null;
-			case  8: return state.isInputLastNode() ? token.field : null;
-			case  9: return state.isInputFirstNode() ? token.field : null;
+			case  0: return UTString.isAllUpperCase(node.simplifiedForm) ? value : null;
+			case  1: return UTString.isAllLowerCase(node.simplifiedForm) ? value : null;
+			case  2: return UTString.beginsWithUpperCase(node.simplifiedForm) & !state.isInputFirstNode() ? value : null;
+			case  3: return UTString.getNumOfCapitalsNotAtBeginning(node.simplifiedForm) == 1 ? value : null;
+			case  4: return UTString.getNumOfCapitalsNotAtBeginning(node.simplifiedForm)  > 1 ? value : null;
+			case  5: return node.simplifiedForm.contains(".") ? value : null;
+			case  6: return UTString.containsDigit(node.simplifiedForm) ? value : null;
+			case  7: return node.simplifiedForm.contains("-") ? value : null;
+			case  8: return state.isInputLastNode() ? value : null;
+			case  9: return state.isInputFirstNode() ? value : null;
+			case 10: return PTPunct.containsOnlyPunctuation(node.lowerSimplifiedForm) ? value : null;
 			default: throw new IllegalArgumentException("Unsupported feature: "+token.field);
 			}
 		}

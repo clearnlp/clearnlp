@@ -247,7 +247,7 @@ abstract public class AbstractDEPParser extends AbstractStatisticalComponentSB<D
 	protected List<StringInstance> parse(DEPState state)
 	{
 		List<StringInstance> insts = parseOne(state);
-		
+
 		if (state.hasMoreState())
 			insts.addAll(parseBranches(state));
 
@@ -476,7 +476,7 @@ abstract public class AbstractDEPParser extends AbstractStatisticalComponentSB<D
 
 	public List<StringInstance> parseBranches(DEPState state)
 	{
-		ObjectsDoubleTriple<List<StringInstance>,StringIntPair[]> tm; 
+		ObjectsDoubleTriple<List<StringInstance>,StringIntPair[]> tm;
 		branch(state);
 		
 		if (isDevelopOrDecode())

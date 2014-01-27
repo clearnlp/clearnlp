@@ -54,6 +54,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
@@ -91,6 +92,9 @@ import com.clearnlp.headrule.HeadRuleMap;
 import com.clearnlp.io.FileExtFilter;
 import com.clearnlp.morphology.MPLib;
 import com.clearnlp.morphology.MPLibEn;
+import com.clearnlp.nlp.NLPGetter;
+import com.clearnlp.pattern.PTHtml;
+import com.clearnlp.pattern.PTLib;
 import com.clearnlp.pattern.PTPunct;
 import com.clearnlp.propbank.PBArg;
 import com.clearnlp.propbank.PBInstance;
@@ -102,6 +106,7 @@ import com.clearnlp.propbank.frameset.PBType;
 import com.clearnlp.reader.DEPReader;
 import com.clearnlp.reader.SRLReader;
 import com.clearnlp.reader.TOKReader;
+import com.clearnlp.tokenization.AbstractTokenizer;
 import com.clearnlp.util.UTArray;
 import com.clearnlp.util.UTFile;
 import com.clearnlp.util.UTInput;
@@ -115,12 +120,75 @@ import com.clearnlp.util.pair.StringIntPair;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 
 public class Tmp
 {
 	public Tmp(String[] args) throws Exception
+	{
+		BufferedReader reader = UTInput.createBufferedFileReader(args[0]);
+		AbstractTokenizer tokenizer = NLPGetter.getTokenizer("en");
+		Map<String,String> redirects = Maps.newHashMap();
+//		Pattern paren = Pattern.compile("\\(.+?\\)$");
+		Set<String> titles = Sets.newHashSet();
+		String line, title, redirect;
+		PTHtml html = new PTHtml();
+		int count = 0;
+		String[] t;
+		
+		while ((line = reader.readLine()) != null)
+		{
+			t = PTLib.splitTabs(line);
+			title = convert(html, tokenizer, t[1]);
+			redirect = convert(html, tokenizer, t[2]);
+			
+			if (!title.equals("_"))
+			{
+				if (redirect.equals("_"))
+					titles.add(title);
+				else
+				{
+					titles.add(redirect);
+					redirects.put(title, redirect);
+				}
+			}
+			
+			if (++count == 10000) System.out.println(count);
+		}
+		
+		reader.close();
+		
+		PrintStream fout = UTOutput.createPrintBufferedFileStream(args[0]+".title");
+		List<String> keys = Lists.newArrayList(titles);
+		Collections.sort(keys);
+		for (String key : keys) fout.println(key);
+		fout.close();
+		
+		fout = UTOutput.createPrintBufferedFileStream(args[0]+".redirect");
+		keys = Lists.newArrayList(redirects.keySet());
+		Collections.sort(keys);
+		for (String key : keys) fout.println(key+"\t"+redirects.get(key));
+		fout.close();
+	}
+	
+	private String convert(PTHtml html, AbstractTokenizer tokenizer, String code)
+	{
+		return html.toText(code);
+//		StringBuilder build = new StringBuilder();
+//		code = html.toText(code);
+//		
+//		for (StringBooleanPair token : tokenizer.getTokenList(code))
+//		{
+//			build.append(" ");
+//			build.append(token.s);
+//		}
+//		
+//		return (build.length() == 0) ? "_" : build.substring(1);
+	}
+	
+	public void countDEP(String[] args) throws Exception
 	{
 		DEPReader reader = new DEPReader(0, 1, 2, 3, 4, 6, 7);
 		reader.open(UTInput.createBufferedFileReader(args[0]));
