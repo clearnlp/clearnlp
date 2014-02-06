@@ -334,10 +334,7 @@ public class CTTree
 				return false;
 			
 			if (!node1.form.equals(node2.form))
-			{
-				System.out.println(node1.form+" "+node2.form);
 				return false;
-			}
 		}
 		
 		return true;
