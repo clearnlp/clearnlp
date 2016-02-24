@@ -1,1 +1,1 @@
-This project has moved to [https://github.com/clir/clearnlp](https://github.com/clir/clearnlp).
+This project has moved to https://github.com/emorynlp/nlp4j.
